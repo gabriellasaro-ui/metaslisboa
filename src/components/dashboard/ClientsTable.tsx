@@ -1,12 +1,15 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Client, GoalStatus, GoalType } from "@/data/clientsData";
-import { Target, TrendingUp, Users, AlertCircle } from "lucide-react";
+import { Target, TrendingUp, Users, AlertCircle, Pencil } from "lucide-react";
 
 interface ClientsTableProps {
   clients: Client[];
   filterStatus?: "all" | GoalStatus;
   filterGoalType?: "all" | GoalType;
+  onEditClient?: (client: Client, index: number) => void;
+  showActions?: boolean;
 }
 
 const getStatusBadge = (status: GoalStatus) => {
@@ -50,7 +53,13 @@ const getGoalTypeBadge = (type?: GoalType) => {
   );
 };
 
-export const ClientsTable = ({ clients, filterStatus = "all", filterGoalType = "all" }: ClientsTableProps) => {
+export const ClientsTable = ({ 
+  clients, 
+  filterStatus = "all", 
+  filterGoalType = "all",
+  onEditClient,
+  showActions = true 
+}: ClientsTableProps) => {
   const filteredClients = clients.filter(client => {
     const statusMatch = filterStatus === "all" || client.hasGoal === filterStatus;
     const goalTypeMatch = filterGoalType === "all" || client.goalType === filterGoalType;
@@ -67,38 +76,57 @@ export const ClientsTable = ({ clients, filterStatus = "all", filterGoalType = "
             <TableHead>Tipo</TableHead>
             <TableHead>Meta</TableHead>
             <TableHead>Observações</TableHead>
+            {showActions && <TableHead className="w-[100px]">Ações</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
           {filteredClients.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+              <TableCell colSpan={showActions ? 6 : 5} className="text-center text-muted-foreground py-8">
                 Nenhum cliente encontrado com os filtros selecionados
               </TableCell>
             </TableRow>
           ) : (
-            filteredClients.map((client, index) => (
-              <TableRow key={index}>
-                <TableCell className="font-medium">{client.name}</TableCell>
-                <TableCell>{getStatusBadge(client.hasGoal)}</TableCell>
-                <TableCell>{getGoalTypeBadge(client.goalType)}</TableCell>
-                <TableCell className="max-w-md">
-                  {client.goalValue ? (
-                    <span className="text-sm">{client.goalValue}</span>
-                  ) : (
-                    <span className="text-muted-foreground text-sm">-</span>
+            filteredClients.map((client, index) => {
+              // Encontra o índice original do cliente na lista não filtrada
+              const originalIndex = clients.findIndex(c => c.name === client.name);
+              
+              return (
+                <TableRow key={index}>
+                  <TableCell className="font-medium">{client.name}</TableCell>
+                  <TableCell>{getStatusBadge(client.hasGoal)}</TableCell>
+                  <TableCell>{getGoalTypeBadge(client.goalType)}</TableCell>
+                  <TableCell className="max-w-md">
+                    {client.goalValue ? (
+                      <span className="text-sm">{client.goalValue}</span>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {client.notes && (
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-muted-foreground">{client.notes}</span>
+                      </div>
+                    )}
+                  </TableCell>
+                  {showActions && (
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onEditClient?.(client, originalIndex)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Pencil className="h-4 w-4" />
+                        <span className="sr-only">Editar cliente</span>
+                      </Button>
+                    </TableCell>
                   )}
-                </TableCell>
-                <TableCell>
-                  {client.notes && (
-                    <div className="flex items-start gap-2">
-                      <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-muted-foreground">{client.notes}</span>
-                    </div>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))
+                </TableRow>
+              );
+            })
           )}
         </TableBody>
       </Table>

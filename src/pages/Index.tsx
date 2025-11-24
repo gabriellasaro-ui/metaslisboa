@@ -1,17 +1,61 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { squadsData, getOverallStats, GoalStatus, GoalType } from "@/data/clientsData";
+import { Client, GoalStatus, GoalType } from "@/data/clientsData";
 import { MetricsCard } from "@/components/dashboard/MetricsCard";
 import { ClientsTable } from "@/components/dashboard/ClientsTable";
 import { SquadOverview } from "@/components/dashboard/SquadOverview";
 import { FilterBar } from "@/components/dashboard/FilterBar";
+import { EditClientDialog } from "@/components/dashboard/EditClientDialog";
+import { GoalsDistributionChart } from "@/components/dashboard/charts/GoalsDistributionChart";
+import { SquadsComparisonChart } from "@/components/dashboard/charts/SquadsComparisonChart";
+import { GoalTypesChart } from "@/components/dashboard/charts/GoalTypesChart";
+import { useClientsData } from "@/hooks/useClientsData";
 import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
 
 const Index = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | GoalStatus>("all");
   const [goalTypeFilter, setGoalTypeFilter] = useState<"all" | GoalType>("all");
-  const stats = getOverallStats();
+  const { squadsData, updateClient } = useClientsData();
+  const [editingClient, setEditingClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
+  
+  // Recalcular stats com dados atualizados
+  const stats = {
+    total: 0,
+    withGoals: 0,
+    withoutGoals: 0,
+    pending: 0,
+    bySquad: {} as Record<string, { withGoals: number; withoutGoals: number; pending: number }>
+  };
+
+  squadsData.forEach(squad => {
+    stats.bySquad[squad.name] = { withGoals: 0, withoutGoals: 0, pending: 0 };
+    
+    squad.clients.forEach(client => {
+      stats.total++;
+      if (client.hasGoal === "SIM") {
+        stats.withGoals++;
+        stats.bySquad[squad.name].withGoals++;
+      } else if (client.hasGoal === "NAO_DEFINIDO") {
+        stats.pending++;
+        stats.bySquad[squad.name].pending++;
+      } else {
+        stats.withoutGoals++;
+        stats.bySquad[squad.name].withoutGoals++;
+      }
+    });
+  });
+
+  const handleEditClient = (squadId: string) => (client: Client, index: number) => {
+    setEditingClient({ client, squadId, index });
+  };
+
+  const handleSaveClient = (updatedClient: Client) => {
+    if (editingClient) {
+      updateClient(editingClient.squadId, editingClient.index, updatedClient);
+      setEditingClient(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
@@ -57,20 +101,29 @@ const Index = () => {
           />
         </div>
 
-        {/* Squads Overview */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Visão Geral por Squad</CardTitle>
-            <CardDescription>Cobertura de metas em cada time</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {squadsData.map((squad) => (
-                <SquadOverview key={squad.id} squad={squad} />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Gráficos Visuais */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
+          <GoalsDistributionChart />
+          <div className="lg:col-span-2">
+            <SquadsComparisonChart />
+          </div>
+          <GoalTypesChart />
+          <div className="md:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Visão Geral por Squad</CardTitle>
+                <CardDescription>Cobertura de metas em cada time</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {squadsData.map((squad) => (
+                    <SquadOverview key={squad.id} squad={squad} />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
         {/* Squads Tabs */}
         <Tabs defaultValue="consolidado" className="space-y-6">
@@ -103,6 +156,7 @@ const Index = () => {
                   clients={squadsData.flatMap(squad => squad.clients)}
                   filterStatus={statusFilter}
                   filterGoalType={goalTypeFilter}
+                  showActions={false}
                 />
               </CardContent>
             </Card>
@@ -129,12 +183,21 @@ const Index = () => {
                     clients={squad.clients}
                     filterStatus={statusFilter}
                     filterGoalType={goalTypeFilter}
+                    onEditClient={handleEditClient(squad.id)}
                   />
                 </CardContent>
               </Card>
             </TabsContent>
           ))}
         </Tabs>
+
+        {/* Modal de Edição */}
+        <EditClientDialog
+          client={editingClient?.client || null}
+          open={editingClient !== null}
+          onOpenChange={(open) => !open && setEditingClient(null)}
+          onSave={handleSaveClient}
+        />
       </div>
     </div>
   );
