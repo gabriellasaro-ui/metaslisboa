@@ -21,7 +21,6 @@ import { SquadRankingCard } from "@/components/dashboard/SquadRankingCard";
 import { GoalsImportanceCard } from "@/components/dashboard/GoalsImportanceCard";
 import { useClientsData } from "@/hooks/useClientsData";
 import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { AdvancedFilters, SortField, SortOrder } from "@/components/dashboard/AdvancedFilters";
 import { ExportButtons } from "@/components/dashboard/ExportButtons";
 import { FilterStats } from "@/components/dashboard/FilterStats";
@@ -205,7 +204,6 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-3">
               <TourButton />
-              <ThemeToggle />
             </div>
           </div>
           <Separator className="bg-border/50" />
