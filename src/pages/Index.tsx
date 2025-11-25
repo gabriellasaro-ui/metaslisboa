@@ -12,6 +12,7 @@ import { SmartGoalDialog } from "@/components/dashboard/SmartGoalDialog";
 import { CheckInDialog } from "@/components/dashboard/CheckInDialog";
 import { GoalProgressTimeline } from "@/components/dashboard/GoalProgressTimeline";
 import { ClientSearchBar } from "@/components/dashboard/ClientSearchBar";
+import { CheckInsTimeline } from "@/components/dashboard/CheckInsTimeline";
 import { GoalsDistributionChart } from "@/components/dashboard/charts/GoalsDistributionChart";
 import { SquadsComparisonChart } from "@/components/dashboard/charts/SquadsComparisonChart";
 import { EvolutionTimelineChart } from "@/components/dashboard/charts/EvolutionTimelineChart";
@@ -132,44 +133,53 @@ const Index = () => {
 
         {/* Tabs Navigation */}
         <Tabs defaultValue="visao-geral" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="visao-geral">Visão Geral</TabsTrigger>
             <TabsTrigger value="analises">Análises</TabsTrigger>
-            <TabsTrigger value="clientes">Pesquisa de Clientes</TabsTrigger>
+            <TabsTrigger value="check-ins">Check-ins</TabsTrigger>
+            <TabsTrigger value="clientes">Pesquisa</TabsTrigger>
             <TabsTrigger value="relatorios">Relatórios</TabsTrigger>
           </TabsList>
 
           {/* Visão Geral Tab */}
-          <TabsContent value="visao-geral" className="space-y-6">
+          <TabsContent value="visao-geral" className="space-y-6 animate-fade-in">
             {/* Overall Metrics */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <MetricsCard
-                title="Total de Clientes"
-                value={stats.total}
-                icon={Users}
-                description="Todos os clientes ativos"
-              />
-              <MetricsCard
-                title="Com Metas Definidas"
-                value={stats.withGoals}
-                icon={Target}
-                variant="success"
-                description={`${((stats.withGoals / stats.total) * 100).toFixed(0)}% do total`}
-              />
-              <MetricsCard
-                title="Metas A Definir"
-                value={stats.pending}
-                icon={AlertCircle}
-                variant="warning"
-                description="Em processo de definição"
-              />
-              <MetricsCard
-                title="Sem Metas"
-                value={stats.withoutGoals}
-                icon={TrendingUp}
-                variant="danger"
-                description="Oportunidade de expansão"
-              />
+              <div style={{ animationDelay: "0.1s" }}>
+                <MetricsCard
+                  title="Total de Clientes"
+                  value={stats.total}
+                  icon={Users}
+                  description="Todos os clientes ativos"
+                />
+              </div>
+              <div style={{ animationDelay: "0.2s" }}>
+                <MetricsCard
+                  title="Com Metas Definidas"
+                  value={stats.withGoals}
+                  icon={Target}
+                  variant="success"
+                  description={`${((stats.withGoals / stats.total) * 100).toFixed(0)}% do total`}
+                />
+              </div>
+              <div style={{ animationDelay: "0.3s" }}>
+                <MetricsCard
+                  title="Metas A Definir"
+                  value={stats.pending}
+                  icon={AlertCircle}
+                  variant="warning"
+                  description="Em processo de definição"
+                />
+              </div>
+              <div style={{ animationDelay: "0.4s" }}>
+                <MetricsCard
+                  title="Sem Metas"
+                  value={stats.withoutGoals}
+                  icon={TrendingUp}
+                  variant="danger"
+                  description="Oportunidade de expansão"
+                />
+              </div>
             </div>
 
             {/* Visão Geral por Squad */}
@@ -189,7 +199,7 @@ const Index = () => {
           </TabsContent>
 
           {/* Análises Tab */}
-          <TabsContent value="analises" className="space-y-6">
+          <TabsContent value="analises" className="space-y-6 animate-fade-in">
             <div className="grid gap-6">
               {/* Primeira Linha */}
               <div className="grid gap-6 md:grid-cols-2">
@@ -205,8 +215,13 @@ const Index = () => {
             </div>
           </TabsContent>
 
+          {/* Check-ins Tab */}
+          <TabsContent value="check-ins" className="space-y-6 animate-fade-in">
+            <CheckInsTimeline squadsData={squadsData} />
+          </TabsContent>
+
           {/* Pesquisa de Clientes Tab */}
-          <TabsContent value="clientes" className="space-y-4">
+          <TabsContent value="clientes" className="space-y-4 animate-fade-in">
             <Card>
               <CardHeader>
                 <CardTitle>Pesquisa de Clientes</CardTitle>
@@ -272,7 +287,7 @@ const Index = () => {
           </TabsContent>
 
           {/* Relatórios Tab */}
-          <TabsContent value="relatorios" className="space-y-6">
+          <TabsContent value="relatorios" className="space-y-6 animate-fade-in">
             <ReportsSection squadsData={squadsData} />
             
             <div className="grid gap-6">
