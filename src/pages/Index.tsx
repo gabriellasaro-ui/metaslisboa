@@ -136,21 +136,15 @@ const Index = () => {
   const uniqueSquads = squadsData.map(s => s.name);
 
   // Get all clients with squad info for search
-  // Filtrar por squad do usuário (a menos que seja supervisor)
-  const userSquads = squadsData.filter(squad => squad.id === squadId);
-  const hasMatchingSquad = userSquads.length > 0;
-  
-  // Se supervisor ou se não houver squad correspondente (dados estáticos), mostrar todos
-  const allClientsWithSquad = squadsData
-    .filter(squad => isSupervisor || !hasMatchingSquad || squad.id === squadId)
-    .flatMap(squad => 
-      squad.clients.map(client => ({
-        ...client,
-        squadName: squad.name,
-        squadId: squad.id,
-        leader: squad.leader,
-      }))
-    );
+  // RLS policies automatically filter clients by squad, so just map the data
+  const allClientsWithSquad = squadsData.flatMap(squad => 
+    squad.clients.map(client => ({
+      ...client,
+      squadName: squad.name,
+      squadId: squad.id,
+      leader: squad.leader,
+    }))
+  );
 
   // Filter clients
   const filteredClients = allClientsWithSquad.filter(client => {
