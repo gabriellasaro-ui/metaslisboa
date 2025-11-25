@@ -62,15 +62,7 @@ export const CheckInsDemoCard = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-4 border-t border-border/30">
-          <div>
-            <p className="text-base font-bold text-foreground flex items-center gap-2">
-              <span className="text-xl">✅</span> Sistema Ativo
-            </p>
-            <p className="text-sm text-muted-foreground mt-1">
-              76 clientes • 46 metas ativas
-            </p>
-          </div>
+        <div className="flex justify-center pt-4 border-t border-border/30">
           <Button
             variant="premium"
             size="lg"
