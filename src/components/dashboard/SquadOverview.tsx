@@ -6,15 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { User, ExternalLink, Users } from "lucide-react";
+import { User, ExternalLink, Users, Trophy, Medal, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Squad, Leader } from "@/types";
 
 interface SquadOverviewProps {
   squad: Squad;
+  rank: number;
 }
 
-export const SquadOverview = ({ squad }: SquadOverviewProps) => {
+export const SquadOverview = ({ squad, rank }: SquadOverviewProps) => {
   const navigate = useNavigate();
   const [showClients, setShowClients] = useState(false);
   const leader = typeof squad.leader === 'string' ? null : squad.leader;
@@ -24,11 +25,27 @@ export const SquadOverview = ({ squad }: SquadOverviewProps) => {
   const total = squad.clients.length;
   const percentageWithGoals = total > 0 ? (withGoals / total) * 100 : 0;
 
+  const getRankBadge = () => {
+    if (rank === 1) return { label: "1º Lugar", icon: Trophy, color: "bg-amber-500 text-white border-amber-600" };
+    if (rank === 2) return { label: "2º Lugar", icon: Medal, color: "bg-slate-400 text-white border-slate-500" };
+    if (rank === 3) return { label: "3º Lugar", icon: Shield, color: "bg-orange-600 text-white border-orange-700" };
+    return null;
+  };
+
+  const getSquadIcon = () => {
+    if (rank === 1) return <Trophy className="h-6 w-6 text-amber-500" />;
+    if (rank === 2) return <Medal className="h-6 w-6 text-slate-400" />;
+    if (rank === 3) return <Shield className="h-6 w-6 text-orange-600" />;
+    return <Users className="h-6 w-6 text-primary" />;
+  };
+
   const getStatusBadge = (hasGoal: string) => {
     if (hasGoal === "SIM") return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-xs">Com Meta</Badge>;
     if (hasGoal === "NAO_DEFINIDO") return <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20 text-xs">A Definir</Badge>;
     return <Badge variant="outline" className="text-muted-foreground text-xs">Sem Meta</Badge>;
   };
+
+  const rankBadge = getRankBadge();
 
   return (
     <>
@@ -41,9 +58,19 @@ export const SquadOverview = ({ squad }: SquadOverviewProps) => {
         <CardHeader className="pb-3 relative">
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1 animate-slide-up" style={{ animationDelay: '100ms' }}>
-              <CardTitle className="text-lg font-bold text-primary mb-1.5">
-                {squad.name.toUpperCase()}
-              </CardTitle>
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
+                  {getSquadIcon()}
+                </div>
+                <CardTitle className="text-lg font-bold text-primary">
+                  {squad.name.toUpperCase()}
+                </CardTitle>
+                {rankBadge && (
+                  <Badge className={`${rankBadge.color} text-xs animate-pulse`}>
+                    {rankBadge.label}
+                  </Badge>
+                )}
+              </div>
               {leader && (
                 <CardDescription className="flex items-center gap-2">
                   <Avatar className="h-5 w-5 border border-primary/30">
