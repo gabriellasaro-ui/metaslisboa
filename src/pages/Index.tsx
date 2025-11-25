@@ -10,6 +10,9 @@ import { EditClientDialog } from "@/components/dashboard/EditClientDialog";
 import { GoalsDistributionChart } from "@/components/dashboard/charts/GoalsDistributionChart";
 import { SquadsComparisonChart } from "@/components/dashboard/charts/SquadsComparisonChart";
 import { GoalTypesChart } from "@/components/dashboard/charts/GoalTypesChart";
+import { EvolutionTimelineChart } from "@/components/dashboard/charts/EvolutionTimelineChart";
+import { PerformanceAnalysisChart } from "@/components/dashboard/charts/PerformanceAnalysisChart";
+import { ReportsSection } from "@/components/dashboard/ReportsSection";
 import { useClientsData } from "@/hooks/useClientsData";
 import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
 
@@ -127,8 +130,9 @@ const Index = () => {
 
         {/* Squads Tabs */}
         <Tabs defaultValue="consolidado" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7">
             <TabsTrigger value="consolidado">Consolidado</TabsTrigger>
+            <TabsTrigger value="relatorios">Relatórios</TabsTrigger>
             {squadsData.map((squad) => (
               <TabsTrigger key={squad.id} value={squad.id}>
                 {squad.name}
@@ -160,6 +164,16 @@ const Index = () => {
                 />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Relatórios Tab */}
+          <TabsContent value="relatorios" className="space-y-6">
+            <ReportsSection squadsData={squadsData} />
+            
+            <div className="grid gap-6">
+              <EvolutionTimelineChart squadsData={squadsData} />
+              <PerformanceAnalysisChart squadsData={squadsData} />
+            </div>
           </TabsContent>
 
           {/* Individual Squad Views */}
