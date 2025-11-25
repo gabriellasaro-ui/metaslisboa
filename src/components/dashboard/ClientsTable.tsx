@@ -18,14 +18,27 @@ interface ClientsTableProps {
   showActions?: boolean;
 }
 
-const getStatusBadge = (status: GoalStatus) => {
+const getClientStatusBadge = (status?: string) => {
+  switch (status) {
+    case "ativo":
+      return <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20">Ativo</Badge>;
+    case "aviso_previo":
+      return <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">Aviso Prévio</Badge>;
+    case "churned":
+      return <Badge className="bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20">Churned</Badge>;
+    default:
+      return <Badge variant="outline">Desconhecido</Badge>;
+  }
+};
+
+const getGoalStatusBadge = (status: GoalStatus) => {
   switch (status) {
     case "SIM":
-      return <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20">🟢 Com Meta</Badge>;
+      return <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20">Com Meta</Badge>;
     case "NAO_DEFINIDO":
-      return <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20 hover:bg-amber-500/20">🟡 A Definir</Badge>;
+      return <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">A Definir</Badge>;
     case "NAO":
-      return <Badge variant="outline" className="text-muted-foreground">🔴 Sem Meta</Badge>;
+      return <Badge variant="outline" className="bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20">Sem Meta</Badge>;
   }
 };
 
@@ -84,10 +97,11 @@ export const ClientsTable = ({
         <TableHeader>
           <TableRow>
             <TableHead className="w-[200px]">Cliente</TableHead>
-            <TableHead>Situação</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Tipo</TableHead>
+            <TableHead>Saúde</TableHead>
             <TableHead>Meta</TableHead>
+            <TableHead>Tipo</TableHead>
+            <TableHead>Valor</TableHead>
             <TableHead>Progresso</TableHead>
             <TableHead>Observações</TableHead>
             {showActions && <TableHead className="w-[180px]">Ações</TableHead>}
@@ -109,10 +123,11 @@ export const ClientsTable = ({
               return (
                 <TableRow key={index}>
                   <TableCell className="font-medium">{client.name}</TableCell>
+                  <TableCell>{getClientStatusBadge(client.status)}</TableCell>
                   <TableCell>
                     <HealthStatusBadge status={(client as any).health_status || 'safe'} />
                   </TableCell>
-                  <TableCell>{getStatusBadge(client.hasGoal)}</TableCell>
+                  <TableCell>{getGoalStatusBadge(client.hasGoal)}</TableCell>
                   <TableCell>{getGoalTypeBadge(client.goalType)}</TableCell>
                   <TableCell className="max-w-md">
                     {client.goalValue ? (

@@ -16,6 +16,7 @@ import { GoalTypesChart } from "@/components/dashboard/charts/GoalTypesChart";
 import { ReportsSection } from "@/components/dashboard/ReportsSection";
 import { SquadRankingCard } from "@/components/dashboard/SquadRankingCard";
 import { GoalsImportanceCard } from "@/components/dashboard/GoalsImportanceCard";
+import { ClientsTable } from "@/components/dashboard/ClientsTable";
 import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
@@ -127,44 +128,25 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
       </TabsContent>
 
       <TabsContent value="clientes" className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Pesquisa de Clientes</CardTitle>
-            <CardDescription>Todos os clientes de todos os squads</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {squadsData.map(squad => (
-                <div key={squad.id} className="space-y-2">
-                  <h3 className="font-semibold text-lg text-primary">{squad.name}</h3>
-                  <div className="grid gap-2">
-                    {squad.clients.map(client => (
-                      <div key={client.id || client.name} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                        <div className="flex-1">
-                          <p className="font-medium">{client.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {client.hasGoal === "SIM" ? `Meta: ${client.goalType || "N/A"}` : "Sem meta definida"}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {client.healthStatus === "safe" && (
-                            <span className="px-2 py-1 rounded text-xs font-medium bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">Safe</span>
-                          )}
-                          {client.healthStatus === "care" && (
-                            <span className="px-2 py-1 rounded text-xs font-medium bg-amber-500/10 text-amber-600 border border-amber-500/20">Care</span>
-                          )}
-                          {client.healthStatus === "danger" && (
-                            <span className="px-2 py-1 rounded text-xs font-medium bg-red-500/10 text-red-600 border border-red-500/20">Danger</span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {squadsData.map(squad => (
+          <Card key={squad.id}>
+            <CardHeader>
+              <CardTitle>{squad.name}</CardTitle>
+              <CardDescription>
+                {squad.clients.length} clientes • Líder: {typeof squad.leader === 'string' ? squad.leader : squad.leader?.name || 'N/A'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ClientsTable
+                clients={squad.clients}
+                onEditClient={handleEditClient(squad.id)}
+                onDefineSmartGoal={handleDefineSmartGoal(squad.id)}
+                onCheckIn={handleCheckIn(squad.id)}
+                onViewProgress={handleViewProgress}
+              />
+            </CardContent>
+          </Card>
+        ))}
       </TabsContent>
 
       <TabsContent value="relatorios" className="space-y-6">
