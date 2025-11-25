@@ -130,12 +130,96 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
         <Card>
           <CardHeader>
             <CardTitle>Pesquisa de Clientes</CardTitle>
-            <CardDescription>Busca avançada disponível em breve</CardDescription>
+            <CardDescription>Todos os clientes de todos os squads</CardDescription>
           </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {squadsData.map(squad => (
+                <div key={squad.id} className="space-y-2">
+                  <h3 className="font-semibold text-lg text-primary">{squad.name}</h3>
+                  <div className="grid gap-2">
+                    {squad.clients.map(client => (
+                      <div key={client.id || client.name} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                        <div className="flex-1">
+                          <p className="font-medium">{client.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {client.hasGoal === "SIM" ? `Meta: ${client.goalType || "N/A"}` : "Sem meta definida"}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {client.healthStatus === "safe" && (
+                            <span className="px-2 py-1 rounded text-xs font-medium bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">Safe</span>
+                          )}
+                          {client.healthStatus === "care" && (
+                            <span className="px-2 py-1 rounded text-xs font-medium bg-amber-500/10 text-amber-600 border border-amber-500/20">Care</span>
+                          )}
+                          {client.healthStatus === "danger" && (
+                            <span className="px-2 py-1 rounded text-xs font-medium bg-red-500/10 text-red-600 border border-red-500/20">Danger</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
         </Card>
       </TabsContent>
 
       <TabsContent value="relatorios" className="space-y-6">
+        <div className="grid gap-6 md:grid-cols-3 mb-6">
+          <Card className="border-emerald-500/20 bg-emerald-500/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Cobertura de Metas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-emerald-600">
+                {((stats.withGoals / stats.total) * 100 || 0).toFixed(1)}%
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {stats.withGoals} de {stats.total} clientes
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-amber-500/20 bg-amber-500/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Taxa de Health Care</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-amber-600">
+                {(() => {
+                  const totalCare = squadsData.reduce((sum, squad) => 
+                    sum + squad.clients.filter(c => c.healthStatus === 'care').length, 0);
+                  return ((totalCare / stats.total) * 100 || 0).toFixed(1);
+                })()}%
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Clientes em atenção
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-red-500/20 bg-red-500/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Taxa de Health Danger</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-red-600">
+                {(() => {
+                  const totalDanger = squadsData.reduce((sum, squad) => 
+                    sum + squad.clients.filter(c => c.healthStatus === 'danger').length, 0);
+                  return ((totalDanger / stats.total) * 100 || 0).toFixed(1);
+                })()}%
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Clientes em risco
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
         <ReportsSection squadsData={squadsData} />
       </TabsContent>
 

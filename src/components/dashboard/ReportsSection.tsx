@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileSpreadsheet, FileText, Download, TrendingUp, Target, Award } from "lucide-react";
+import { FileSpreadsheet, FileText, Download, TrendingUp, Target, Award, Shield } from "lucide-react";
 import { Squad } from "@/types";
 import { exportToExcel, exportToPDF } from "@/utils/exportUtils";
 import { useToast } from "@/hooks/use-toast";
@@ -100,39 +100,115 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
       </Card>
 
       {/* Insights e Análises */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              <CardTitle>Taxa de Cobertura</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold text-emerald-600">{coverageRate}%</div>
+            <p className="text-sm text-muted-foreground mt-2">
+              {withGoals} de {totalClients} clientes
+            </p>
+            <Badge variant={parseFloat(coverageRate) >= 70 ? "default" : "secondary"} className="mt-3">
+              {parseFloat(coverageRate) >= 70 ? "Excelente" : "Em Desenvolvimento"}
+            </Badge>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Award className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              <CardTitle>Squad Destaque</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{bestSquad.name}</div>
+            <p className="text-sm text-muted-foreground mt-2">Melhor cobertura</p>
+            <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20 mt-3">
+              {typeof bestSquad.leader === 'string' ? bestSquad.leader : bestSquad.leader?.name || 'N/A'}
+            </Badge>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              <CardTitle>Tipos de Metas</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span>Faturamento:</span>
+                <span className="font-bold text-emerald-600">
+                  {squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.goalType === "Faturamento").length, 0)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Leads:</span>
+                <span className="font-bold text-blue-600">
+                  {squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.goalType === "Leads").length, 0)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Outros:</span>
+                <span className="font-bold text-purple-600">
+                  {squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.goalType === "OUTROS").length, 0)}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Health Status Global */}
       <Card>
         <CardHeader>
-          <CardTitle>Insights e Análises</CardTitle>
-          <CardDescription>Principais destaques do período de 100 dias</CardDescription>
+          <CardTitle>Distribuição Global de Health Status</CardTitle>
+          <CardDescription>Status de saúde de todos os clientes</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                <h3 className="font-semibold">Taxa de Cobertura</h3>
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="flex items-center gap-4 p-4 rounded-lg border border-emerald-500/20 bg-emerald-500/5">
+              <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold text-xl">
+                {squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'safe').length, 0)}
               </div>
-              <div className="text-3xl font-bold">{coverageRate}%</div>
-              <p className="text-sm text-muted-foreground">
-                {withGoals} de {totalClients} clientes com metas definidas
-              </p>
-              <Badge variant={parseFloat(coverageRate) >= 70 ? "default" : "secondary"}>
-                {parseFloat(coverageRate) >= 70 ? "Excelente" : "Em Desenvolvimento"}
-              </Badge>
+              <div>
+                <p className="text-sm text-muted-foreground">Safe</p>
+                <p className="text-2xl font-bold text-emerald-600">
+                  {((squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'safe').length, 0) / totalClients) * 100 || 0).toFixed(1)}%
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Award className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                <h3 className="font-semibold">Squad Destaque</h3>
+            <div className="flex items-center gap-4 p-4 rounded-lg border border-amber-500/20 bg-amber-500/5">
+              <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center text-white font-bold text-xl">
+                {squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'care').length, 0)}
               </div>
-              <div className="text-2xl font-bold">{bestSquad.name}</div>
-              <p className="text-sm text-muted-foreground">
-                Melhor cobertura de metas
-              </p>
-              <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
-                Líder: {typeof bestSquad.leader === 'string' ? bestSquad.leader : bestSquad.leader?.name || 'N/A'}
-              </Badge>
+              <div>
+                <p className="text-sm text-muted-foreground">Care</p>
+                <p className="text-2xl font-bold text-amber-600">
+                  {((squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'care').length, 0) / totalClients) * 100 || 0).toFixed(1)}%
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 p-4 rounded-lg border border-red-500/20 bg-red-500/5">
+              <div className="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center text-white font-bold text-xl">
+                {squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'danger').length, 0)}
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Danger</p>
+                <p className="text-2xl font-bold text-red-600">
+                  {((squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'danger').length, 0) / totalClients) * 100 || 0).toFixed(1)}%
+                </p>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -150,31 +226,60 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
               const total = squad.clients.length;
               const withGoalsCount = squad.clients.filter(c => c.hasGoal === 'SIM').length;
               const pendingCount = squad.clients.filter(c => c.hasGoal === 'NAO_DEFINIDO').length;
+              const safeCount = squad.clients.filter(c => c.healthStatus === 'safe').length;
+              const careCount = squad.clients.filter(c => c.healthStatus === 'care').length;
+              const dangerCount = squad.clients.filter(c => c.healthStatus === 'danger').length;
               const rate = total > 0 ? ((withGoalsCount / total) * 100).toFixed(1) : '0';
 
               return (
-                <div key={squad.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="space-y-1">
-                    <h4 className="font-semibold">{squad.name}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {typeof squad.leader === 'string' ? squad.leader : squad.leader?.name || 'Sem líder definido'}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold">{withGoalsCount}/{total}</div>
-                      <div className="text-xs text-muted-foreground">Com Meta</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xl font-semibold text-amber-600 dark:text-amber-400">{pendingCount}</div>
-                      <div className="text-xs text-muted-foreground">A Definir</div>
+                <div key={squad.id} className="p-4 border rounded-lg space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <h4 className="font-semibold text-lg">{squad.name}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {typeof squad.leader === 'string' ? squad.leader : squad.leader?.name || 'Sem líder'}
+                      </p>
                     </div>
                     <Badge 
                       variant={parseFloat(rate) >= 70 ? "default" : "secondary"}
-                      className="text-base px-4 py-2"
+                      className="text-lg px-4 py-2"
                     >
                       {rate}%
                     </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-2">Metas</p>
+                      <div className="flex items-center gap-4">
+                        <div className="text-center">
+                          <div className="text-xl font-bold text-emerald-600">{withGoalsCount}</div>
+                          <div className="text-xs text-muted-foreground">Definidas</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-xl font-bold text-amber-600">{pendingCount}</div>
+                          <div className="text-xs text-muted-foreground">Pendentes</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-2">Health Status</p>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+                          <span className="text-sm font-medium">{safeCount}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                          <span className="text-sm font-medium">{careCount}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                          <span className="text-sm font-medium">{dangerCount}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               );
