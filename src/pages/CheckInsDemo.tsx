@@ -116,60 +116,42 @@ export default function CheckInsDemo() {
 
         {/* Main Content */}
         <Tabs defaultValue="timeline" className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl grid-cols-3">
-            <TabsTrigger value="timeline" className="gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Timeline
-            </TabsTrigger>
-            <TabsTrigger value="evolucao" className="gap-2">
-              <LineChart className="h-4 w-4" />
-              Evolução
-            </TabsTrigger>
-            <TabsTrigger value="grafico" className="gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Visão Geral
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex items-center justify-between mb-6">
+            <TabsList className="grid w-full max-w-2xl grid-cols-3">
+              <TabsTrigger value="timeline" className="gap-2">
+                <TrendingUp className="h-4 w-4" />
+                Timeline
+              </TabsTrigger>
+              <TabsTrigger value="evolucao" className="gap-2">
+                <LineChart className="h-4 w-4" />
+                Evolução
+              </TabsTrigger>
+              <TabsTrigger value="grafico" className="gap-2">
+                <BarChart3 className="h-4 w-4" />
+                Visão Geral
+              </TabsTrigger>
+            </TabsList>
+            
+            <Button
+              variant="default"
+              size="lg"
+              onClick={() => setShowCheckInForm(true)}
+              className="gap-2 ml-4"
+            >
+              <Calendar className="h-5 w-5" />
+              Novo Check-in
+            </Button>
+          </div>
 
           <TabsContent value="timeline" className="space-y-6">
-            <div className="flex justify-end mb-4">
-              <Button
-                variant="default"
-                onClick={() => setShowCheckInForm(true)}
-                className="gap-2"
-              >
-                <Calendar className="h-4 w-4" />
-                Novo Check-in
-              </Button>
-            </div>
             <WeeklyCheckInsTimeline limit={50} refreshTrigger={refreshKey} />
           </TabsContent>
 
           <TabsContent value="evolucao" className="space-y-6">
-            <div className="flex justify-end mb-4">
-              <Button
-                variant="default"
-                onClick={() => setShowCheckInForm(true)}
-                className="gap-2"
-              >
-                <Calendar className="h-4 w-4" />
-                Novo Check-in
-              </Button>
-            </div>
             <ClientProgressEvolution key={refreshKey} />
           </TabsContent>
 
           <TabsContent value="grafico" className="space-y-6">
-            <div className="flex justify-end mb-4">
-              <Button
-                variant="default"
-                onClick={() => setShowCheckInForm(true)}
-                className="gap-2"
-              >
-                <Calendar className="h-4 w-4" />
-                Novo Check-in
-              </Button>
-            </div>
             <WeeklyProgressChart weeks={12} />
           </TabsContent>
         </Tabs>
