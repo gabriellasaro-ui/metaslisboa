@@ -109,17 +109,34 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
 
         <div className="space-y-6">
           <h2 className="text-2xl font-bold">Visão por Squad</h2>
-          {squadsData
-            .map(squad => ({
-              ...squad,
-              coverage: squad.clients.length > 0 
-                ? (squad.clients.filter(c => c.hasGoal === "SIM").length / squad.clients.length) * 100 
-                : 0
-            }))
-            .sort((a, b) => b.coverage - a.coverage)
-            .map((squad, index) => (
-              <SquadOverview key={squad.id} squad={squad} rank={index + 1} />
-            ))}
+          {(() => {
+            // Sistema de pontuação: Com Meta (+1), A Definir (0), Sem Meta (-1)
+            const rankedSquads = squadsData
+              .map(squad => ({
+                ...squad,
+                score: squad.clients.reduce((total, client) => {
+                  if (client.hasGoal === "SIM") return total + 1;
+                  if (client.hasGoal === "NAO") return total - 1;
+                  return total; // NAO_DEFINIDO = 0
+                }, 0),
+                coverage: squad.clients.length > 0 
+                  ? (squad.clients.filter(c => c.hasGoal === "SIM").length / squad.clients.length) * 100 
+                  : 0
+              }))
+              .sort((a, b) => b.score - a.score);
+
+            // Verifica se todas as squads têm 100% de cobertura
+            const allSquadsComplete = rankedSquads.every(squad => squad.coverage === 100);
+
+            return rankedSquads.map((squad, index) => (
+              <SquadOverview 
+                key={squad.id} 
+                squad={squad} 
+                rank={index + 1}
+                allSquadsComplete={allSquadsComplete}
+              />
+            ));
+          })()}
         </div>
       </TabsContent>
 

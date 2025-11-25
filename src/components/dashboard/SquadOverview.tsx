@@ -14,9 +14,10 @@ import confetti from "canvas-confetti";
 interface SquadOverviewProps {
   squad: Squad;
   rank: number;
+  allSquadsComplete?: boolean;
 }
 
-export const SquadOverview = ({ squad, rank }: SquadOverviewProps) => {
+export const SquadOverview = ({ squad, rank, allSquadsComplete = false }: SquadOverviewProps) => {
   const navigate = useNavigate();
   const [showClients, setShowClients] = useState(false);
   const leader = typeof squad.leader === 'string' ? null : squad.leader;
@@ -193,10 +194,112 @@ export const SquadOverview = ({ squad, rank }: SquadOverviewProps) => {
     }, 180);
   };
 
+  const celebrateFullCoverage = () => {
+    if (!allSquadsComplete) return;
+
+    // Super celebração - Arco-íris de confete
+    const duration = 4000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    function randomInRange(min: number, max: number) {
+      return Math.random() * (max - min) + min;
+    }
+
+    // Chuva de confete arco-íris contínua
+    const interval: any = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+      
+      // Confete dos dois lados
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+        colors: ['#FFD700', '#FFA500', '#FF69B4', '#00CED1', '#9370DB', '#FF1493']
+      });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+        colors: ['#FFD700', '#FFA500', '#FF69B4', '#00CED1', '#9370DB', '#FF1493']
+      });
+    }, 250);
+
+    // Fogos de artifício dourados explosivos
+    setTimeout(() => {
+      confetti({
+        particleCount: 200,
+        angle: 60,
+        spread: 100,
+        origin: { x: 0, y: 0.5 },
+        colors: ['#FFD700', '#FFA500', '#FFFF00'],
+        shapes: ['circle', 'square'],
+        scalar: 2,
+        gravity: 1.5,
+        ticks: 300,
+        startVelocity: 50
+      });
+      confetti({
+        particleCount: 200,
+        angle: 120,
+        spread: 100,
+        origin: { x: 1, y: 0.5 },
+        colors: ['#FFD700', '#FFA500', '#FFFF00'],
+        shapes: ['circle', 'square'],
+        scalar: 2,
+        gravity: 1.5,
+        ticks: 300,
+        startVelocity: 50
+      });
+    }, 500);
+
+    // Estrelas caindo do topo
+    setTimeout(() => {
+      confetti({
+        particleCount: 100,
+        angle: 90,
+        spread: 45,
+        origin: { x: 0.5, y: 0 },
+        colors: ['#FFD700', '#FFFFFF', '#FFA500'],
+        shapes: ['star'],
+        scalar: 1.5,
+        gravity: 1,
+        ticks: 400,
+        startVelocity: 30
+      });
+    }, 1000);
+
+    // Explosão central final
+    setTimeout(() => {
+      confetti({
+        particleCount: 300,
+        spread: 360,
+        origin: { x: 0.5, y: 0.5 },
+        colors: ['#FFD700', '#FFA500', '#FF69B4', '#00CED1', '#9370DB'],
+        scalar: 2.5,
+        gravity: 1.2,
+        ticks: 400,
+        startVelocity: 45
+      });
+    }, 2000);
+  };
+
   const handleCardClick = () => {
-    celebrateFirstPlace();
-    celebrateSecondPlace();
-    celebrateThirdPlace();
+    // Celebração especial quando todas as squads têm 100%
+    if (allSquadsComplete) {
+      celebrateFullCoverage();
+    } else {
+      // Celebrações individuais por ranking
+      celebrateFirstPlace();
+      celebrateSecondPlace();
+      celebrateThirdPlace();
+    }
     setShowClients(true);
   };
 
