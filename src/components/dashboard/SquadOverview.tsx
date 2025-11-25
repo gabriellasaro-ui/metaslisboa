@@ -83,8 +83,120 @@ export const SquadOverview = ({ squad, rank }: SquadOverviewProps) => {
     }, 250);
   };
 
+  const celebrateSecondPlace = () => {
+    if (rank !== 2) return;
+    
+    // Confete prateado mais suave
+    const count = 150;
+    const defaults = {
+      origin: { y: 0.6 },
+      colors: ['#C0C0C0', '#E5E4E2', '#BCC6CC', '#D3D3D3']
+    };
+
+    function fire(particleRatio: number, opts: any) {
+      confetti({
+        ...defaults,
+        ...opts,
+        particleCount: Math.floor(count * particleRatio),
+        spread: 80,
+        ticks: 350,
+        gravity: 1,
+        decay: 0.93,
+        startVelocity: 25,
+        scalar: 1
+      });
+    }
+
+    fire(0.25, { spread: 26, startVelocity: 45 });
+    fire(0.2, { spread: 60 });
+    fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+
+    // Medalhas prateadas caindo
+    setTimeout(() => {
+      confetti({
+        particleCount: 20,
+        angle: 60,
+        spread: 50,
+        origin: { x: 0, y: 0.5 },
+        colors: ['#C0C0C0', '#E5E4E2'],
+        shapes: ['circle'],
+        scalar: 1.5,
+        gravity: 1.3,
+        ticks: 250
+      });
+      confetti({
+        particleCount: 20,
+        angle: 120,
+        spread: 50,
+        origin: { x: 1, y: 0.5 },
+        colors: ['#C0C0C0', '#E5E4E2'],
+        shapes: ['circle'],
+        scalar: 1.5,
+        gravity: 1.3,
+        ticks: 250
+      });
+    }, 200);
+  };
+
+  const celebrateThirdPlace = () => {
+    if (rank !== 3) return;
+    
+    // Confete bronze
+    const count = 120;
+    const defaults = {
+      origin: { y: 0.6 },
+      colors: ['#CD7F32', '#B87333', '#D4A574', '#E97451']
+    };
+
+    function fire(particleRatio: number, opts: any) {
+      confetti({
+        ...defaults,
+        ...opts,
+        particleCount: Math.floor(count * particleRatio),
+        spread: 70,
+        ticks: 300,
+        gravity: 0.9,
+        decay: 0.92,
+        startVelocity: 20,
+        scalar: 0.9
+      });
+    }
+
+    fire(0.25, { spread: 26, startVelocity: 35 });
+    fire(0.2, { spread: 50 });
+    fire(0.35, { spread: 90, decay: 0.90, scalar: 0.7 });
+
+    // Medalhas bronze caindo
+    setTimeout(() => {
+      confetti({
+        particleCount: 15,
+        angle: 60,
+        spread: 45,
+        origin: { x: 0, y: 0.5 },
+        colors: ['#CD7F32', '#B87333'],
+        shapes: ['circle'],
+        scalar: 1.3,
+        gravity: 1.2,
+        ticks: 220
+      });
+      confetti({
+        particleCount: 15,
+        angle: 120,
+        spread: 45,
+        origin: { x: 1, y: 0.5 },
+        colors: ['#CD7F32', '#B87333'],
+        shapes: ['circle'],
+        scalar: 1.3,
+        gravity: 1.2,
+        ticks: 220
+      });
+    }, 180);
+  };
+
   const handleCardClick = () => {
     celebrateFirstPlace();
+    celebrateSecondPlace();
+    celebrateThirdPlace();
     setShowClients(true);
   };
 
