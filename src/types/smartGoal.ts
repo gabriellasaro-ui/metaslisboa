@@ -10,4 +10,5 @@ export interface SmartGoal {
 export interface SmartGoalFormData extends Omit<SmartGoal, 'deadline'> {
   clientName: string;
   goalType: "Faturamento" | "Leads" | "OUTROS";
+  goalPeriod: "mensal" | "trimestral" | "semestral" | "anual";
 }

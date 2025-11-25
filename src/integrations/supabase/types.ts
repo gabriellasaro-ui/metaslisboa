@@ -129,6 +129,7 @@ export type Database = {
           goal_value: string
           id: string
           measurable: string | null
+          period: Database["public"]["Enums"]["goal_period"] | null
           progress: number
           relevant: string | null
           specific: string | null
@@ -148,6 +149,7 @@ export type Database = {
           goal_value: string
           id?: string
           measurable?: string | null
+          period?: Database["public"]["Enums"]["goal_period"] | null
           progress?: number
           relevant?: string | null
           specific?: string | null
@@ -167,6 +169,7 @@ export type Database = {
           goal_value?: string
           id?: string
           measurable?: string | null
+          period?: Database["public"]["Enums"]["goal_period"] | null
           progress?: number
           relevant?: string | null
           specific?: string | null
@@ -325,6 +328,7 @@ export type Database = {
       app_role: "investidor" | "coordenador" | "supervisor"
       checkin_status: "on_track" | "at_risk" | "delayed" | "completed"
       client_status: "ativo" | "aviso_previo" | "churned"
+      goal_period: "mensal" | "trimestral" | "semestral" | "anual"
       goal_status: "nao_definida" | "em_andamento" | "concluida" | "cancelada"
       goal_type: "Faturamento" | "Leads" | "OUTROS"
       health_status: "safe" | "care" | "danger"
@@ -458,6 +462,7 @@ export const Constants = {
       app_role: ["investidor", "coordenador", "supervisor"],
       checkin_status: ["on_track", "at_risk", "delayed", "completed"],
       client_status: ["ativo", "aviso_previo", "churned"],
+      goal_period: ["mensal", "trimestral", "semestral", "anual"],
       goal_status: ["nao_definida", "em_andamento", "concluida", "cancelada"],
       goal_type: ["Faturamento", "Leads", "OUTROS"],
       health_status: ["safe", "care", "danger"],
