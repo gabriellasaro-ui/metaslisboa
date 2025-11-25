@@ -3,7 +3,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Client, GoalStatus, GoalType } from "@/data/clientsData";
+import { Client, GoalStatus, GoalType } from "@/types";
 import { MetricsCard } from "@/components/dashboard/MetricsCard";
 import { ClientsTable } from "@/components/dashboard/ClientsTable";
 import { SquadOverview } from "@/components/dashboard/SquadOverview";
@@ -369,7 +369,7 @@ const Index = () => {
 
               {/* Segunda Linha - Comparação de Squads */}
               <div className="animate-slide-up" style={{ animationDelay: "0.3s" }}>
-                <SquadsComparisonChart />
+                <SquadsComparisonChart squadsData={squadsData} />
               </div>
 
               <Separator className="bg-border/50" />

@@ -3,7 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Filter, X, SortAsc, SortDesc } from "lucide-react";
-import { GoalStatus, GoalType } from "@/data/clientsData";
+import { GoalStatus, GoalType } from "@/types";
 
 export type SortField = "name" | "status" | "progress" | "goalType";
 export type SortOrder = "asc" | "desc";

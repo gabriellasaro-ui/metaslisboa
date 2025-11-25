@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Squad, Client } from "@/data/clientsData";
+import { Squad, Client } from "@/types";
 
 export const useClientsData = () => {
   const queryClient = useQueryClient();

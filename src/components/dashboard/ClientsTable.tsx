@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Client, GoalStatus, GoalType } from "@/data/clientsData";
+import { Client, GoalStatus, GoalType } from "@/types";
 import { Target, TrendingUp, Users, AlertCircle, Pencil, Sparkles, ClipboardCheck, History } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { HealthStatusBadge } from "./HealthStatusBadge";

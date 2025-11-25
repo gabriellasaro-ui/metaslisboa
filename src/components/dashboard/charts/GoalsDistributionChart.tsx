@@ -1,9 +1,26 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
-import { getOverallStats } from "@/data/clientsData";
+import { useClientsData } from "@/hooks/useClientsData";
 
 export const GoalsDistributionChart = () => {
-  const stats = getOverallStats();
+  const { squadsData } = useClientsData();
+  
+  // Calculate stats from squadsData
+  const stats = {
+    withGoals: 0,
+    pending: 0,
+    withoutGoals: 0,
+    total: 0
+  };
+  
+  squadsData.forEach(squad => {
+    squad.clients.forEach(client => {
+      stats.total++;
+      if (client.hasGoal === "SIM") stats.withGoals++;
+      else if (client.hasGoal === "NAO_DEFINIDO") stats.pending++;
+      else stats.withoutGoals++;
+    });
+  });
   
   const data = [
     { name: "Com Metas", value: stats.withGoals, color: "hsl(var(--chart-1))" },

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Download, FileSpreadsheet, FileText, Table } from "lucide-react";
-import { Squad, Client } from "@/data/clientsData";
+import { Squad, Client } from "@/types";
 import { exportToExcel, exportToPDF } from "@/utils/exportUtils";
 import * as XLSX from 'xlsx';
 import { toast } from "sonner";

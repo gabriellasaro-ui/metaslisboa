@@ -2,9 +2,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Squad } from "@/data/clientsData";
-import { getLeaderBySquad } from "@/data/leadersData";
 import { Trophy, Shield, Award, Target } from "lucide-react";
+
+interface Leader {
+  id: string;
+  name: string;
+  avatar?: string;
+}
+
+interface Squad {
+  id: string;
+  name: string;
+  leader?: Leader;
+  clients: Array<{
+    hasGoal?: string;
+  }>;
+}
 
 interface SquadRankingCardProps {
   squadsData: Squad[];
@@ -12,7 +25,6 @@ interface SquadRankingCardProps {
 
 export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
   const squadStats = squadsData.map(squad => {
-    const leader = getLeaderBySquad(squad.name);
     const total = squad.clients.length;
     const withGoals = squad.clients.filter(c => c.hasGoal === 'SIM').length;
     const pending = squad.clients.filter(c => c.hasGoal === 'NAO_DEFINIDO').length;
@@ -22,7 +34,6 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
 
     return {
       ...squad,
-      leader,
       total,
       withGoals,
       pending,

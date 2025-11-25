@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { Squad } from "@/data/clientsData";
-import { getLeaderBySquad } from "@/data/leadersData";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
@@ -11,6 +9,22 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { User, ExternalLink, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+interface Leader {
+  id: string;
+  name: string;
+  avatar?: string;
+}
+
+interface Squad {
+  id: string;
+  name: string;
+  leader?: Leader;
+  clients: Array<{
+    name: string;
+    hasGoal?: string;
+  }>;
+}
+
 interface SquadOverviewProps {
   squad: Squad;
 }
@@ -18,7 +32,7 @@ interface SquadOverviewProps {
 export const SquadOverview = ({ squad }: SquadOverviewProps) => {
   const navigate = useNavigate();
   const [showClients, setShowClients] = useState(false);
-  const leader = getLeaderBySquad(squad.name);
+  const leader = squad.leader;
   const withGoals = squad.clients.filter(c => c.hasGoal === "SIM").length;
   const pending = squad.clients.filter(c => c.hasGoal === "NAO_DEFINIDO").length;
   const withoutGoals = squad.clients.filter(c => c.hasGoal === "NAO").length;
