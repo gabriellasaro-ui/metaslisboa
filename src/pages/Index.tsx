@@ -22,6 +22,7 @@ import { SquadRankingCard } from "@/components/dashboard/SquadRankingCard";
 import { GoalsImportanceCard } from "@/components/dashboard/GoalsImportanceCard";
 import { useClientsData } from "@/hooks/useClientsData";
 import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Index = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | GoalStatus>("all");
@@ -127,11 +128,14 @@ const Index = () => {
       <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Header */}
         <div className="mb-10 animate-fade-in">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="h-1 w-12 bg-gradient-to-r from-primary to-primary/50 rounded-full" />
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-primary to-primary/60 bg-clip-text text-transparent tracking-tight">
-              Dashboard de Controle de Clientes
-            </h1>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className="h-1 w-12 bg-gradient-to-r from-primary to-primary/50 rounded-full" />
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-primary to-primary/60 bg-clip-text text-transparent tracking-tight">
+                Dashboard de Controle de Clientes
+              </h1>
+            </div>
+            <ThemeToggle />
           </div>
           <p className="text-muted-foreground text-lg ml-[3.75rem] font-medium">
             Mapeamento de metas ao longo do tempo - 100 Dias
@@ -177,7 +181,7 @@ const Index = () => {
           <TabsContent value="visao-geral" className="space-y-6 animate-fade-in">
             {/* Overall Metrics */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <div style={{ animationDelay: "0.1s" }}>
+              <div className="animate-bounce-in" style={{ animationDelay: "0.1s" }}>
                 <MetricsCard
                   title="Total de Clientes"
                   value={stats.total}
@@ -185,7 +189,7 @@ const Index = () => {
                   description="Todos os clientes ativos"
                 />
               </div>
-              <div style={{ animationDelay: "0.2s" }}>
+              <div className="animate-bounce-in" style={{ animationDelay: "0.2s" }}>
                 <MetricsCard
                   title="Com Metas Definidas"
                   value={stats.withGoals}
@@ -194,7 +198,7 @@ const Index = () => {
                   description={`${((stats.withGoals / stats.total) * 100).toFixed(0)}% do total`}
                 />
               </div>
-              <div style={{ animationDelay: "0.3s" }}>
+              <div className="animate-bounce-in" style={{ animationDelay: "0.3s" }}>
                 <MetricsCard
                   title="Metas A Definir"
                   value={stats.pending}
@@ -203,7 +207,7 @@ const Index = () => {
                   description="Em processo de definição"
                 />
               </div>
-              <div style={{ animationDelay: "0.4s" }}>
+              <div className="animate-bounce-in" style={{ animationDelay: "0.4s" }}>
                 <MetricsCard
                   title="Sem Metas"
                   value={stats.withoutGoals}
@@ -228,7 +232,7 @@ const Index = () => {
               <CardContent className="pt-6">
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {squadsData.map((squad, index) => (
-                    <div key={squad.id} style={{ animationDelay: `${index * 0.1}s` }} className="animate-fade-in">
+                    <div key={squad.id} style={{ animationDelay: `${(index + 5) * 0.1}s` }} className="animate-slide-up">
                       <SquadOverview squad={squad} />
                     </div>
                   ))}

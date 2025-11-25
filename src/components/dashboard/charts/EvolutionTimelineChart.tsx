@@ -30,37 +30,82 @@ export const EvolutionTimelineChart = ({ squadsData }: EvolutionTimelineChartPro
     'Total': squadsData.reduce((sum, squad) => sum + squad.clients.length, 0),
   }));
 
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const comMeta = payload.find((p: any) => p.dataKey === 'Com Meta')?.value || 0;
+      const aDefinir = payload.find((p: any) => p.dataKey === 'A Definir')?.value || 0;
+      const total = payload.find((p: any) => p.dataKey === 'Total')?.value || 0;
+      const percentage = total > 0 ? ((comMeta / total) * 100).toFixed(1) : '0';
+
+      return (
+        <div className="bg-card border border-border rounded-lg shadow-2xl p-4 animate-zoom-in backdrop-blur-sm">
+          <p className="font-bold text-foreground mb-3 text-lg">{label}</p>
+          {payload.filter((p: any) => p.dataKey !== 'Total').map((item: any, index: number) => (
+            <div key={index} className="flex items-center justify-between gap-4 mb-2">
+              <div className="flex items-center gap-2">
+                <div 
+                  className="w-3 h-3 rounded-full" 
+                  style={{ backgroundColor: item.stroke }}
+                />
+                <span className="text-sm text-muted-foreground">{item.dataKey}:</span>
+              </div>
+              <span className="font-bold text-foreground">{item.value}</span>
+            </div>
+          ))}
+          <div className="border-t border-border mt-3 pt-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-muted-foreground">Cobertura:</span>
+              <span className="font-bold text-lg text-primary">{percentage}%</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <Card>
+    <Card className="group hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 border-border/50 hover:border-primary/30">
       <CardHeader>
-        <CardTitle>Evolução Temporal de Metas</CardTitle>
+        <CardTitle className="text-2xl group-hover:text-primary transition-colors duration-300">
+          Evolução Temporal de Metas
+        </CardTitle>
         <CardDescription>Progresso de definição de metas nos últimos 6 meses</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={350}>
           <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <CartesianGrid 
+              strokeDasharray="3 3" 
+              className="stroke-muted/30" 
+              vertical={false}
+            />
             <XAxis 
               dataKey="month" 
               tick={{ fill: 'hsl(var(--muted-foreground))' }}
+              tickLine={false}
+              axisLine={false}
             />
             <YAxis 
               tick={{ fill: 'hsl(var(--muted-foreground))' }}
+              tickLine={false}
+              axisLine={false}
             />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'hsl(var(--card))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '6px'
-              }}
+            <Tooltip content={<CustomTooltip />} />
+            <Legend 
+              wrapperStyle={{ paddingTop: '20px' }}
+              iconType="line"
             />
-            <Legend />
             <Line 
               type="monotone" 
               dataKey="Com Meta" 
               stroke="#10b981" 
               strokeWidth={3}
-              dot={{ fill: '#10b981', r: 5 }}
+              dot={{ fill: '#10b981', r: 6, className: 'hover:scale-150 transition-transform' }}
+              activeDot={{ r: 8, className: 'animate-pulse' }}
+              animationBegin={0}
+              animationDuration={1000}
+              animationEasing="ease-in-out"
             />
             <Line 
               type="monotone" 
@@ -68,7 +113,11 @@ export const EvolutionTimelineChart = ({ squadsData }: EvolutionTimelineChartPro
               stroke="#f59e0b" 
               strokeWidth={2}
               strokeDasharray="5 5"
-              dot={{ fill: '#f59e0b', r: 4 }}
+              dot={{ fill: '#f59e0b', r: 5, className: 'hover:scale-150 transition-transform' }}
+              activeDot={{ r: 7, className: 'animate-pulse' }}
+              animationBegin={100}
+              animationDuration={1000}
+              animationEasing="ease-in-out"
             />
           </LineChart>
         </ResponsiveContainer>
