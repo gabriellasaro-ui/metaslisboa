@@ -4,16 +4,30 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, TrendingUp, MessageSquare, Clock, User, Filter } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar, TrendingUp, MessageSquare, Clock, User, Filter, Trash2, Link as LinkIcon, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface CheckIn {
   id: string;
   progress: number;
   status: string;
   comment: string;
+  call_summary?: string | null;
+  call_link?: string | null;
   created_at: string;
   created_by: string;
   client: {
@@ -41,6 +55,7 @@ export const WeeklyCheckInsTimeline = ({
   const [isLoading, setIsLoading] = useState(true);
   const [squads, setSquads] = useState<string[]>([]);
   const [selectedSquad, setSelectedSquad] = useState<string>(squadFilter);
+  const [deleteCheckInId, setDeleteCheckInId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSquads();
@@ -74,6 +89,8 @@ export const WeeklyCheckInsTimeline = ({
           progress,
           status,
           comment,
+          call_summary,
+          call_link,
           created_at,
           created_by,
           client:clients(
@@ -130,6 +147,31 @@ export const WeeklyCheckInsTimeline = ({
         {config.label}
       </Badge>
     );
+  };
+
+  const handleDeleteCheckIn = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("check_ins")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast.success("Check-in excluído!", {
+        description: "O registro foi removido com sucesso.",
+      });
+
+      // Atualizar lista
+      fetchCheckIns();
+    } catch (error: any) {
+      console.error("Erro ao excluir check-in:", error);
+      toast.error("Erro ao excluir check-in", {
+        description: error.message || "Tente novamente",
+      });
+    } finally {
+      setDeleteCheckInId(null);
+    }
   };
 
   return (
@@ -217,9 +259,19 @@ export const WeeklyCheckInsTimeline = ({
                             )}
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-primary">{checkIn.progress}%</div>
-                          <div className="text-xs text-muted-foreground">progresso</div>
+                        <div className="flex items-start gap-2">
+                          <div className="text-right">
+                            <div className="text-2xl font-bold text-primary">{checkIn.progress}%</div>
+                            <div className="text-xs text-muted-foreground">progresso</div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeleteCheckInId(checkIn.id)}
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
 
@@ -238,6 +290,32 @@ export const WeeklyCheckInsTimeline = ({
                           <p className="text-sm text-foreground leading-relaxed">{checkIn.comment}</p>
                         </div>
                       </div>
+
+                      {/* Call Summary */}
+                      {checkIn.call_summary && (
+                        <div className="bg-accent/10 rounded-lg p-4 border border-accent/30">
+                          <div className="flex items-start gap-2">
+                            <FileText className="h-4 w-4 text-accent-foreground mt-0.5 flex-shrink-0" />
+                            <div>
+                              <p className="text-xs font-semibold text-accent-foreground mb-1">Resumo da Call</p>
+                              <p className="text-sm text-foreground leading-relaxed">{checkIn.call_summary}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Call Link */}
+                      {checkIn.call_link && (
+                        <a
+                          href={checkIn.call_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
+                        >
+                          <LinkIcon className="h-4 w-4" />
+                          <span className="underline">Acessar gravação/documentos</span>
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -246,6 +324,27 @@ export const WeeklyCheckInsTimeline = ({
           </ScrollArea>
         )}
       </CardContent>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteCheckInId} onOpenChange={() => setDeleteCheckInId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este check-in? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteCheckInId && handleDeleteCheckIn(deleteCheckInId)}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };

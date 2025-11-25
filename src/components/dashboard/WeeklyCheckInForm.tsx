@@ -25,6 +25,8 @@ export const WeeklyCheckInForm = ({
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState<"on_track" | "at_risk" | "delayed" | "completed">("on_track");
   const [comment, setComment] = useState("");
+  const [callSummary, setCallSummary] = useState("");
+  const [callLink, setCallLink] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleClientSelect = (clientId: string, clientData: any) => {
@@ -66,6 +68,8 @@ export const WeeklyCheckInForm = ({
         progress: progress,
         status: status,
         comment: comment,
+        call_summary: callSummary || null,
+        call_link: callLink || null,
         created_by: "Sistema", // TODO: substituir por usuário autenticado
       });
 
@@ -91,6 +95,8 @@ export const WeeklyCheckInForm = ({
 
       // Resetar form
       setComment("");
+      setCallSummary("");
+      setCallLink("");
       setProgress(0);
       setStatus("on_track");
       setSelectedClient(null);
@@ -290,11 +296,44 @@ export const WeeklyCheckInForm = ({
               placeholder="Descreva o progresso desta semana, desafios enfrentados e próximos passos..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              rows={5}
+              rows={4}
               className="resize-none"
             />
             <p className="text-xs text-muted-foreground">
               Mínimo: breve atualização sobre o que foi feito
+            </p>
+          </div>
+
+          {/* Resumo da Call */}
+          <div className="space-y-2">
+            <Label className="text-base font-semibold flex items-center gap-2">
+              <MessageSquare className="h-4 w-4 text-accent-foreground" />
+              Resumo da Call (Opcional)
+            </Label>
+            <Textarea
+              placeholder="Resumo dos principais pontos discutidos na call, decisões tomadas, ações definidas..."
+              value={callSummary}
+              onChange={(e) => setCallSummary(e.target.value)}
+              rows={3}
+              className="resize-none"
+            />
+          </div>
+
+          {/* Link da Call */}
+          <div className="space-y-2">
+            <Label className="text-base font-semibold flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-accent-foreground" />
+              Link da Call no Drive (Opcional)
+            </Label>
+            <input
+              type="url"
+              placeholder="https://drive.google.com/..."
+              value={callLink}
+              onChange={(e) => setCallLink(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            />
+            <p className="text-xs text-muted-foreground">
+              Cole o link da gravação ou documentos relacionados
             </p>
           </div>
         </div>
