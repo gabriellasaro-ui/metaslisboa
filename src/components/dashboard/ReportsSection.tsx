@@ -101,7 +101,7 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
 
       {/* Insights e Análises */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
+        <Card className="shadow-[0_8px_30px_rgba(16,185,129,0.15)] hover:shadow-[0_12px_40px_rgba(16,185,129,0.25)] transition-all duration-300 hover:-translate-y-1 border-emerald-500/20">
           <CardHeader>
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
@@ -119,7 +119,7 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-[0_8px_30px_rgba(245,158,11,0.15)] hover:shadow-[0_12px_40px_rgba(245,158,11,0.25)] transition-all duration-300 hover:-translate-y-1 border-amber-500/20">
           <CardHeader>
             <div className="flex items-center gap-2">
               <Award className="h-5 w-5 text-amber-600 dark:text-amber-400" />
@@ -135,7 +135,7 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-[0_8px_30px_rgba(139,92,246,0.15)] hover:shadow-[0_12px_40px_rgba(139,92,246,0.25)] transition-all duration-300 hover:-translate-y-1 border-primary/20">
           <CardHeader>
             <div className="flex items-center gap-2">
               <Target className="h-5 w-5 text-primary" />
@@ -168,44 +168,47 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
       </div>
 
       {/* Health Status Global */}
-      <Card>
+      <Card className="shadow-[0_8px_30px_rgba(139,92,246,0.12)] border-primary/10 animate-fade-in">
         <CardHeader>
-          <CardTitle>Distribuição Global de Health Status</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-primary" />
+            Distribuição Global de Health Status
+          </CardTitle>
           <CardDescription>Status de saúde de todos os clientes</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-6 md:grid-cols-3">
-            <div className="flex items-center gap-4 p-4 rounded-lg border border-emerald-500/20 bg-emerald-500/5">
-              <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold text-xl">
+            <div className="flex items-center gap-4 p-5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 shadow-[0_4px_20px_rgba(16,185,129,0.1)] hover:shadow-[0_8px_30px_rgba(16,185,129,0.2)] transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
                 {squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'safe').length, 0)}
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Safe</p>
-                <p className="text-2xl font-bold text-emerald-600">
+                <p className="text-sm font-medium text-muted-foreground">Safe</p>
+                <p className="text-3xl font-bold text-emerald-600">
                   {((squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'safe').length, 0) / totalClients) * 100 || 0).toFixed(1)}%
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 p-4 rounded-lg border border-amber-500/20 bg-amber-500/5">
-              <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center text-white font-bold text-xl">
+            <div className="flex items-center gap-4 p-5 rounded-xl border border-amber-500/20 bg-amber-500/5 shadow-[0_4px_20px_rgba(245,158,11,0.1)] hover:shadow-[0_8px_30px_rgba(245,158,11,0.2)] transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
                 {squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'care').length, 0)}
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Care</p>
-                <p className="text-2xl font-bold text-amber-600">
+                <p className="text-sm font-medium text-muted-foreground">Care</p>
+                <p className="text-3xl font-bold text-amber-600">
                   {((squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'care').length, 0) / totalClients) * 100 || 0).toFixed(1)}%
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 p-4 rounded-lg border border-red-500/20 bg-red-500/5">
-              <div className="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center text-white font-bold text-xl">
+            <div className="flex items-center gap-4 p-5 rounded-xl border border-red-500/20 bg-red-500/5 shadow-[0_4px_20px_rgba(239,68,68,0.1)] hover:shadow-[0_8px_30px_rgba(239,68,68,0.2)] transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
                 {squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'danger').length, 0)}
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Danger</p>
-                <p className="text-2xl font-bold text-red-600">
+                <p className="text-sm font-medium text-muted-foreground">Danger</p>
+                <p className="text-3xl font-bold text-red-600">
                   {((squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'danger').length, 0) / totalClients) * 100 || 0).toFixed(1)}%
                 </p>
               </div>
@@ -232,7 +235,7 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
               const rate = total > 0 ? ((withGoalsCount / total) * 100).toFixed(1) : '0';
 
               return (
-                <div key={squad.id} className="p-4 border rounded-lg space-y-3">
+                <div key={squad.id} className="p-5 border rounded-xl space-y-3 shadow-[0_4px_20px_rgba(139,92,246,0.08)] hover:shadow-[0_8px_30px_rgba(139,92,246,0.15)] transition-all duration-300 hover:-translate-y-1 bg-card/50 backdrop-blur-sm">
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
                       <h4 className="font-semibold text-lg">{squad.name}</h4>
