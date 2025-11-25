@@ -73,6 +73,7 @@ export type Database = {
       }
       clients: {
         Row: {
+          archived: boolean
           aviso_previo_date: string | null
           churned_date: string | null
           created_at: string
@@ -85,6 +86,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          archived?: boolean
           aviso_previo_date?: string | null
           churned_date?: string | null
           created_at?: string
@@ -97,6 +99,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          archived?: boolean
           aviso_previo_date?: string | null
           churned_date?: string | null
           created_at?: string

@@ -37,6 +37,7 @@ export const useClientsData = () => {
           health_status,
           notes,
           squad_id,
+          archived,
           goals (
             id,
             goal_type,
@@ -53,6 +54,7 @@ export const useClientsData = () => {
             start_date
           )
         `)
+        .eq('archived', false)
         .order("name");
 
       if (clientsError) throw clientsError;

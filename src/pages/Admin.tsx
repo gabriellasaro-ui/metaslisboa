@@ -45,7 +45,7 @@ const Admin = () => {
   const fetchStats = async () => {
     try {
       const [clientsRes, squadsRes] = await Promise.all([
-        supabase.from("clients").select("status", { count: "exact" }),
+        supabase.from("clients").select("status", { count: "exact" }).eq("archived", false),
         supabase.from("squads").select("*", { count: "exact" }),
       ]);
 

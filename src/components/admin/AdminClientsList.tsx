@@ -4,9 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Pencil, Loader2, Search } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Pencil, Loader2, Search, Archive, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { EditClientAdminDialog } from "./EditClientAdminDialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Client {
   id: string;
@@ -15,6 +19,7 @@ interface Client {
   health_status: string | null;
   notes: string | null;
   squad_id: string;
+  archived: boolean;
   squads: {
     name: string;
   };
@@ -25,10 +30,14 @@ interface AdminClientsListProps {
 }
 
 export const AdminClientsList = ({ onUpdate }: AdminClientsListProps) => {
+  const { isSupervisor } = useAuth();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
+  const [clientToArchive, setClientToArchive] = useState<Client | null>(null);
 
   useEffect(() => {
     fetchClients();
@@ -84,11 +93,60 @@ export const AdminClientsList = ({ onUpdate }: AdminClientsListProps) => {
     return <Badge className={config.className}>{config.label}</Badge>;
   };
 
-  const filteredClients = clients.filter(client =>
-    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.squads.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.status.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredClients = clients.filter(client => {
+    const matchesSearch = client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.squads.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.status.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesArchived = showArchived ? client.archived : !client.archived;
+    
+    return matchesSearch && matchesArchived;
+  });
+
+  const handleArchive = async (client: Client) => {
+    if (client.status !== 'churned') {
+      toast.error("Apenas clientes em Churn podem ser arquivados");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("clients")
+        .update({ archived: true })
+        .eq("id", client.id);
+
+      if (error) throw error;
+
+      toast.success("Cliente arquivado com sucesso");
+      fetchClients();
+      onUpdate();
+    } catch (error) {
+      console.error("Error archiving client:", error);
+      toast.error("Erro ao arquivar cliente");
+    } finally {
+      setClientToArchive(null);
+    }
+  };
+
+  const handleDelete = async (client: Client) => {
+    try {
+      const { error } = await supabase
+        .from("clients")
+        .delete()
+        .eq("id", client.id);
+
+      if (error) throw error;
+
+      toast.success("Cliente excluído com sucesso");
+      fetchClients();
+      onUpdate();
+    } catch (error) {
+      console.error("Error deleting client:", error);
+      toast.error("Erro ao excluir cliente");
+    } finally {
+      setClientToDelete(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -100,7 +158,7 @@ export const AdminClientsList = ({ onUpdate }: AdminClientsListProps) => {
 
   return (
     <>
-      <div className="mb-4">
+      <div className="mb-4 space-y-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -110,6 +168,17 @@ export const AdminClientsList = ({ onUpdate }: AdminClientsListProps) => {
             className="pl-9"
           />
         </div>
+        
+        {isSupervisor && (
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="show-archived"
+              checked={showArchived}
+              onCheckedChange={setShowArchived}
+            />
+            <Label htmlFor="show-archived">Mostrar clientes arquivados</Label>
+          </div>
+        )}
       </div>
       
       <div className="border rounded-lg">
@@ -125,19 +194,48 @@ export const AdminClientsList = ({ onUpdate }: AdminClientsListProps) => {
           </TableHeader>
           <TableBody>
             {filteredClients.map((client) => (
-              <TableRow key={client.id}>
-                <TableCell className="font-medium">{client.name}</TableCell>
+              <TableRow key={client.id} className={client.archived ? "opacity-60" : ""}>
+                <TableCell className="font-medium">
+                  {client.name}
+                  {client.archived && (
+                    <Badge variant="outline" className="ml-2 text-xs">Arquivado</Badge>
+                  )}
+                </TableCell>
                 <TableCell>{client.squads.name}</TableCell>
                 <TableCell>{getStatusBadge(client.status)}</TableCell>
                 <TableCell>{getHealthBadge(client.health_status)}</TableCell>
                 <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setEditingClient(client)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setEditingClient(client)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    
+                    {isSupervisor && !client.archived && client.status === 'churned' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setClientToArchive(client)}
+                        title="Arquivar cliente"
+                      >
+                        <Archive className="h-4 w-4 text-amber-600" />
+                      </Button>
+                    )}
+                    
+                    {isSupervisor && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setClientToDelete(client)}
+                        title="Excluir cliente"
+                      >
+                        <Trash2 className="h-4 w-4 text-red-600" />
+                      </Button>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -154,6 +252,47 @@ export const AdminClientsList = ({ onUpdate }: AdminClientsListProps) => {
           onUpdate();
         }}
       />
+
+      {/* Dialog de confirmação para arquivar */}
+      <AlertDialog open={!!clientToArchive} onOpenChange={() => setClientToArchive(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Arquivar Cliente</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja arquivar o cliente <strong>{clientToArchive?.name}</strong>?
+              Clientes arquivados não aparecerão na listagem padrão.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => clientToArchive && handleArchive(clientToArchive)}>
+              Arquivar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Dialog de confirmação para excluir */}
+      <AlertDialog open={!!clientToDelete} onOpenChange={() => setClientToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Cliente</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir permanentemente o cliente <strong>{clientToDelete?.name}</strong>?
+              Esta ação não pode ser desfeita e todos os dados associados serão removidos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => clientToDelete && handleDelete(clientToDelete)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
