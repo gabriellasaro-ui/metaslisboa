@@ -16,45 +16,234 @@ export type Database = {
     Tables: {
       check_ins: {
         Row: {
-          client_name: string
+          client_id: string | null
           comment: string
           created_at: string
-          goal_value: string | null
+          created_by: string | null
+          goal_id: string | null
           id: string
-          leader_name: string
           progress: number
-          squad_id: string
-          squad_name: string
           status: string
           updated_at: string
         }
         Insert: {
-          client_name: string
+          client_id?: string | null
           comment: string
           created_at?: string
-          goal_value?: string | null
+          created_by?: string | null
+          goal_id?: string | null
           id?: string
-          leader_name: string
           progress: number
-          squad_id: string
-          squad_name: string
           status: string
           updated_at?: string
         }
         Update: {
-          client_name?: string
+          client_id?: string | null
           comment?: string
           created_at?: string
-          goal_value?: string | null
+          created_by?: string | null
+          goal_id?: string | null
           id?: string
-          leader_name?: string
           progress?: number
-          squad_id?: string
-          squad_name?: string
           status?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "check_ins_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "check_ins_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          aviso_previo_date: string | null
+          churned_date: string | null
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          squad_id: string
+          status: Database["public"]["Enums"]["client_status"]
+          updated_at: string
+        }
+        Insert: {
+          aviso_previo_date?: string | null
+          churned_date?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          squad_id: string
+          status?: Database["public"]["Enums"]["client_status"]
+          updated_at?: string
+        }
+        Update: {
+          aviso_previo_date?: string | null
+          churned_date?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          squad_id?: string
+          status?: Database["public"]["Enums"]["client_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_squad_id_fkey"
+            columns: ["squad_id"]
+            isOneToOne: false
+            referencedRelation: "squads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goals: {
+        Row: {
+          achievable: string | null
+          client_id: string
+          completed_date: string | null
+          created_at: string
+          description: string | null
+          goal_type: Database["public"]["Enums"]["goal_type"]
+          goal_value: string
+          id: string
+          measurable: string | null
+          progress: number
+          relevant: string | null
+          specific: string | null
+          start_date: string | null
+          status: Database["public"]["Enums"]["goal_status"]
+          target_date: string | null
+          time_bound: string | null
+          updated_at: string
+        }
+        Insert: {
+          achievable?: string | null
+          client_id: string
+          completed_date?: string | null
+          created_at?: string
+          description?: string | null
+          goal_type: Database["public"]["Enums"]["goal_type"]
+          goal_value: string
+          id?: string
+          measurable?: string | null
+          progress?: number
+          relevant?: string | null
+          specific?: string | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["goal_status"]
+          target_date?: string | null
+          time_bound?: string | null
+          updated_at?: string
+        }
+        Update: {
+          achievable?: string | null
+          client_id?: string
+          completed_date?: string | null
+          created_at?: string
+          description?: string | null
+          goal_type?: Database["public"]["Enums"]["goal_type"]
+          goal_value?: string
+          id?: string
+          measurable?: string | null
+          progress?: number
+          relevant?: string | null
+          specific?: string | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["goal_status"]
+          target_date?: string | null
+          time_bound?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leaders: {
+        Row: {
+          avatar: string | null
+          created_at: string
+          email: string
+          id: string
+          joined_date: string
+          name: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          avatar?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          joined_date?: string
+          name: string
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          avatar?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          joined_date?: string
+          name?: string
+          role?: string
+          updated_at?: string
+        }
         Relationships: []
+      }
+      squads: {
+        Row: {
+          created_at: string
+          id: string
+          leader_id: string | null
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          leader_id?: string | null
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          leader_id?: string | null
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "squads_leader_id_fkey"
+            columns: ["leader_id"]
+            isOneToOne: false
+            referencedRelation: "leaders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -64,7 +253,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      checkin_status: "on_track" | "at_risk" | "delayed" | "completed"
+      client_status: "ativo" | "aviso_previo" | "churned"
+      goal_status: "nao_definida" | "em_andamento" | "concluida" | "cancelada"
+      goal_type: "Faturamento" | "Leads" | "OUTROS"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -191,6 +383,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      checkin_status: ["on_track", "at_risk", "delayed", "completed"],
+      client_status: ["ativo", "aviso_previo", "churned"],
+      goal_status: ["nao_definida", "em_andamento", "concluida", "cancelada"],
+      goal_type: ["Faturamento", "Leads", "OUTROS"],
+    },
   },
 } as const
