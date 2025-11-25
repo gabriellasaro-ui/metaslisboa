@@ -82,10 +82,10 @@ export const squadsData: Squad[] = [
     leader: "Gabriel",
     clients: [
       { name: "Comatral", hasGoal: "SIM", goalType: "Faturamento", goalValue: "2 milhões com marketing" },
-      { name: "TSA Tratores", hasGoal: "SIM", goalType: "Faturamento", goalValue: "Crescer 40% do faturamento" },
+      { name: "TSA Tratores", hasGoal: "NAO" },
       { name: "Senador Truck", hasGoal: "SIM", goalType: "OUTROS", goalValue: "Reconhecimento de marca" },
       { name: "Estecc", hasGoal: "SIM", goalType: "OUTROS", goalValue: "Reconhecimento de marca e seguidores" },
-      { name: "Fieza", hasGoal: "SIM", goalType: "Faturamento", goalValue: "Ultrapassar 300k de faturamento" },
+      { name: "Fieza", hasGoal: "NAO" },
       { name: "MPA", hasGoal: "SIM", goalType: "OUTROS", goalValue: "Desenvolvimento de software SDR IA" },
       { name: "Unit Brasil", hasGoal: "SIM", goalType: "Faturamento", goalValue: "Alcançar 40 vendas em 3 meses" },
       { name: "Óticas a Fábrica", hasGoal: "NAO" },
