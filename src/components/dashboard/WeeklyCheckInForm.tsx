@@ -168,19 +168,52 @@ export const WeeklyCheckInForm = ({
               </Label>
               <span className="text-2xl font-bold text-primary">{progress}%</span>
             </div>
-            <Slider
-              value={[progress]}
-              onValueChange={(value) => setProgress(value[0])}
-              max={100}
-              step={25}
-              className="py-4"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>0%</span>
-              <span>25%</span>
-              <span>50%</span>
-              <span>75%</span>
-              <span>100%</span>
+            
+            {/* Slider com marcadores visuais */}
+            <div className="relative py-6">
+              {/* Marcadores visuais */}
+              <div className="absolute top-0 left-0 right-0 flex justify-between px-1">
+                {[0, 25, 50, 75, 100].map((value) => (
+                  <div key={value} className="flex flex-col items-center">
+                    <div 
+                      className={`h-2 w-2 rounded-full transition-all duration-200 ${
+                        progress === value 
+                          ? 'bg-primary scale-150 shadow-lg shadow-primary/50' 
+                          : 'bg-muted-foreground/30'
+                      }`}
+                    />
+                  </div>
+                ))}
+              </div>
+              
+              {/* Slider */}
+              <div className="mt-6">
+                <Slider
+                  value={[progress]}
+                  onValueChange={(value) => setProgress(value[0])}
+                  max={100}
+                  step={25}
+                  className="py-2"
+                />
+              </div>
+            </div>
+            
+            {/* Labels dos valores */}
+            <div className="flex justify-between text-xs font-medium">
+              {[0, 25, 50, 75, 100].map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setProgress(value)}
+                  className={`px-2 py-1 rounded transition-all ${
+                    progress === value
+                      ? 'bg-primary text-primary-foreground font-bold'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  }`}
+                >
+                  {value}%
+                </button>
+              ))}
             </div>
           </div>
 
