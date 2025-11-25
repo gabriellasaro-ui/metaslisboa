@@ -66,14 +66,12 @@ export const useClientsData = () => {
             const activeGoal = hasGoals ? client.goals[0] : null;
             
             // Determinar o status correto da meta
-            let hasGoalStatus: "SIM" | "NAO" | "NAO_DEFINIDO" = "NAO_DEFINIDO";
+            let hasGoalStatus: "SIM" | "NAO" | "NAO_DEFINIDO" = "NAO"; // Default: sem meta
             if (hasGoals && activeGoal) {
               if (activeGoal.status === "nao_definida") {
                 hasGoalStatus = "NAO_DEFINIDO";
               } else if (activeGoal.status === "em_andamento" || activeGoal.status === "concluida") {
                 hasGoalStatus = "SIM";
-              } else {
-                hasGoalStatus = "NAO_DEFINIDO";
               }
             }
             
