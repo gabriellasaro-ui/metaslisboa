@@ -6,10 +6,6 @@ interface PerformanceAnalysisChartProps {
   squadsData: Squad[];
 }
 
-interface PerformanceAnalysisChartProps {
-  squadsData: Squad[];
-}
-
 export const PerformanceAnalysisChart = ({ squadsData }: PerformanceAnalysisChartProps) => {
   const data = squadsData.map(squad => {
     const total = squad.clients.length;
