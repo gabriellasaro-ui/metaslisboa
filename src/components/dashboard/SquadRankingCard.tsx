@@ -4,12 +4,18 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Trophy, Shield, Award, Target, Fish, Sparkles, Cat } from "lucide-react";
 import { Squad, Leader } from "@/types";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { User } from "lucide-react";
 
 interface SquadRankingCardProps {
   squadsData: Squad[];
 }
 
 export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
+  const [selectedSquad, setSelectedSquad] = useState<typeof squadStats[0] | null>(null);
+  
   const squadStats = squadsData.map(squad => {
     const total = squad.clients.length;
     const withGoals = squad.clients.filter(c => c.hasGoal === 'SIM').length;
@@ -31,26 +37,30 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
     };
   }).sort((a, b) => b.coverageRate - a.coverageRate);
 
-  const getSquadIcon = (squadName: string, index: number) => {
-    const name = squadName.toUpperCase();
-    
-    if (name.includes("INTERNACIONAL")) {
+  const renderIcon = (iconName: string | null | undefined, index: number) => {
+    if (iconName === 'flag') {
       return <span className="text-2xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 inline-block">🇺🇸</span>;
     }
-    if (name.includes("SHARK")) {
+    if (iconName === 'fish') {
       return <Fish className="h-5 w-5 text-blue-500 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />;
     }
-    if (name.includes("MIDAS")) {
+    if (iconName === 'sparkles') {
       return <Sparkles className="h-5 w-5 text-amber-500 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 group-hover:drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]" />;
     }
-    if (name.includes("TIGERS")) {
+    if (iconName === 'cat') {
       return <Cat className="h-5 w-5 text-orange-500 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6" />;
     }
-    if (name.includes("STRIKE")) {
+    if (iconName === 'target') {
       return <Target className="h-5 w-5 text-red-500 transition-all duration-300 group-hover:scale-110 group-hover:rotate-180" />;
     }
+    if (iconName === 'trophy') {
+      return <Trophy className="h-5 w-5 text-amber-500 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />;
+    }
+    if (iconName === 'shield') {
+      return <Shield className="h-5 w-5 text-blue-600 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />;
+    }
     
-    // Ranking icons como fallback
+    // Fallback para ranking
     switch (index) {
       case 0:
         return <Trophy className="h-5 w-5 text-amber-500 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />;
@@ -102,6 +112,12 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
     }
   };
 
+  const getStatusBadge = (hasGoal: string) => {
+    if (hasGoal === "SIM") return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-xs">Com Meta</Badge>;
+    if (hasGoal === "NAO_DEFINIDO") return <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20 text-xs">A Definir</Badge>;
+    return <Badge variant="outline" className="text-muted-foreground text-xs">Sem Meta</Badge>;
+  };
+
   return (
     <Card className="shadow-[0_8px_30px_rgba(139,92,246,0.12)] border-primary/10 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-50" />
@@ -118,32 +134,33 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
             key={squad.id} 
             className={`relative overflow-hidden rounded-xl p-3 space-y-3 transition-all duration-300 hover:-translate-y-1 cursor-pointer border-2 backdrop-blur-sm bg-card/80 ${getRankShadow(index)} animate-fade-in`}
             style={{ animationDelay: `${index * 100}ms` }}
+            onClick={() => setSelectedSquad(squad)}
           >
             {/* Gradient overlay */}
             <div className={`absolute inset-0 bg-gradient-to-br ${getRankGradient(index)} opacity-50`} />
             
             <div className="relative z-10 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className={`h-12 w-12 rounded-full flex items-center justify-center border-2 group ${
-                    index === 0 ? 'bg-gradient-to-br from-amber-500 to-amber-600 border-amber-400' :
-                    index === 1 ? 'bg-gradient-to-br from-slate-400 to-slate-500 border-slate-300' :
-                    index === 2 ? 'bg-gradient-to-br from-amber-700 to-amber-800 border-amber-600' :
-                    'bg-gradient-to-br from-primary/20 to-primary/10 border-primary/30'
-                  } shadow-lg`}>
-                    <div className="relative">
-                      {getSquadIcon(squad.name, index)}
-                      <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
-                        index === 0 ? 'bg-amber-500 text-white' :
-                        index === 1 ? 'bg-slate-400 text-white' :
-                        index === 2 ? 'bg-amber-700 text-white' :
-                        'bg-primary text-primary-foreground'
-                      }`}>
-                        {index + 1}
+                  <div className="relative">
+                    <div className={`h-12 w-12 rounded-full flex items-center justify-center border-2 group ${
+                      index === 0 ? 'bg-gradient-to-br from-amber-500 to-amber-600 border-amber-400' :
+                      index === 1 ? 'bg-gradient-to-br from-slate-400 to-slate-500 border-slate-300' :
+                      index === 2 ? 'bg-gradient-to-br from-amber-700 to-amber-800 border-amber-600' :
+                      'bg-gradient-to-br from-primary/20 to-primary/10 border-primary/30'
+                    } shadow-lg`}>
+                      <div className="relative">
+                        {renderIcon(squad.icon, index)}
+                        <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
+                          index === 0 ? 'bg-amber-500 text-white' :
+                          index === 1 ? 'bg-slate-400 text-white' :
+                          index === 2 ? 'bg-amber-700 text-white' :
+                          'bg-primary text-primary-foreground'
+                        }`}>
+                          {index + 1}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
                 <div>
                   <div className="flex items-center gap-2 mb-0.5">
                     <h4 className="font-bold text-base">{squad.name}</h4>
@@ -206,6 +223,47 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
           </div>
         ))}
       </CardContent>
+
+      {/* Dialog com lista de clientes */}
+      {selectedSquad && (
+        <Dialog open={!!selectedSquad} onOpenChange={() => setSelectedSquad(null)}>
+          <DialogContent className="sm:max-w-[480px] rounded-xl">
+            <DialogHeader>
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
+                  {renderIcon(selectedSquad.icon, squadStats.indexOf(selectedSquad))}
+                </div>
+                <div>
+                  <DialogTitle className="text-lg font-bold">{selectedSquad.name}</DialogTitle>
+                  <DialogDescription className="text-sm">
+                    {selectedSquad.total} {selectedSquad.total === 1 ? 'cliente' : 'clientes'}
+                  </DialogDescription>
+                </div>
+              </div>
+            </DialogHeader>
+            
+            <ScrollArea className="max-h-[400px] pr-4">
+              <div className="space-y-2">
+                {selectedSquad.clients.map((client, index) => (
+                  <div 
+                    key={client.name}
+                    className="flex items-center justify-between p-3 rounded-lg border border-border/50 hover:border-primary/30 hover:bg-muted/40 transition-all duration-200 animate-fade-in"
+                    style={{ animationDelay: `${index * 30}ms` }}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <User className="h-4 w-4 text-primary" />
+                      </div>
+                      <span className="font-medium text-sm">{client.name}</span>
+                    </div>
+                    {getStatusBadge(client.hasGoal || 'NAO_DEFINIDO')}
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </DialogContent>
+        </Dialog>
+      )}
     </Card>
   );
 };

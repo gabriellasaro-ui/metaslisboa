@@ -66,6 +66,7 @@ export interface Squad {
   id: string;
   name: string;
   slug?: string;
+  icon?: string | null;
   leader?: Leader | string;
   clients: Client[];
 }
