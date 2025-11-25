@@ -112,11 +112,11 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
         </CardTitle>
         <CardDescription>Performance comparativa por cobertura de metas</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4 relative">
+      <CardContent className="space-y-3 relative">
         {squadStats.map((squad, index) => (
           <div 
             key={squad.id} 
-            className={`relative overflow-hidden rounded-xl p-5 space-y-4 transition-all duration-300 hover:-translate-y-1 cursor-pointer border-2 backdrop-blur-sm bg-card/80 ${getRankShadow(index)} animate-fade-in`}
+            className={`relative overflow-hidden rounded-xl p-3 space-y-3 transition-all duration-300 hover:-translate-y-1 cursor-pointer border-2 backdrop-blur-sm bg-card/80 ${getRankShadow(index)} animate-fade-in`}
             style={{ animationDelay: `${index * 100}ms` }}
           >
             {/* Gradient overlay */}
@@ -125,7 +125,7 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
             <div className="relative z-10 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <div className={`h-16 w-16 rounded-full flex items-center justify-center border-2 group ${
+                  <div className={`h-12 w-12 rounded-full flex items-center justify-center border-2 group ${
                     index === 0 ? 'bg-gradient-to-br from-amber-500 to-amber-600 border-amber-400' :
                     index === 1 ? 'bg-gradient-to-br from-slate-400 to-slate-500 border-slate-300' :
                     index === 2 ? 'bg-gradient-to-br from-amber-700 to-amber-800 border-amber-600' :
@@ -133,7 +133,7 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
                   } shadow-lg`}>
                     <div className="relative">
                       {getSquadIcon(squad.name, index)}
-                      <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                      <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
                         index === 0 ? 'bg-amber-500 text-white' :
                         index === 1 ? 'bg-slate-400 text-white' :
                         index === 2 ? 'bg-amber-700 text-white' :
@@ -145,17 +145,17 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
                   </div>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-bold text-lg">{squad.name}</h4>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <h4 className="font-bold text-base">{squad.name}</h4>
                     {getRankBadge(index)}
                   </div>
                   {squad.leader && (
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <Avatar className="h-5 w-5 border-2 border-border shadow-sm">
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <Avatar className="h-4 w-4 border border-border shadow-sm">
                         <AvatarImage src={squad.leader.avatar} alt={squad.leader.name} />
-                        <AvatarFallback className="text-[10px] bg-primary/10">{squad.leader.name[0]}</AvatarFallback>
+                        <AvatarFallback className="text-[8px] bg-primary/10">{squad.leader.name[0]}</AvatarFallback>
                       </Avatar>
-                      <p className="text-sm text-muted-foreground font-medium">
+                      <p className="text-xs text-muted-foreground font-medium">
                         {squad.leader.name}
                       </p>
                     </div>
@@ -163,7 +163,7 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
                 </div>
               </div>
               <div className="text-right">
-                <div className={`text-4xl font-bold ${
+                <div className={`text-3xl font-bold ${
                   index === 0 ? 'text-amber-500' :
                   index === 1 ? 'text-slate-400' :
                   index === 2 ? 'text-amber-700' :
@@ -171,36 +171,36 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
                 }`}>
                   {squad.coverageRate.toFixed(1)}%
                 </div>
-                <div className="text-xs text-muted-foreground font-medium mt-1">Cobertura</div>
+                <div className="text-[10px] text-muted-foreground font-medium mt-0.5">Cobertura</div>
               </div>
             </div>
 
-            <div className="relative z-10 space-y-2">
-              <div className="flex justify-between text-sm">
+            <div className="relative z-10 space-y-1.5">
+              <div className="flex justify-between text-xs">
                 <span className="text-muted-foreground font-medium">Progresso de Metas</span>
                 <span className="font-bold">{squad.withGoals}/{squad.total}</span>
               </div>
-              <Progress value={squad.coverageRate} className="h-3 shadow-inner" />
+              <Progress value={squad.coverageRate} className="h-2 shadow-inner" />
             </div>
 
-            <div className="relative z-10 grid grid-cols-3 gap-3 pt-3 border-t border-border/50">
-              <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-center transition-all duration-200 hover:bg-emerald-500/15">
-                <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+            <div className="relative z-10 grid grid-cols-3 gap-2 pt-2 border-t border-border/50">
+              <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-center transition-all duration-200 hover:bg-emerald-500/15">
+                <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                   {squad.withGoals}
                 </div>
-                <div className="text-xs text-muted-foreground font-medium mt-1">Com Meta</div>
+                <div className="text-[10px] text-muted-foreground font-medium mt-0.5">Com Meta</div>
               </div>
-              <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center transition-all duration-200 hover:bg-amber-500/15">
-                <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+              <div className="p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center transition-all duration-200 hover:bg-amber-500/15">
+                <div className="text-xl font-bold text-amber-600 dark:text-amber-400">
                   {squad.pending}
                 </div>
-                <div className="text-xs text-muted-foreground font-medium mt-1">A Definir</div>
+                <div className="text-[10px] text-muted-foreground font-medium mt-0.5">A Definir</div>
               </div>
-              <div className="p-2 rounded-lg bg-muted/30 border border-border/30 text-center transition-all duration-200 hover:bg-muted/50">
-                <div className="text-2xl font-bold text-muted-foreground">
+              <div className="p-1.5 rounded-lg bg-muted/30 border border-border/30 text-center transition-all duration-200 hover:bg-muted/50">
+                <div className="text-xl font-bold text-muted-foreground">
                   {squad.withoutGoals}
                 </div>
-                <div className="text-xs text-muted-foreground font-medium mt-1">Sem Meta</div>
+                <div className="text-[10px] text-muted-foreground font-medium mt-0.5">Sem Meta</div>
               </div>
             </div>
           </div>
