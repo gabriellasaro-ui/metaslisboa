@@ -31,8 +31,6 @@ import { Separator } from "@/components/ui/separator";
 import { CheckInsDemoCard } from "@/components/dashboard/CheckInsDemoCard";
 import { TourButton } from "@/components/dashboard/TourButton";
 import { WelcomeDialog } from "@/components/dashboard/WelcomeDialog";
-import { SettingsDialog } from "@/components/dashboard/SettingsDialog";
-import { Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -56,7 +54,6 @@ const Index = () => {
     const hasVisited = localStorage.getItem("dashboard-visited");
     return !hasVisited;
   });
-  const [showSettings, setShowSettings] = useState(false);
 
   const handleCloseWelcome = (open: boolean) => {
     setShowWelcome(open);
@@ -229,14 +226,6 @@ const Index = () => {
               </div>
               <div className="flex items-center gap-2">
                 <TourButton />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowSettings(true)}
-                  className="hover:bg-primary/10 transition-colors"
-                >
-                  <Settings className="h-5 w-5" />
-                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -564,9 +553,6 @@ const Index = () => {
             </DialogContent>
           </Dialog>
         )}
-
-        {/* Settings Dialog */}
-        <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
       </div>
     </div>
   );
