@@ -41,6 +41,15 @@
     }
   }
 
+  @keyframes gradient-pulse {
+    0%, 100% {
+      background: linear-gradient(160deg, hsl(0, 0%, 3%) 0%, hsl(351, 70%, 15%) 25%, hsl(351, 85%, 20%) 50%, hsl(351, 70%, 15%) 75%, hsl(0, 0%, 3%) 100%);
+    }
+    50% {
+      background: linear-gradient(160deg, hsl(0, 0%, 3%) 0%, hsl(351, 80%, 18%) 25%, hsl(351, 95%, 25%) 50%, hsl(351, 80%, 18%) 75%, hsl(0, 0%, 3%) 100%);
+    }
+  }
+
   .animate-bounce-in {
     animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
@@ -207,5 +216,6 @@ All colors MUST be HSL.
     @apply text-foreground transition-colors duration-500;
     background: linear-gradient(160deg, hsl(0, 0%, 3%) 0%, hsl(351, 70%, 15%) 25%, hsl(351, 85%, 20%) 50%, hsl(351, 70%, 15%) 75%, hsl(0, 0%, 3%) 100%);
     background-attachment: fixed;
+    animation: gradient-pulse 4s ease-in-out infinite;
   }
 }
