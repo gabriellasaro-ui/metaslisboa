@@ -7,58 +7,80 @@ export const CheckInsDemoCard = () => {
   const navigate = useNavigate();
 
   return (
-    <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-card to-card">
-      <CardHeader>
+    <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-card to-accent/5 shadow-xl hover:shadow-2xl transition-all duration-300">
+      <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Calendar className="h-6 w-6 text-primary" />
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+              <Calendar className="h-9 w-9 text-primary-foreground" />
             </div>
             <div>
-              <CardTitle className="text-xl">Sistema de Check-ins Semanais</CardTitle>
-              <CardDescription className="text-base mt-1">
-                Agora com banco de dados real integrado!
+              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                Sistema de Check-ins Semanais
+              </CardTitle>
+              <CardDescription className="text-base mt-1.5 font-medium">
+                Acompanhamento completo de progresso em tempo real
               </CardDescription>
             </div>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-border/30">
-            <Calendar className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+          <div className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 hover:scale-105">
+            <div className="h-12 w-12 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+              <Calendar className="h-7 w-7 text-primary" />
+            </div>
             <div>
-              <p className="font-semibold text-sm">Formulário Completo</p>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="font-bold text-base">Formulário Completo</p>
+              <p className="text-sm text-muted-foreground mt-1">
                 Progresso, status e comentários
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-border/30">
-            <TrendingUp className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+          <div className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 border-2 border-accent/20 hover:border-accent/40 transition-all duration-300 hover:scale-105">
+            <div className="h-12 w-12 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
+              <TrendingUp className="h-7 w-7 text-accent-foreground" />
+            </div>
             <div>
-              <p className="font-semibold text-sm">Timeline Interativa</p>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="font-bold text-base">Timeline Interativa</p>
+              <p className="text-sm text-muted-foreground mt-1">
                 Histórico visual de check-ins
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-border/30">
-            <BarChart3 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+          <div className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-secondary/10 to-secondary/5 border-2 border-secondary/20 hover:border-secondary/40 transition-all duration-300 hover:scale-105">
+            <div className="h-12 w-12 rounded-lg bg-secondary/20 flex items-center justify-center flex-shrink-0">
+              <BarChart3 className="h-7 w-7 text-secondary-foreground" />
+            </div>
             <div>
-              <p className="font-semibold text-sm">Gráficos de Evolução</p>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="font-bold text-base">Gráficos de Evolução</p>
+              <p className="text-sm text-muted-foreground mt-1">
                 Progresso semanal visualizado
               </p>
             </div>
           </div>
         </div>
 
-        <div className="pt-4 border-t border-border/30">
-          <p className="text-sm font-medium text-foreground">✅ Totalmente funcional</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Conectado ao Supabase com 76 clientes e 46 metas
-          </p>
+        <div className="flex items-center justify-between pt-4 border-t border-border/30">
+          <div>
+            <p className="text-base font-bold text-foreground flex items-center gap-2">
+              <span className="text-xl">✅</span> Sistema Ativo
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              76 clientes • 46 metas ativas
+            </p>
+          </div>
+          <Button
+            variant="premium"
+            size="lg"
+            onClick={() => navigate("/check-ins-demo")}
+            className="gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
+          >
+            <Calendar className="h-5 w-5" />
+            Acessar Sistema
+            <ArrowRight className="h-4 w-4" />
+          </Button>
         </div>
       </CardContent>
     </Card>
