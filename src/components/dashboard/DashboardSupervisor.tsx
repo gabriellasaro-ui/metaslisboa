@@ -12,6 +12,7 @@ import { GoalProgressTimeline } from "@/components/dashboard/GoalProgressTimelin
 import { CheckInsTimeline } from "@/components/dashboard/CheckInsTimeline";
 import { SquadsComparisonChart } from "@/components/dashboard/charts/SquadsComparisonChart";
 import { HealthStatusDistributionChart } from "@/components/dashboard/charts/HealthStatusDistributionChart";
+import { GoalTypesChart } from "@/components/dashboard/charts/GoalTypesChart";
 import { ReportsSection } from "@/components/dashboard/ReportsSection";
 import { SquadRankingCard } from "@/components/dashboard/SquadRankingCard";
 import { GoalsImportanceCard } from "@/components/dashboard/GoalsImportanceCard";
@@ -97,6 +98,11 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <SquadRankingCard squadsData={squadsData} />
           <GoalsImportanceCard />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <GoalTypesChart />
+          <HealthStatusDistributionChart squadsData={squadsData} />
         </div>
 
         <Separator className="my-8" />
