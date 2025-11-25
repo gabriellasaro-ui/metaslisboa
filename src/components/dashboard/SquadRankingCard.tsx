@@ -35,31 +35,31 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
     const name = squadName.toUpperCase();
     
     if (name.includes("INTERNACIONAL")) {
-      return <span className="text-2xl">🇺🇸</span>;
+      return <span className="text-2xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 inline-block">🇺🇸</span>;
     }
     if (name.includes("SHARK")) {
-      return <Fish className="h-5 w-5 text-blue-500" />;
+      return <Fish className="h-5 w-5 text-blue-500 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />;
     }
     if (name.includes("MIDAS")) {
-      return <Sparkles className="h-5 w-5 text-amber-500" />;
+      return <Sparkles className="h-5 w-5 text-amber-500 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 group-hover:drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]" />;
     }
     if (name.includes("TIGERS")) {
-      return <Cat className="h-5 w-5 text-orange-500" />;
+      return <Cat className="h-5 w-5 text-orange-500 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6" />;
     }
     if (name.includes("STRIKE")) {
-      return <Target className="h-5 w-5 text-red-500" />;
+      return <Target className="h-5 w-5 text-red-500 transition-all duration-300 group-hover:scale-110 group-hover:rotate-180" />;
     }
     
     // Ranking icons como fallback
     switch (index) {
       case 0:
-        return <Trophy className="h-5 w-5 text-amber-500" />;
+        return <Trophy className="h-5 w-5 text-amber-500 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />;
       case 1:
-        return <Award className="h-5 w-5 text-slate-400" />;
+        return <Award className="h-5 w-5 text-slate-400 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />;
       case 2:
-        return <Shield className="h-5 w-5 text-amber-700" />;
+        return <Shield className="h-5 w-5 text-amber-700 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />;
       default:
-        return <Target className="h-5 w-5 text-muted-foreground" />;
+        return <Target className="h-5 w-5 text-muted-foreground transition-all duration-300 group-hover:scale-110" />;
     }
   };
 
@@ -125,7 +125,7 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
             <div className="relative z-10 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <div className={`h-16 w-16 rounded-full flex items-center justify-center border-2 ${
+                  <div className={`h-16 w-16 rounded-full flex items-center justify-center border-2 group ${
                     index === 0 ? 'bg-gradient-to-br from-amber-500 to-amber-600 border-amber-400' :
                     index === 1 ? 'bg-gradient-to-br from-slate-400 to-slate-500 border-slate-300' :
                     index === 2 ? 'bg-gradient-to-br from-amber-700 to-amber-800 border-amber-600' :
