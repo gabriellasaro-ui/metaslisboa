@@ -3,7 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Calendar, TrendingUp, MessageSquare, Clock, User } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar, TrendingUp, MessageSquare, Clock, User, Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -17,21 +18,51 @@ interface CheckIn {
   created_by: string;
   client: {
     name: string;
+    squad: {
+      name: string;
+    };
   };
 }
 
 interface WeeklyCheckInsTimelineProps {
   clientId?: string;
+  squadFilter?: string;
   limit?: number;
+  refreshTrigger?: number;
 }
 
-export const WeeklyCheckInsTimeline = ({ clientId, limit = 10 }: WeeklyCheckInsTimelineProps) => {
+export const WeeklyCheckInsTimeline = ({ 
+  clientId, 
+  squadFilter = "all",
+  limit = 50,
+  refreshTrigger = 0
+}: WeeklyCheckInsTimelineProps) => {
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [squads, setSquads] = useState<string[]>([]);
+  const [selectedSquad, setSelectedSquad] = useState<string>(squadFilter);
+
+  useEffect(() => {
+    fetchSquads();
+  }, []);
 
   useEffect(() => {
     fetchCheckIns();
-  }, [clientId]);
+  }, [clientId, selectedSquad, refreshTrigger]);
+
+  const fetchSquads = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("squads")
+        .select("name")
+        .order("name");
+
+      if (error) throw error;
+      setSquads(data.map(s => s.name));
+    } catch (error) {
+      console.error("Erro ao buscar squads:", error);
+    }
+  };
 
   const fetchCheckIns = async () => {
     setIsLoading(true);
@@ -45,13 +76,30 @@ export const WeeklyCheckInsTimeline = ({ clientId, limit = 10 }: WeeklyCheckInsT
           comment,
           created_at,
           created_by,
-          client:clients(name)
+          client:clients(
+            name,
+            squad:squads(name)
+          )
         `)
         .order("created_at", { ascending: false })
         .limit(limit);
 
       if (clientId) {
         query = query.eq("client_id", clientId);
+      }
+
+      // Filtrar por squad se selecionado
+      if (selectedSquad !== "all") {
+        // Buscar IDs de clientes do squad selecionado
+        const { data: clientsData } = await supabase
+          .from("clients")
+          .select("id, squad:squads!inner(name)")
+          .eq("squad.name", selectedSquad);
+
+        if (clientsData && clientsData.length > 0) {
+          const clientIds = clientsData.map(c => c.id);
+          query = query.in("client_id", clientIds);
+        }
       }
 
       const { data, error } = await query;
@@ -89,13 +137,31 @@ export const WeeklyCheckInsTimeline = ({ clientId, limit = 10 }: WeeklyCheckInsT
       <CardHeader className="border-b border-border/30 pb-6">
         <div className="flex items-center gap-3">
           <div className="h-10 w-1.5 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
-          <div>
+          <div className="flex-1">
             <CardTitle className="text-2xl font-bold">Timeline de Check-ins</CardTitle>
             <CardDescription className="text-base mt-2">
               {clientId ? "Histórico de acompanhamento do cliente" : "Últimos check-ins registrados"}
             </CardDescription>
           </div>
         </div>
+        
+        {/* Filtro de Squad */}
+        {!clientId && squads.length > 0 && (
+          <div className="mt-4 flex items-center gap-3">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={selectedSquad} onValueChange={setSelectedSquad}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Filtrar por squad" />
+              </SelectTrigger>
+              <SelectContent className="bg-background border-border z-50">
+                <SelectItem value="all">Todos os Squads</SelectItem>
+                {squads.map(squad => (
+                  <SelectItem key={squad} value={squad}>{squad}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </CardHeader>
       <CardContent className="pt-6">
         {isLoading ? (
@@ -130,14 +196,12 @@ export const WeeklyCheckInsTimeline = ({ clientId, limit = 10 }: WeeklyCheckInsT
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            {!clientId && (
-                              <h4 className="font-semibold text-foreground">
-                                {checkIn.client?.name || "Cliente"}
-                              </h4>
-                            )}
+                            <h4 className="font-semibold text-foreground">
+                              {checkIn.client?.name || "Cliente"}
+                            </h4>
                             {getStatusBadge(checkIn.status)}
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
                             <span className="flex items-center gap-1.5">
                               <Clock className="h-3.5 w-3.5" />
                               {format(new Date(checkIn.created_at), "dd MMM yyyy 'às' HH:mm", { locale: ptBR })}
@@ -146,6 +210,11 @@ export const WeeklyCheckInsTimeline = ({ clientId, limit = 10 }: WeeklyCheckInsT
                               <User className="h-3.5 w-3.5" />
                               {checkIn.created_by}
                             </span>
+                            {checkIn.client?.squad?.name && (
+                              <Badge variant="outline" className="text-xs">
+                                {checkIn.client.squad.name}
+                              </Badge>
+                            )}
                           </div>
                         </div>
                         <div className="text-right">
