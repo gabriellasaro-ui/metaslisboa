@@ -134,15 +134,35 @@ export const DashboardCoordenador = ({ squadsData, squadId, updateClient }: Dash
 
       {/* Análises */}
       <TabsContent value="analises" className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Distribuição de Metas</CardTitle>
-            <CardDescription>Análise das metas do seu squad</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">Visualizações de análise disponíveis em breve.</p>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Tipos de Metas</CardTitle>
+              <CardDescription>Distribuição por categoria</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-sm">
+                {clients.filter(c => c.goalType === "Faturamento").length} Faturamento | {" "}
+                {clients.filter(c => c.goalType === "Leads").length} Leads | {" "}
+                {clients.filter(c => c.goalType === "OUTROS").length} Outros
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Health Status</CardTitle>
+              <CardDescription>Saúde dos clientes</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-sm">
+                {clients.filter(c => c.healthStatus === "safe").length} Safe | {" "}
+                {clients.filter(c => c.healthStatus === "care").length} Care | {" "}
+                {clients.filter(c => c.healthStatus === "danger").length} Danger
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </TabsContent>
 
       {/* Check-ins */}
