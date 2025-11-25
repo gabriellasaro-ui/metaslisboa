@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Client, GoalStatus, GoalType } from "@/data/clientsData";
 import { MetricsCard } from "@/components/dashboard/MetricsCard";
 import { ClientsTable } from "@/components/dashboard/ClientsTable";
@@ -30,6 +31,8 @@ import { Separator } from "@/components/ui/separator";
 import { CheckInsDemoCard } from "@/components/dashboard/CheckInsDemoCard";
 import { TourButton } from "@/components/dashboard/TourButton";
 import { WelcomeDialog } from "@/components/dashboard/WelcomeDialog";
+import { SettingsDialog } from "@/components/dashboard/SettingsDialog";
+import { Settings } from "lucide-react";
 
 const Index = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | GoalStatus>("all");
@@ -49,6 +52,7 @@ const Index = () => {
     const hasVisited = localStorage.getItem("dashboard-visited");
     return !hasVisited;
   });
+  const [showSettings, setShowSettings] = useState(false);
 
   const handleCloseWelcome = (open: boolean) => {
     setShowWelcome(open);
@@ -204,6 +208,14 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-3">
               <TourButton />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowSettings(true)}
+                className="hover:bg-primary/10 transition-colors"
+              >
+                <Settings className="h-5 w-5" />
+              </Button>
             </div>
           </div>
           <Separator className="bg-border/50" />
@@ -521,6 +533,9 @@ const Index = () => {
             </DialogContent>
           </Dialog>
         )}
+
+        {/* Settings Dialog */}
+        <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
       </div>
     </div>
   );
