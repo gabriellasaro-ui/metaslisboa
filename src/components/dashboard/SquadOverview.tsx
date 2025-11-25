@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { User, ExternalLink, Users, Trophy, Medal, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Squad, Leader } from "@/types";
+import confetti from "canvas-confetti";
 
 interface SquadOverviewProps {
   squad: Squad;
@@ -24,6 +25,68 @@ export const SquadOverview = ({ squad, rank }: SquadOverviewProps) => {
   const withoutGoals = squad.clients.filter(c => c.hasGoal === "NAO").length;
   const total = squad.clients.length;
   const percentageWithGoals = total > 0 ? (withGoals / total) * 100 : 0;
+
+  const celebrateFirstPlace = () => {
+    if (rank !== 1) return;
+    
+    // Confete dourado dos lados
+    const count = 200;
+    const defaults = {
+      origin: { y: 0.7 },
+      colors: ['#FFD700', '#FFA500', '#FF8C00', '#FFFF00']
+    };
+
+    function fire(particleRatio: number, opts: any) {
+      confetti({
+        ...defaults,
+        ...opts,
+        particleCount: Math.floor(count * particleRatio),
+        spread: 100,
+        ticks: 400,
+        gravity: 1.2,
+        decay: 0.94,
+        startVelocity: 30,
+        scalar: 1.2
+      });
+    }
+
+    fire(0.25, { spread: 26, startVelocity: 55 });
+    fire(0.2, { spread: 60 });
+    fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+    fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+    fire(0.1, { spread: 120, startVelocity: 45 });
+
+    // Troféus caindo
+    setTimeout(() => {
+      confetti({
+        particleCount: 30,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.6 },
+        colors: ['#FFD700', '#FFA500'],
+        shapes: ['circle'],
+        scalar: 2,
+        gravity: 1.5,
+        ticks: 300
+      });
+      confetti({
+        particleCount: 30,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.6 },
+        colors: ['#FFD700', '#FFA500'],
+        shapes: ['circle'],
+        scalar: 2,
+        gravity: 1.5,
+        ticks: 300
+      });
+    }, 250);
+  };
+
+  const handleCardClick = () => {
+    celebrateFirstPlace();
+    setShowClients(true);
+  };
 
   const getRankBadge = () => {
     if (rank === 1) return { label: "1º Lugar", icon: Trophy, color: "bg-amber-500 text-white border-amber-600" };
@@ -51,7 +114,7 @@ export const SquadOverview = ({ squad, rank }: SquadOverviewProps) => {
     <>
       <Card 
         className="group animate-fade-in hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 bg-card/80 backdrop-blur-sm border-border/50 hover:border-primary/40 cursor-pointer overflow-hidden rounded-xl hover:scale-[1.01]"
-        onClick={() => setShowClients(true)}
+        onClick={handleCardClick}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
