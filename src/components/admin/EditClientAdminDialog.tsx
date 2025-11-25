@@ -153,7 +153,7 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="health">Saúde</Label>
+            <Label htmlFor="health">Health</Label>
             <Select value={healthStatus} onValueChange={(v: any) => setHealthStatus(v)}>
               <SelectTrigger id="health">
                 <SelectValue />

@@ -119,7 +119,7 @@ export const AdminClientsList = ({ onUpdate }: AdminClientsListProps) => {
               <TableHead>Nome</TableHead>
               <TableHead>Squad</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Saúde</TableHead>
+              <TableHead>Health</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
