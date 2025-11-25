@@ -14,7 +14,6 @@ export const PerformanceAnalysisChart = ({ squadsData }: PerformanceAnalysisChar
     
     // Cálculo de performance
     const coverage = total > 0 ? (withGoals / total) * 100 : 0;
-    const conversionRate = total > 0 ? ((withGoals + pending) / total) * 100 : 0;
     
     // Meta: 80% de cobertura
     const targetCoverage = 80;
@@ -23,7 +22,6 @@ export const PerformanceAnalysisChart = ({ squadsData }: PerformanceAnalysisChar
     return {
       squad: squad.name,
       'Cobertura Atual (%)': parseFloat(coverage.toFixed(1)),
-      'Taxa de Conversão (%)': parseFloat(conversionRate.toFixed(1)),
       'Score de Performance': Math.min(parseFloat(performanceScore.toFixed(1)), 100),
       'Meta (80%)': targetCoverage,
     };
@@ -112,18 +110,10 @@ export const PerformanceAnalysisChart = ({ squadsData }: PerformanceAnalysisChar
               animationEasing="ease-out"
             />
             <Bar 
-              dataKey="Taxa de Conversão (%)" 
-              fill="#3b82f6" 
-              radius={[8, 8, 0, 0]}
-              animationBegin={100}
-              animationDuration={800}
-              animationEasing="ease-out"
-            />
-            <Bar 
               dataKey="Score de Performance" 
               fill="#a855f7" 
               radius={[8, 8, 0, 0]}
-              animationBegin={200}
+              animationBegin={100}
               animationDuration={800}
               animationEasing="ease-out"
             />
@@ -132,7 +122,7 @@ export const PerformanceAnalysisChart = ({ squadsData }: PerformanceAnalysisChar
               fill="#6b7280" 
               radius={[8, 8, 0, 0]} 
               fillOpacity={0.3}
-              animationBegin={300}
+              animationBegin={200}
               animationDuration={800}
               animationEasing="ease-out"
             />

@@ -106,7 +106,7 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
           <CardDescription>Principais destaques do período de 100 dias</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
@@ -132,20 +132,6 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
               </p>
               <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
                 Líder: {bestSquad.leader || 'N/A'}
-              </Badge>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                <h3 className="font-semibold">Meta Próxima</h3>
-              </div>
-              <div className="text-2xl font-bold">80%</div>
-              <p className="text-sm text-muted-foreground">
-                Objetivo: {80 - parseFloat(coverageRate)} pontos percentuais restantes
-              </p>
-              <Badge variant="outline" className="text-blue-600 dark:text-blue-400 border-blue-500/20">
-                {parseFloat(coverageRate) >= 80 ? "Meta Atingida!" : "Em Progresso"}
               </Badge>
             </div>
           </div>
