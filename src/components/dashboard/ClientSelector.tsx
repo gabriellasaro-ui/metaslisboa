@@ -57,7 +57,7 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
             progress
           )
         `)
-        .eq("status", "ativo")
+        .in("status", ["ativo", "aviso_previo"])
         .order("name");
 
       if (error) throw error;
@@ -114,7 +114,14 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
               {squadClients.map((client) => (
                 <SelectItem key={client.id} value={client.id} className="cursor-pointer">
                   <div className="flex items-center justify-between gap-3 w-full min-w-[300px]">
-                    <span className="font-medium">{client.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{client.name}</span>
+                      {client.status === "aviso_previo" && (
+                        <Badge variant="secondary" className="text-xs shrink-0 bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border-yellow-500/30">
+                          Aviso Prévio
+                        </Badge>
+                      )}
+                    </div>
                     {client.goals && client.goals.length > 0 ? (
                       <Badge variant="default" className="text-xs shrink-0">
                         {client.goals.length} {client.goals.length === 1 ? "meta" : "metas"}
