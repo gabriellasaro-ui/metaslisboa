@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
+import { BackgroundParticles } from "@/components/BackgroundParticles";
 import Index from "./pages/Index";
 import LeaderProfile from "./pages/LeaderProfile";
 import CheckInsDemo from "./pages/CheckInsDemo";
@@ -15,6 +16,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <TooltipProvider>
+        <BackgroundParticles />
         <Toaster />
         <Sonner />
         <BrowserRouter>
