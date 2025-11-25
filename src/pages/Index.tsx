@@ -14,6 +14,7 @@ import { GoalTypesChart } from "@/components/dashboard/charts/GoalTypesChart";
 import { EvolutionTimelineChart } from "@/components/dashboard/charts/EvolutionTimelineChart";
 import { PerformanceAnalysisChart } from "@/components/dashboard/charts/PerformanceAnalysisChart";
 import { ReportsSection } from "@/components/dashboard/ReportsSection";
+import { LeaderRankingCard } from "@/components/dashboard/LeaderRankingCard";
 import { useClientsData } from "@/hooks/useClientsData";
 import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
 
@@ -124,6 +125,7 @@ const Index = () => {
             <SquadsComparisonChart />
           </div>
           <GoalTypesChart />
+          <LeaderRankingCard squadsData={squadsData} />
           <div className="md:col-span-2">
             <Card>
               <CardHeader>
