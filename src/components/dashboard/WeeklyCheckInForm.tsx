@@ -145,7 +145,7 @@ export const WeeklyCheckInForm = ({
               placeholder="Escolha o cliente para o check-in"
             />
             {selectedClient && (
-              <div className="bg-muted/30 rounded-lg p-3 border border-border/30 mt-2">
+              <div className="bg-muted/30 rounded-lg p-3 border border-border/30 mt-2 max-w-full overflow-hidden">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Squad:</span>
                   <span className="font-semibold">{selectedClient.squad?.name}</span>
@@ -154,10 +154,14 @@ export const WeeklyCheckInForm = ({
                   <span className="text-muted-foreground">Líder:</span>
                   <span className="font-semibold">{selectedClient.squad?.leader?.name}</span>
                 </div>
-                {selectedClient.goals && selectedClient.goals.length > 0 && (
+                {selectedClient.goals && selectedClient.goals.length > 0 ? (
                   <div className="mt-2 pt-2 border-t border-border/30">
                     <p className="text-xs text-muted-foreground mb-1">Meta Atual:</p>
-                    <p className="text-sm font-medium">{selectedClient.goals[0].goal_value}</p>
+                    <p className="text-sm font-medium break-words">{selectedClient.goals[0].goal_value}</p>
+                  </div>
+                ) : (
+                  <div className="mt-2 pt-2 border-t border-border/30">
+                    <p className="text-xs text-amber-600 dark:text-amber-500">⚠️ Cliente sem meta definida</p>
                   </div>
                 )}
               </div>
@@ -258,18 +262,21 @@ export const WeeklyCheckInForm = ({
             </p>
           </div>
 
-          {/* Resumo da Call */}
+          {/* Documento da Call */}
           <div className="space-y-2">
             <Label className="text-base font-semibold flex items-center gap-2">
               <MessageSquare className="h-4 w-4 text-accent-foreground" />
-              Resumo da Call (Opcional)
+              Documento da Call (Opcional)
             </Label>
-            <Textarea
-              placeholder="Resumo dos principais pontos discutidos na call, decisões tomadas, ações definidas..."
+            <p className="text-xs text-muted-foreground mb-2">
+              Cole o link do Google Docs com o resumo da call
+            </p>
+            <input
+              type="url"
+              placeholder="https://docs.google.com/document/d/..."
               value={callSummary}
               onChange={(e) => setCallSummary(e.target.value)}
-              rows={3}
-              className="resize-none"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
 

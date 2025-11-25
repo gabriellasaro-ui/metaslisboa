@@ -44,20 +44,25 @@ interface WeeklyCheckInsTimelineProps {
   squadFilter?: string;
   limit?: number;
   refreshTrigger?: number;
+  showClientFilter?: boolean;
 }
 
 export const WeeklyCheckInsTimeline = ({ 
   clientId, 
   squadFilter = "all",
   limit = 50,
-  refreshTrigger = 0
+  refreshTrigger = 0,
+  showClientFilter = true
 }: WeeklyCheckInsTimelineProps) => {
   const { user, isCoordenador, isSupervisor } = useAuth();
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [squads, setSquads] = useState<string[]>([]);
   const [selectedSquad, setSelectedSquad] = useState<string>(squadFilter);
+  const [selectedClient, setSelectedClient] = useState<string>("all");
+  const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [deleteCheckInId, setDeleteCheckInId] = useState<string | null>(null);
+  const [clients, setClients] = useState<Array<{id: string, name: string}>>([]);
 
   const canDeleteCheckIn = (checkInCreatedBy: string) => {
     return checkInCreatedBy === user?.id || isCoordenador || isSupervisor;
@@ -65,11 +70,12 @@ export const WeeklyCheckInsTimeline = ({
 
   useEffect(() => {
     fetchSquads();
+    fetchClients();
   }, []);
 
   useEffect(() => {
     fetchCheckIns();
-  }, [clientId, selectedSquad, refreshTrigger]);
+  }, [clientId, selectedSquad, selectedClient, selectedStatus, refreshTrigger]);
 
   const fetchSquads = async () => {
     try {
@@ -82,6 +88,21 @@ export const WeeklyCheckInsTimeline = ({
       setSquads(data.map(s => s.name));
     } catch (error) {
       console.error("Erro ao buscar squads:", error);
+    }
+  };
+
+  const fetchClients = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("clients")
+        .select("id, name")
+        .eq("status", "ativo")
+        .order("name");
+
+      if (error) throw error;
+      setClients(data || []);
+    } catch (error) {
+      console.error("Erro ao buscar clientes:", error);
     }
   };
 
@@ -109,6 +130,16 @@ export const WeeklyCheckInsTimeline = ({
 
       if (clientId) {
         query = query.eq("client_id", clientId);
+      }
+
+      // Filtrar por cliente selecionado
+      if (selectedClient !== "all") {
+        query = query.eq("client_id", selectedClient);
+      }
+
+      // Filtrar por status
+      if (selectedStatus !== "all") {
+        query = query.eq("status", selectedStatus);
       }
 
       // Filtrar por squad se selecionado
@@ -193,21 +224,70 @@ export const WeeklyCheckInsTimeline = ({
           </div>
         </div>
         
-        {/* Filtro de Squad */}
-        {!clientId && squads.length > 0 && (
-          <div className="mt-4 flex items-center gap-3">
+        {/* Filtros */}
+        {!clientId && (
+          <div className="mt-4 flex flex-wrap items-center gap-3">
             <Filter className="h-4 w-4 text-muted-foreground" />
-            <Select value={selectedSquad} onValueChange={setSelectedSquad}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Filtrar por squad" />
+            
+            {/* Filtro de Squad */}
+            {squads.length > 0 && (
+              <Select value={selectedSquad} onValueChange={setSelectedSquad}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filtrar por squad" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border-border z-50">
+                  <SelectItem value="all">Todos os Squads</SelectItem>
+                  {squads.map(squad => (
+                    <SelectItem key={squad} value={squad}>{squad}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
+            {/* Filtro de Cliente */}
+            {showClientFilter && clients.length > 0 && (
+              <Select value={selectedClient} onValueChange={setSelectedClient}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Filtrar por cliente" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border-border z-50 max-h-[300px]">
+                  <SelectItem value="all">Todos os Clientes</SelectItem>
+                  {clients.map(client => (
+                    <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
+            {/* Filtro de Status */}
+            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Filtrar por status" />
               </SelectTrigger>
               <SelectContent className="bg-background border-border z-50">
-                <SelectItem value="all">Todos os Squads</SelectItem>
-                {squads.map(squad => (
-                  <SelectItem key={squad} value={squad}>{squad}</SelectItem>
-                ))}
+                <SelectItem value="all">Todos os Status</SelectItem>
+                <SelectItem value="on_track">No Prazo</SelectItem>
+                <SelectItem value="at_risk">Em Risco</SelectItem>
+                <SelectItem value="delayed">Atrasado</SelectItem>
+                <SelectItem value="completed">Concluído</SelectItem>
               </SelectContent>
             </Select>
+
+            {/* Botão Limpar Filtros */}
+            {(selectedSquad !== "all" || selectedClient !== "all" || selectedStatus !== "all") && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedSquad("all");
+                  setSelectedClient("all");
+                  setSelectedStatus("all");
+                }}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Limpar filtros
+              </Button>
+            )}
           </div>
         )}
       </CardHeader>
