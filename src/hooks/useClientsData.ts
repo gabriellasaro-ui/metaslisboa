@@ -66,23 +66,33 @@ export const useClientsData = () => {
             const activeGoal = hasGoals ? client.goals[0] : null;
             
             // Determinar o status correto da meta
-            let hasGoalStatus: "SIM" | "NAO" | "NAO_DEFINIDO" = "NAO";
+            let hasGoalStatus: "SIM" | "NAO" | "NAO_DEFINIDO" = "NAO_DEFINIDO";
             if (hasGoals && activeGoal) {
               if (activeGoal.status === "nao_definida") {
                 hasGoalStatus = "NAO_DEFINIDO";
               } else if (activeGoal.status === "em_andamento" || activeGoal.status === "concluida") {
                 hasGoalStatus = "SIM";
+              } else {
+                hasGoalStatus = "NAO_DEFINIDO";
               }
+            }
+            
+            // Lógica automática de health_status baseado no client_status
+            let autoHealthStatus = client.health_status || 'safe';
+            if (client.status === 'churned') {
+              autoHealthStatus = 'danger';
+            } else if (client.status === 'aviso_previo') {
+              autoHealthStatus = 'care';
             }
 
             return {
               name: client.name,
               hasGoal: hasGoalStatus,
+              status: client.status,
+              health_status: autoHealthStatus,
               goalType: activeGoal?.goal_type || undefined,
               goalValue: activeGoal?.goal_value || undefined,
               currentProgress: activeGoal?.progress || 0,
-              healthStatus: client.health_status || "safe",
-              status: client.status || "ativo",
               notes: client.notes || undefined,
               period: activeGoal?.period || undefined,
               smartGoal: activeGoal ? {
