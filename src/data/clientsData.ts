@@ -88,14 +88,11 @@ export const squadsData: Squad[] = [
       { name: "Fieza", hasGoal: "SIM", goalType: "Faturamento", goalValue: "Ultrapassar 300k de faturamento" },
       { name: "MPA", hasGoal: "SIM", goalType: "OUTROS", goalValue: "Desenvolvimento de software SDR IA" },
       { name: "Unit Brasil", hasGoal: "SIM", goalType: "Faturamento", goalValue: "Alcançar 40 vendas em 3 meses" },
-      { name: "Ótica a Fabrica", hasGoal: "NAO" },
+      { name: "Óticas a Fábrica", hasGoal: "NAO" },
       { name: "Voight", hasGoal: "NAO" },
-      { name: "TSA", hasGoal: "NAO" },
-      { name: "PkLog", hasGoal: "NAO" },
+      { name: "PK Log", hasGoal: "NAO" },
       { name: "Dichopp Cervejas Especiais", hasGoal: "NAO" },
       { name: "MQ Construtora", hasGoal: "NAO" },
-      { name: "PK Log", hasGoal: "NAO" },
-      { name: "Óticas a fábrica", hasGoal: "NAO" },
     ]
   },
   {
