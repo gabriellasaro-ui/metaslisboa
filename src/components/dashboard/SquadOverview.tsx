@@ -84,26 +84,20 @@ export const SquadOverview = ({ squad }: SquadOverviewProps) => {
             <Progress value={percentageWithGoals} className="h-2 rounded-full" />
           </div>
           
-          <div className="grid grid-cols-3 gap-3">
-            <div className="text-center p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-200 hover:scale-105 animate-slide-up" style={{ animationDelay: '250ms' }}>
-              <div className="text-2xl font-bold text-emerald-500">
-                {withGoals}
-              </div>
-              <div className="text-xs text-muted-foreground mt-1">Com Meta</div>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-200 animate-slide-up" style={{ animationDelay: '250ms' }}>
+              <span className="text-sm text-muted-foreground">Com Meta</span>
+              <div className="text-2xl font-bold text-emerald-500">{withGoals}</div>
             </div>
             
-            <div className="text-center p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 hover:border-amber-500/40 transition-all duration-200 hover:scale-105 animate-slide-up" style={{ animationDelay: '300ms' }}>
-              <div className="text-2xl font-bold text-amber-500">
-                {pending}
-              </div>
-              <div className="text-xs text-muted-foreground mt-1">A Definir</div>
+            <div className="flex items-center justify-between p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 hover:border-amber-500/40 transition-all duration-200 animate-slide-up" style={{ animationDelay: '300ms' }}>
+              <span className="text-sm text-muted-foreground">A Definir</span>
+              <div className="text-2xl font-bold text-amber-500">{pending}</div>
             </div>
             
-            <div className="text-center p-3 rounded-lg bg-muted/20 border border-border/30 hover:border-border/50 transition-all duration-200 hover:scale-105 animate-slide-up" style={{ animationDelay: '350ms' }}>
-              <div className="text-2xl font-bold text-muted-foreground">
-                {withoutGoals}
-              </div>
-              <div className="text-xs text-muted-foreground mt-1">Sem Meta</div>
+            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/20 border border-border/30 hover:border-border/50 transition-all duration-200 animate-slide-up" style={{ animationDelay: '350ms' }}>
+              <span className="text-sm text-muted-foreground">Sem Meta</span>
+              <div className="text-2xl font-bold text-muted-foreground">{withoutGoals}</div>
             </div>
           </div>
         </CardContent>
