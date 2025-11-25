@@ -21,7 +21,7 @@ import { ReportsSection } from "@/components/dashboard/ReportsSection";
 import { SquadRankingCard } from "@/components/dashboard/SquadRankingCard";
 import { GoalsImportanceCard } from "@/components/dashboard/GoalsImportanceCard";
 import { useClientsData } from "@/hooks/useClientsData";
-import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
+import { Target, Users, AlertCircle, TrendingUp, LogOut, User } from "lucide-react";
 import { AdvancedFilters, SortField, SortOrder } from "@/components/dashboard/AdvancedFilters";
 import { ExportButtons } from "@/components/dashboard/ExportButtons";
 import { FilterStats } from "@/components/dashboard/FilterStats";
@@ -33,8 +33,12 @@ import { TourButton } from "@/components/dashboard/TourButton";
 import { WelcomeDialog } from "@/components/dashboard/WelcomeDialog";
 import { SettingsDialog } from "@/components/dashboard/SettingsDialog";
 import { Settings } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const Index = () => {
+  const { profile, role, squadId, isCoordenador, isSupervisor, signOut } = useAuth();
   const [statusFilter, setStatusFilter] = useState<"all" | GoalStatus>("all");
   const [goalTypeFilter, setGoalTypeFilter] = useState<"all" | GoalType>("all");
   const { squadsData, updateClient } = useClientsData();
@@ -197,8 +201,8 @@ const Index = () => {
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 relative z-10 max-w-[1600px]">
         {/* Header */}
         <header className="mb-12 animate-fade-in">
-          <div className="flex items-center justify-between mb-6">
-            <div className="space-y-2">
+          <div className="flex items-center justify-between mb-6 gap-4">
+            <div className="space-y-2 flex-1">
               <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
                 Dashboard de Metas
               </h1>
@@ -206,16 +210,43 @@ const Index = () => {
                 Acompanhamento estratégico de objetivos e resultados
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <TourButton />
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowSettings(true)}
-                className="hover:bg-primary/10 transition-colors"
-              >
-                <Settings className="h-5 w-5" />
-              </Button>
+            <div className="flex items-center gap-4">
+              {/* User Info */}
+              <div className="hidden md:flex items-center gap-3 bg-card/50 border border-border/50 rounded-lg px-4 py-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                    {profile?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="text-sm">
+                  <p className="font-medium text-foreground">{profile?.name || 'Usuário'}</p>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">
+                      {role === 'investidor' ? 'Investidor' : role === 'coordenador' ? 'Coordenador' : 'Supervisor'}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <TourButton />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowSettings(true)}
+                  className="hover:bg-primary/10 transition-colors"
+                >
+                  <Settings className="h-5 w-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={signOut}
+                  className="hover:bg-destructive/10 hover:text-destructive transition-colors"
+                  title="Sair"
+                >
+                  <LogOut className="h-5 w-5" />
+                </Button>
+              </div>
             </div>
           </div>
           <Separator className="bg-border/50" />

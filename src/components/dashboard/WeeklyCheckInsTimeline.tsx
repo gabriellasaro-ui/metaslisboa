@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,11 +52,16 @@ export const WeeklyCheckInsTimeline = ({
   limit = 50,
   refreshTrigger = 0
 }: WeeklyCheckInsTimelineProps) => {
+  const { user, isCoordenador, isSupervisor } = useAuth();
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [squads, setSquads] = useState<string[]>([]);
   const [selectedSquad, setSelectedSquad] = useState<string>(squadFilter);
   const [deleteCheckInId, setDeleteCheckInId] = useState<string | null>(null);
+
+  const canDeleteCheckIn = (checkInCreatedBy: string) => {
+    return checkInCreatedBy === user?.id || isCoordenador || isSupervisor;
+  };
 
   useEffect(() => {
     fetchSquads();
@@ -264,14 +270,16 @@ export const WeeklyCheckInsTimeline = ({
                             <div className="text-2xl font-bold text-primary">{checkIn.progress}%</div>
                             <div className="text-xs text-muted-foreground">progresso</div>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDeleteCheckInId(checkIn.id)}
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          {canDeleteCheckIn(checkIn.created_by) && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setDeleteCheckInId(checkIn.id)}
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </div>
 
