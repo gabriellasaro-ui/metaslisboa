@@ -118,7 +118,7 @@ export default function Auth() {
         options: {
           data: {
             name: validated.name,
-            squad_id: validated.squad_id,
+            squad_id: validated.squad_id || null,
             role: validated.role,
           },
           emailRedirectTo: `${window.location.origin}/`,
