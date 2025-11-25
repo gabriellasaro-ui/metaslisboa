@@ -97,22 +97,25 @@ export const HealthStatusDistributionChart = ({ squadsData }: HealthStatusDistri
               radius={[0, 0, 0, 0]}
               animationBegin={0}
               animationDuration={800}
+              name="Safe"
             />
             <Bar 
               dataKey="Care" 
               stackId="a" 
-              fill="#f59e0b" 
+              fill="#f97316" 
               radius={[0, 0, 0, 0]}
               animationBegin={200}
               animationDuration={800}
+              name="Care"
             />
             <Bar 
               dataKey="Danger" 
               stackId="a" 
-              fill="#ef4444" 
+              fill="#dc2626" 
               radius={[8, 8, 0, 0]}
               animationBegin={400}
               animationDuration={800}
+              name="Danger"
             />
           </BarChart>
         </ResponsiveContainer>
