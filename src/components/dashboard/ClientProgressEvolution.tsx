@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Loader2, TrendingUp } from "lucide-react";
+import { Loader2, TrendingUp, FileDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { generateClientReportPDF } from "@/utils/clientReportPdf";
 
 interface Client {
   id: string;
@@ -22,6 +25,7 @@ interface CheckInData {
   progress: number;
   status: string;
   comment: string;
+  created_at: string;
 }
 
 export const ClientProgressEvolution = () => {
@@ -29,6 +33,7 @@ export const ClientProgressEvolution = () => {
   const [selectedClientId, setSelectedClientId] = useState<string>("");
   const [chartData, setChartData] = useState<CheckInData[]>([]);
   const [loading, setLoading] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
   const [clientName, setClientName] = useState("");
   const [squadName, setSquadName] = useState("");
 
@@ -87,6 +92,7 @@ export const ClientProgressEvolution = () => {
       progress: checkIn.progress,
       status: checkIn.status,
       comment: checkIn.comment,
+      created_at: checkIn.created_at,
     }));
 
     setChartData(formattedData);
@@ -153,32 +159,87 @@ export const ClientProgressEvolution = () => {
 
   const latestProgress = chartData.length > 0 ? chartData[chartData.length - 1].progress : 0;
 
+  const handleExportPDF = async () => {
+    if (chartData.length === 0) {
+      toast.error("Não há dados para exportar");
+      return;
+    }
+
+    setExportingPdf(true);
+    
+    try {
+      await generateClientReportPDF({
+        clientName,
+        squadName,
+        checkIns: chartData.map(item => ({
+          created_at: item.created_at,
+          progress: item.progress,
+          status: item.status,
+          comment: item.comment,
+        })),
+        currentStatus: chartData[chartData.length - 1].status,
+        averageProgress,
+        latestProgress,
+      });
+      
+      toast.success("Relatório PDF gerado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast.error("Erro ao gerar relatório PDF");
+    } finally {
+      setExportingPdf(false);
+    }
+  };
+
   return (
     <Card className="border-primary/20">
       <CardHeader>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <CardTitle>Evolução Temporal por Cliente</CardTitle>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                <CardTitle>Evolução Temporal por Cliente</CardTitle>
+              </div>
+              <CardDescription>
+                Acompanhe o progresso histórico de cada cliente ao longo das semanas
+              </CardDescription>
             </div>
-            <CardDescription>
-              Acompanhe o progresso histórico de cada cliente ao longo das semanas
-            </CardDescription>
+            
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Select value={selectedClientId} onValueChange={setSelectedClientId}>
+                <SelectTrigger className="w-full sm:w-[280px]">
+                  <SelectValue placeholder="Selecione um cliente" />
+                </SelectTrigger>
+                <SelectContent>
+                  {clients.map((client) => (
+                    <SelectItem key={client.id} value={client.id}>
+                      {client.name} - {client.squads?.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Button
+                onClick={handleExportPDF}
+                disabled={exportingPdf || chartData.length === 0}
+                variant="outline"
+                className="gap-2"
+              >
+                {exportingPdf ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Gerando...
+                  </>
+                ) : (
+                  <>
+                    <FileDown className="h-4 w-4" />
+                    Exportar PDF
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
-          
-          <Select value={selectedClientId} onValueChange={setSelectedClientId}>
-            <SelectTrigger className="w-full md:w-[280px]">
-              <SelectValue placeholder="Selecione um cliente" />
-            </SelectTrigger>
-            <SelectContent>
-              {clients.map((client) => (
-                <SelectItem key={client.id} value={client.id}>
-                  {client.name} - {client.squads?.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
 
         {selectedClientId && (
