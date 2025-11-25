@@ -233,6 +233,17 @@ const Index = () => {
               </div>
               <div className="flex items-center gap-2">
                 <TourButton />
+                {(isCoordenador || isSupervisor) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.location.href = "/admin"}
+                    className="hover:bg-primary/10"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Admin
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="icon"
