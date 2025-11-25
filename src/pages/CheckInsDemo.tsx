@@ -33,24 +33,13 @@ export default function CheckInsDemo() {
             Voltar ao Dashboard
           </Button>
           
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-foreground mb-2">
-                Sistema de Check-ins Semanais
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                Acompanhamento completo de progresso e metas
-              </p>
-            </div>
-            <Button
-              variant="premium"
-              size="lg"
-              onClick={() => setShowCheckInForm(true)}
-              className="gap-2"
-            >
-              <Calendar className="h-5 w-5" />
-              Novo Check-in
-            </Button>
+          <div>
+            <h1 className="text-4xl font-bold text-foreground mb-2">
+              Sistema de Check-ins Semanais
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Acompanhamento completo de progresso e metas
+            </p>
           </div>
         </div>
 
@@ -112,6 +101,19 @@ export default function CheckInsDemo() {
               </p>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Botão Novo Check-in */}
+        <div className="flex justify-center mb-8">
+          <Button
+            variant="premium"
+            size="lg"
+            onClick={() => setShowCheckInForm(true)}
+            className="gap-2 shadow-lg"
+          >
+            <Calendar className="h-5 w-5" />
+            Novo Check-in
+          </Button>
         </div>
 
         {/* Main Content */}
