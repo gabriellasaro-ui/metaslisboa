@@ -160,7 +160,7 @@ export const WeeklyCheckInForm = ({
           </div>
 
           {/* Progresso */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Label className="text-base font-semibold flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-primary" />
@@ -169,25 +169,49 @@ export const WeeklyCheckInForm = ({
               <span className="text-2xl font-bold text-primary">{progress}%</span>
             </div>
             
+            {/* Barra de Progresso Visual */}
+            <div className="relative h-12 bg-muted/30 rounded-xl overflow-hidden border-2 border-border/50">
+              <div 
+                className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-primary to-primary/80 transition-all duration-700 ease-out flex items-center justify-end px-3"
+                style={{ width: `${progress}%` }}
+              >
+                {progress > 0 && (
+                  <span className="text-primary-foreground font-bold text-sm animate-fade-in">
+                    {progress}%
+                  </span>
+                )}
+              </div>
+              {progress === 0 && (
+                <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">
+                  Deslize ou clique para definir o progresso
+                </div>
+              )}
+            </div>
+            
             {/* Slider com marcadores visuais */}
             <div className="relative py-6">
               {/* Marcadores visuais */}
               <div className="absolute top-0 left-0 right-0 flex justify-between px-1">
                 {[0, 25, 50, 75, 100].map((value) => (
-                  <div key={value} className="flex flex-col items-center">
+                  <div key={value} className="flex flex-col items-center gap-1">
                     <div 
-                      className={`h-2 w-2 rounded-full transition-all duration-200 ${
-                        progress === value 
-                          ? 'bg-primary scale-150 shadow-lg shadow-primary/50' 
-                          : 'bg-muted-foreground/30'
+                      className={`h-3 w-3 rounded-full transition-all duration-300 border-2 ${
+                        progress >= value
+                          ? 'bg-primary border-primary scale-110 shadow-lg shadow-primary/50' 
+                          : 'bg-background border-muted-foreground/30'
                       }`}
                     />
+                    {progress === value && (
+                      <div className="absolute -top-6 bg-primary text-primary-foreground px-2 py-0.5 rounded text-xs font-bold animate-bounce-in">
+                        {value}%
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
               
               {/* Slider */}
-              <div className="mt-6">
+              <div className="mt-8">
                 <Slider
                   value={[progress]}
                   onValueChange={(value) => setProgress(value[0])}
@@ -198,17 +222,17 @@ export const WeeklyCheckInForm = ({
               </div>
             </div>
             
-            {/* Labels dos valores */}
-            <div className="flex justify-between text-xs font-medium">
+            {/* Labels dos valores clicáveis */}
+            <div className="flex justify-between gap-2">
               {[0, 25, 50, 75, 100].map((value) => (
                 <button
                   key={value}
                   type="button"
                   onClick={() => setProgress(value)}
-                  className={`px-2 py-1 rounded transition-all ${
+                  className={`flex-1 px-3 py-2 rounded-lg transition-all duration-200 text-sm font-semibold border-2 ${
                     progress === value
-                      ? 'bg-primary text-primary-foreground font-bold'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      ? 'bg-primary text-primary-foreground border-primary shadow-lg scale-105'
+                      : 'bg-background border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/50 hover:scale-102'
                   }`}
                 >
                   {value}%
