@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Client, GoalStatus, GoalType } from "@/data/clientsData";
 import { MetricsCard } from "@/components/dashboard/MetricsCard";
 import { ClientsTable } from "@/components/dashboard/ClientsTable";
@@ -8,6 +9,8 @@ import { SquadOverview } from "@/components/dashboard/SquadOverview";
 import { FilterBar } from "@/components/dashboard/FilterBar";
 import { EditClientDialog } from "@/components/dashboard/EditClientDialog";
 import { SmartGoalDialog } from "@/components/dashboard/SmartGoalDialog";
+import { CheckInDialog } from "@/components/dashboard/CheckInDialog";
+import { GoalProgressTimeline } from "@/components/dashboard/GoalProgressTimeline";
 import { GoalsDistributionChart } from "@/components/dashboard/charts/GoalsDistributionChart";
 import { SquadsComparisonChart } from "@/components/dashboard/charts/SquadsComparisonChart";
 import { EvolutionTimelineChart } from "@/components/dashboard/charts/EvolutionTimelineChart";
@@ -24,6 +27,8 @@ const Index = () => {
   const { squadsData, updateClient } = useClientsData();
   const [editingClient, setEditingClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
   const [smartGoalClient, setSmartGoalClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
+  const [checkInClient, setCheckInClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
+  const [viewingProgress, setViewingProgress] = useState<Client | null>(null);
   
   // Recalcular stats com dados atualizados
   const stats = {
@@ -60,6 +65,10 @@ const Index = () => {
     setSmartGoalClient({ client, squadId, index });
   };
 
+  const handleCheckIn = (squadId: string) => (client: Client, index: number) => {
+    setCheckInClient({ client, squadId, index });
+  };
+
   const handleSaveClient = (updatedClient: Client) => {
     if (editingClient) {
       updateClient(editingClient.squadId, editingClient.index, updatedClient);
@@ -71,6 +80,13 @@ const Index = () => {
     if (smartGoalClient) {
       updateClient(smartGoalClient.squadId, smartGoalClient.index, updatedClient);
       setSmartGoalClient(null);
+    }
+  };
+
+  const handleSaveCheckIn = (updatedClient: Client) => {
+    if (checkInClient) {
+      updateClient(checkInClient.squadId, checkInClient.index, updatedClient);
+      setCheckInClient(null);
     }
   };
 
@@ -213,13 +229,15 @@ const Index = () => {
                     onStatusFilterChange={setStatusFilter}
                     onGoalTypeFilterChange={setGoalTypeFilter}
                   />
-                  <ClientsTable
-                    clients={squad.clients}
-                    filterStatus={statusFilter}
-                    filterGoalType={goalTypeFilter}
-                    onEditClient={handleEditClient(squad.id)}
-                    onDefineSmartGoal={handleDefineSmartGoal(squad.id)}
-                  />
+                <ClientsTable
+                  clients={squad.clients}
+                  filterStatus={statusFilter}
+                  filterGoalType={goalTypeFilter}
+                  onEditClient={handleEditClient(squad.id)}
+                  onDefineSmartGoal={handleDefineSmartGoal(squad.id)}
+                  onCheckIn={handleCheckIn(squad.id)}
+                  onViewProgress={setViewingProgress}
+                />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -240,6 +258,25 @@ const Index = () => {
           onOpenChange={(open) => !open && setSmartGoalClient(null)}
           onSave={handleSaveSmartGoal}
         />
+
+        <CheckInDialog
+          client={checkInClient?.client || null}
+          open={checkInClient !== null}
+          onOpenChange={(open) => !open && setCheckInClient(null)}
+          onSave={handleSaveCheckIn}
+          leaderName={
+            squadsData.find(s => s.id === checkInClient?.squadId)?.leader || "Líder"
+          }
+        />
+
+        {/* Timeline Dialog */}
+        {viewingProgress && (
+          <Dialog open={!!viewingProgress} onOpenChange={() => setViewingProgress(null)}>
+            <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+              <GoalProgressTimeline client={viewingProgress} />
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </div>
   );

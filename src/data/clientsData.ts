@@ -1,5 +1,15 @@
 export type GoalStatus = "SIM" | "NAO_DEFINIDO" | "NAO";
 export type GoalType = "Faturamento" | "Leads" | "OUTROS";
+export type ProgressStatus = 0 | 25 | 50 | 75 | 100;
+
+export interface CheckIn {
+  id: string;
+  date: Date;
+  progress: ProgressStatus;
+  status: "on_track" | "at_risk" | "delayed" | "completed";
+  comment: string;
+  updatedBy: string;
+}
 
 export interface Client {
   name: string;
@@ -7,6 +17,8 @@ export interface Client {
   goalType?: GoalType;
   goalValue?: string;
   notes?: string;
+  currentProgress?: ProgressStatus;
+  checkIns?: CheckIn[];
 }
 
 export interface Squad {

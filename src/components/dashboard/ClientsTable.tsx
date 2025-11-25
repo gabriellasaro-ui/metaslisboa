@@ -2,7 +2,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Client, GoalStatus, GoalType } from "@/data/clientsData";
-import { Target, TrendingUp, Users, AlertCircle, Pencil, Sparkles } from "lucide-react";
+import { Target, TrendingUp, Users, AlertCircle, Pencil, Sparkles, ClipboardCheck, History } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 interface ClientsTableProps {
   clients: Client[];
@@ -10,6 +11,8 @@ interface ClientsTableProps {
   filterGoalType?: "all" | GoalType;
   onEditClient?: (client: Client, index: number) => void;
   onDefineSmartGoal?: (client: Client, index: number) => void;
+  onCheckIn?: (client: Client, index: number) => void;
+  onViewProgress?: (client: Client) => void;
   showActions?: boolean;
 }
 
@@ -60,6 +63,8 @@ export const ClientsTable = ({
   filterGoalType = "all",
   onEditClient,
   onDefineSmartGoal,
+  onCheckIn,
+  onViewProgress,
   showActions = true 
 }: ClientsTableProps) => {
   const filteredClients = clients.filter(client => {
@@ -73,18 +78,19 @@ export const ClientsTable = ({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[250px]">Cliente</TableHead>
+            <TableHead className="w-[200px]">Cliente</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Tipo</TableHead>
             <TableHead>Meta</TableHead>
+            <TableHead>Progresso</TableHead>
             <TableHead>Observações</TableHead>
-            {showActions && <TableHead className="w-[100px]">Ações</TableHead>}
+            {showActions && <TableHead className="w-[180px]">Ações</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
           {filteredClients.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={showActions ? 6 : 5} className="text-center text-muted-foreground py-8">
+              <TableCell colSpan={showActions ? 7 : 6} className="text-center text-muted-foreground py-8">
                 Nenhum cliente encontrado com os filtros selecionados
               </TableCell>
             </TableRow>
@@ -92,6 +98,7 @@ export const ClientsTable = ({
             filteredClients.map((client, index) => {
               // Encontra o índice original do cliente na lista não filtrada
               const originalIndex = clients.findIndex(c => c.name === client.name);
+              const hasCheckIns = client.checkIns && client.checkIns.length > 0;
               
               return (
                 <TableRow key={index}>
@@ -106,6 +113,17 @@ export const ClientsTable = ({
                     )}
                   </TableCell>
                   <TableCell>
+                    {client.hasGoal === "SIM" && (
+                      <div className="space-y-1 min-w-[120px]">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Progresso</span>
+                          <span className="font-semibold text-primary">{client.currentProgress || 0}%</span>
+                        </div>
+                        <Progress value={client.currentProgress || 0} className="h-2" />
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
                     {client.notes && (
                       <div className="flex items-start gap-2">
                         <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
@@ -116,6 +134,31 @@ export const ClientsTable = ({
                   {showActions && (
                     <TableCell>
                       <div className="flex items-center gap-1">
+                        {client.hasGoal === "SIM" && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onCheckIn?.(client, originalIndex)}
+                              className="h-8 px-2 text-blue-600 hover:text-blue-700 hover:bg-blue-500/10"
+                              title="Registrar Check-in"
+                            >
+                              <ClipboardCheck className="h-4 w-4 mr-1" />
+                              Check-in
+                            </Button>
+                            {hasCheckIns && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => onViewProgress?.(client)}
+                                className="h-8 w-8 p-0 text-purple-600 hover:text-purple-700 hover:bg-purple-500/10"
+                                title="Ver Timeline"
+                              >
+                                <History className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </>
+                        )}
                         {(client.hasGoal === "NAO_DEFINIDO" || client.hasGoal === "NAO") && (
                           <Button
                             variant="ghost"
