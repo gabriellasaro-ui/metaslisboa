@@ -116,32 +116,20 @@ export default function CheckInsDemo() {
 
         {/* Main Content */}
         <Tabs defaultValue="timeline" className="space-y-6">
-          <div className="flex items-center justify-between mb-6">
-            <TabsList className="grid w-full max-w-2xl grid-cols-3">
-              <TabsTrigger value="timeline" className="gap-2">
-                <TrendingUp className="h-4 w-4" />
-                Timeline
-              </TabsTrigger>
-              <TabsTrigger value="evolucao" className="gap-2">
-                <LineChart className="h-4 w-4" />
-                Evolução
-              </TabsTrigger>
-              <TabsTrigger value="grafico" className="gap-2">
-                <BarChart3 className="h-4 w-4" />
-                Visão Geral
-              </TabsTrigger>
-            </TabsList>
-            
-            <Button
-              variant="default"
-              size="lg"
-              onClick={() => setShowCheckInForm(true)}
-              className="gap-2 ml-4"
-            >
-              <Calendar className="h-5 w-5" />
-              Novo Check-in
-            </Button>
-          </div>
+          <TabsList className="grid w-full max-w-2xl grid-cols-3 mb-6">
+            <TabsTrigger value="timeline" className="gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Timeline
+            </TabsTrigger>
+            <TabsTrigger value="evolucao" className="gap-2">
+              <LineChart className="h-4 w-4" />
+              Evolução
+            </TabsTrigger>
+            <TabsTrigger value="grafico" className="gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Visão Geral
+            </TabsTrigger>
+          </TabsList>
 
           <TabsContent value="timeline" className="space-y-6">
             <WeeklyCheckInsTimeline limit={50} refreshTrigger={refreshKey} />
