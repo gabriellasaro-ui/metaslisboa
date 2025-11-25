@@ -310,26 +310,30 @@ export const SquadOverview = ({ squad, rank, allSquadsComplete = false }: SquadO
     return null;
   };
 
-  const getSquadIcon = () => {
-    const squadName = squad.name.toUpperCase();
-    
-    if (squadName.includes("INTERNACIONAL")) {
+  const renderIcon = (iconName: string | null | undefined) => {
+    if (iconName === 'flag') {
       return <span className="text-2xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 inline-block">🇺🇸</span>;
     }
-    if (squadName.includes("SHARK")) {
+    if (iconName === 'fish') {
       return <Fish className="h-6 w-6 text-blue-500 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />;
     }
-    if (squadName.includes("MIDAS")) {
+    if (iconName === 'sparkles') {
       return <Sparkles className="h-6 w-6 text-amber-500 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 group-hover:drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]" />;
     }
-    if (squadName.includes("TIGERS")) {
+    if (iconName === 'cat') {
       return <Cat className="h-6 w-6 text-orange-500 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6" />;
     }
-    if (squadName.includes("STRIKE")) {
+    if (iconName === 'target') {
       return <Target className="h-6 w-6 text-red-500 transition-all duration-300 group-hover:scale-110 group-hover:rotate-180" />;
     }
+    if (iconName === 'trophy') {
+      return <Trophy className="h-6 w-6 text-amber-500 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />;
+    }
+    if (iconName === 'shield') {
+      return <Shield className="h-6 w-6 text-blue-600 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />;
+    }
     
-    // Ranking icons como fallback
+    // Fallback para ranking
     if (rank === 1) return <Trophy className="h-6 w-6 text-amber-500 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />;
     if (rank === 2) return <Medal className="h-6 w-6 text-slate-400 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />;
     if (rank === 3) return <Shield className="h-6 w-6 text-orange-600 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />;
@@ -364,7 +368,7 @@ export const SquadOverview = ({ squad, rank, allSquadsComplete = false }: SquadO
               <div className="flex-1 animate-slide-up" style={{ animationDelay: '100ms' }}>
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 group">
-                  {getSquadIcon()}
+                  {renderIcon(squad.icon)}
                 </div>
                 <CardTitle className="text-lg font-bold text-primary">
                   {squad.name.toUpperCase()}
