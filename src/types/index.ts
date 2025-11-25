@@ -23,16 +23,16 @@ export interface CheckIn {
   status: ProgressStatus;
   callLink?: string;
   callSummary?: string;
-  updatedBy?: string;
+  created_by?: string;
 }
 
 export interface SmartGoal {
   id?: string;
-  specific: string;
-  measurable: string;
-  achievable: string;
-  relevant: string;
-  timeBound: string;
+  specific?: string;
+  measurable?: string;
+  achievable?: string;
+  relevant?: string;
+  timeBound?: string;
   goalValue: string;
   goalType: GoalType;
   period?: string;

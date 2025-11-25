@@ -115,7 +115,7 @@ export function GoalProgressTimeline({ client }: GoalProgressTimelineProps) {
                     </div>
                   </div>
                   <div className="text-sm text-muted-foreground text-right">
-                    {checkIn.updatedBy}
+                    {checkIn.created_by || "Sistema"}
                   </div>
                 </div>
                 

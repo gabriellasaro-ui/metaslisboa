@@ -3,21 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Trophy, Shield, Award, Target } from "lucide-react";
-
-interface Leader {
-  id: string;
-  name: string;
-  avatar?: string;
-}
-
-interface Squad {
-  id: string;
-  name: string;
-  leader?: Leader;
-  clients: Array<{
-    hasGoal?: string;
-  }>;
-}
+import { Squad, Leader } from "@/types";
 
 interface SquadRankingCardProps {
   squadsData: Squad[];
@@ -31,9 +17,12 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
     
     const coverageRate = total > 0 ? (withGoals / total) * 100 : 0;
     const conversionRate = total > 0 ? ((withGoals + pending) / total) * 100 : 0;
+    
+    const leader = typeof squad.leader === 'string' ? null : squad.leader;
 
     return {
       ...squad,
+      leader,
       total,
       withGoals,
       pending,

@@ -3,18 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CheckCircle2, AlertCircle, Clock, TrendingUp, User, Building2 } from "lucide-react";
-import { Squad } from "@/types";
-
-// Type for check-in
-export interface CheckIn {
-  id?: string;
-  date: Date;
-  comment: string;
-  progress: number;
-  status: string;
-  callLink?: string;
-  callSummary?: string;
-}
+import { Squad, CheckIn } from "@/types";
 import { Progress } from "@/components/ui/progress";
 
 interface CheckInsTimelineProps {
@@ -165,7 +154,7 @@ export function CheckInsTimeline({ squadsData }: CheckInsTimelineProps) {
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <User className="h-3 w-3" />
-                        <span>{item.checkIn.updatedBy}</span>
+                        <span>{item.checkIn.created_by || "Sistema"}</span>
                         <span>•</span>
                         <span>{format(new Date(item.checkIn.date), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}</span>
                       </div>

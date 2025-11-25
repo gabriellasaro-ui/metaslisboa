@@ -17,6 +17,7 @@ import { GoalsDistributionChart } from "@/components/dashboard/charts/GoalsDistr
 import { SquadsComparisonChart } from "@/components/dashboard/charts/SquadsComparisonChart";
 import { EvolutionTimelineChart } from "@/components/dashboard/charts/EvolutionTimelineChart";
 import { PerformanceAnalysisChart } from "@/components/dashboard/charts/PerformanceAnalysisChart";
+import { HealthStatusDistributionChart } from "@/components/dashboard/charts/HealthStatusDistributionChart";
 import { ReportsSection } from "@/components/dashboard/ReportsSection";
 import { SquadRankingCard } from "@/components/dashboard/SquadRankingCard";
 import { GoalsImportanceCard } from "@/components/dashboard/GoalsImportanceCard";
@@ -142,7 +143,7 @@ const Index = () => {
       ...client,
       squadName: squad.name,
       squadId: squad.id,
-      leader: squad.leader,
+      leader: typeof squad.leader === 'string' ? squad.leader : squad.leader?.name || 'N/A',
     }))
   );
 
@@ -552,9 +553,11 @@ const Index = () => {
           open={checkInClient !== null}
           onOpenChange={(open) => !open && setCheckInClient(null)}
           onSave={handleSaveCheckIn}
-          leaderName={
-            squadsData.find(s => s.id === checkInClient?.squadId)?.leader || "Líder"
-          }
+          leaderName={(() => {
+            const foundSquad = squadsData.find(s => s.id === checkInClient?.squadId);
+            if (!foundSquad) return "Líder";
+            return typeof foundSquad.leader === 'string' ? foundSquad.leader : foundSquad.leader?.name || "Líder";
+          })()}
         />
 
         {/* Timeline Dialog */}
