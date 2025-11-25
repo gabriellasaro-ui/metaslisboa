@@ -132,14 +132,44 @@ export default function CheckInsDemo() {
           </TabsList>
 
           <TabsContent value="timeline" className="space-y-6">
+            <div className="flex justify-end mb-4">
+              <Button
+                variant="default"
+                onClick={() => setShowCheckInForm(true)}
+                className="gap-2"
+              >
+                <Calendar className="h-4 w-4" />
+                Novo Check-in
+              </Button>
+            </div>
             <WeeklyCheckInsTimeline limit={50} refreshTrigger={refreshKey} />
           </TabsContent>
 
           <TabsContent value="evolucao" className="space-y-6">
+            <div className="flex justify-end mb-4">
+              <Button
+                variant="default"
+                onClick={() => setShowCheckInForm(true)}
+                className="gap-2"
+              >
+                <Calendar className="h-4 w-4" />
+                Novo Check-in
+              </Button>
+            </div>
             <ClientProgressEvolution key={refreshKey} />
           </TabsContent>
 
           <TabsContent value="grafico" className="space-y-6">
+            <div className="flex justify-end mb-4">
+              <Button
+                variant="default"
+                onClick={() => setShowCheckInForm(true)}
+                className="gap-2"
+              >
+                <Calendar className="h-4 w-4" />
+                Novo Check-in
+              </Button>
+            </div>
             <WeeklyProgressChart weeks={12} />
           </TabsContent>
         </Tabs>
