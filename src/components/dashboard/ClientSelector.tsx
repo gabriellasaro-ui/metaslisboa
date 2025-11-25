@@ -112,15 +112,15 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
                 {squadName}
               </SelectLabel>
               {squadClients.map((client) => (
-                <SelectItem key={client.id} value={client.id}>
-                  <div className="flex items-center justify-between gap-3 w-full">
+                <SelectItem key={client.id} value={client.id} className="cursor-pointer">
+                  <div className="flex items-center justify-between gap-3 w-full min-w-[300px]">
                     <span className="font-medium">{client.name}</span>
                     {client.goals && client.goals.length > 0 ? (
-                      <Badge variant="default" className="text-xs">
+                      <Badge variant="default" className="text-xs shrink-0">
                         {client.goals.length} {client.goals.length === 1 ? "meta" : "metas"}
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="text-xs">Sem meta</Badge>
+                      <Badge variant="outline" className="text-xs shrink-0">Sem meta</Badge>
                     )}
                   </div>
                 </SelectItem>
