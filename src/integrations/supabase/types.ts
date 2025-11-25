@@ -14,7 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      check_ins: {
+        Row: {
+          client_name: string
+          comment: string
+          created_at: string
+          goal_value: string | null
+          id: string
+          leader_name: string
+          progress: number
+          squad_id: string
+          squad_name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          client_name: string
+          comment: string
+          created_at?: string
+          goal_value?: string | null
+          id?: string
+          leader_name: string
+          progress: number
+          squad_id: string
+          squad_name: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          client_name?: string
+          comment?: string
+          created_at?: string
+          goal_value?: string | null
+          id?: string
+          leader_name?: string
+          progress?: number
+          squad_id?: string
+          squad_name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
