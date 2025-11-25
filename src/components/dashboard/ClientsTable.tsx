@@ -140,7 +140,7 @@ export const ClientsTable = ({
                               variant="ghost"
                               size="sm"
                               onClick={() => onCheckIn?.(client, originalIndex)}
-                              className="h-8 px-2 text-blue-600 hover:text-blue-700 hover:bg-blue-500/10"
+                              className="h-8 px-2 hover:bg-blue-500/10 hover:text-blue-600 hover:border hover:border-blue-500/20"
                               title="Registrar Check-in"
                             >
                               <ClipboardCheck className="h-4 w-4 mr-1" />
@@ -151,7 +151,7 @@ export const ClientsTable = ({
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => onViewProgress?.(client)}
-                                className="h-8 w-8 p-0 text-purple-600 hover:text-purple-700 hover:bg-purple-500/10"
+                                className="h-8 w-8 p-0 hover:bg-purple-500/10 hover:text-purple-600 hover:border hover:border-purple-500/20"
                                 title="Ver Timeline"
                               >
                                 <History className="h-4 w-4" />
@@ -164,7 +164,7 @@ export const ClientsTable = ({
                             variant="ghost"
                             size="sm"
                             onClick={() => onDefineSmartGoal?.(client, originalIndex)}
-                            className="h-8 px-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10"
+                            className="h-8 px-2 hover:bg-emerald-500/10 hover:text-emerald-600 hover:border hover:border-emerald-500/20"
                             title="Definir Meta SMART"
                           >
                             <Sparkles className="h-4 w-4 mr-1" />
@@ -175,7 +175,7 @@ export const ClientsTable = ({
                           variant="ghost"
                           size="sm"
                           onClick={() => onEditClient?.(client, originalIndex)}
-                          className="h-8 w-8 p-0"
+                          className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary hover:border hover:border-primary/20"
                         >
                           <Pencil className="h-4 w-4" />
                           <span className="sr-only">Editar cliente</span>

@@ -115,10 +115,11 @@ export const ExportButtons = ({ squadsData, filteredClients, mode = "full" }: Ex
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button 
-          variant="outline" 
-          className="gap-2 border-border/50 hover:border-primary/50 hover:bg-primary/10 transition-all duration-300 group"
+          variant="premium" 
+          size="lg"
+          className="gap-2 font-bold"
         >
-          <Download className="h-4 w-4 group-hover:scale-110 transition-transform duration-300" />
+          <Download className="h-5 w-5" />
           Exportar Dados
         </Button>
       </DropdownMenuTrigger>

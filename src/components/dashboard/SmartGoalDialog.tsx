@@ -509,6 +509,7 @@ export const SmartGoalDialog = ({ client, open, onOpenChange, onSave }: SmartGoa
             {currentStep < 4 ? (
               <Button
                 type="button"
+                variant="premium"
                 onClick={() => setCurrentStep(currentStep + 1)}
                 disabled={!isStepValid(currentStep)}
               >
@@ -517,8 +518,8 @@ export const SmartGoalDialog = ({ client, open, onOpenChange, onSave }: SmartGoa
             ) : (
               <Button 
                 type="submit"
+                variant="premium"
                 disabled={!isStepValid(4)}
-                className="bg-emerald-600 hover:bg-emerald-700"
               >
                 <CheckCircle2 className="mr-2 h-4 w-4" />
                 Salvar Meta SMART

@@ -66,15 +66,15 @@ export const AdvancedFilters = ({
               )}
             </div>
             {activeFiltersCount > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClearFilters}
-                className="h-8 text-muted-foreground hover:text-foreground"
-              >
-                <X className="h-4 w-4 mr-1" />
-                Limpar Filtros
-              </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onClearFilters()}
+                      className="h-8"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Limpar Filtros
+                    </Button>
             )}
           </div>
 
@@ -173,7 +173,7 @@ export const AdvancedFilters = ({
                   variant="outline"
                   size="icon"
                   onClick={() => onSortOrderChange(sortOrder === "asc" ? "desc" : "asc")}
-                  className="h-10 w-10 border-border/50 hover:border-primary/50 hover:bg-primary/10 transition-all duration-300"
+                  className="h-10 w-10"
                   title={sortOrder === "asc" ? "Crescente" : "Decrescente"}
                 >
                   {sortOrder === "asc" ? (

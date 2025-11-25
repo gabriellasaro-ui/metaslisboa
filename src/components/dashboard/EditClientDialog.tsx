@@ -193,7 +193,7 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
             >
               Cancelar
             </Button>
-            <Button type="submit">
+            <Button type="submit" variant="premium">
               Salvar Alterações
             </Button>
           </div>
