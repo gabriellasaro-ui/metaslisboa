@@ -7,6 +7,7 @@ import { ClientsTable } from "@/components/dashboard/ClientsTable";
 import { SquadOverview } from "@/components/dashboard/SquadOverview";
 import { FilterBar } from "@/components/dashboard/FilterBar";
 import { EditClientDialog } from "@/components/dashboard/EditClientDialog";
+import { SmartGoalDialog } from "@/components/dashboard/SmartGoalDialog";
 import { GoalsDistributionChart } from "@/components/dashboard/charts/GoalsDistributionChart";
 import { SquadsComparisonChart } from "@/components/dashboard/charts/SquadsComparisonChart";
 import { GoalTypesChart } from "@/components/dashboard/charts/GoalTypesChart";
@@ -21,6 +22,7 @@ const Index = () => {
   const [goalTypeFilter, setGoalTypeFilter] = useState<"all" | GoalType>("all");
   const { squadsData, updateClient } = useClientsData();
   const [editingClient, setEditingClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
+  const [smartGoalClient, setSmartGoalClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
   
   // Recalcular stats com dados atualizados
   const stats = {
@@ -53,10 +55,21 @@ const Index = () => {
     setEditingClient({ client, squadId, index });
   };
 
+  const handleDefineSmartGoal = (squadId: string) => (client: Client, index: number) => {
+    setSmartGoalClient({ client, squadId, index });
+  };
+
   const handleSaveClient = (updatedClient: Client) => {
     if (editingClient) {
       updateClient(editingClient.squadId, editingClient.index, updatedClient);
       setEditingClient(null);
+    }
+  };
+
+  const handleSaveSmartGoal = (updatedClient: Client) => {
+    if (smartGoalClient) {
+      updateClient(smartGoalClient.squadId, smartGoalClient.index, updatedClient);
+      setSmartGoalClient(null);
     }
   };
 
@@ -198,6 +211,7 @@ const Index = () => {
                     filterStatus={statusFilter}
                     filterGoalType={goalTypeFilter}
                     onEditClient={handleEditClient(squad.id)}
+                    onDefineSmartGoal={handleDefineSmartGoal(squad.id)}
                   />
                 </CardContent>
               </Card>
@@ -205,12 +219,19 @@ const Index = () => {
           ))}
         </Tabs>
 
-        {/* Modal de Edição */}
+        {/* Modals */}
         <EditClientDialog
           client={editingClient?.client || null}
           open={editingClient !== null}
           onOpenChange={(open) => !open && setEditingClient(null)}
           onSave={handleSaveClient}
+        />
+
+        <SmartGoalDialog
+          client={smartGoalClient?.client || null}
+          open={smartGoalClient !== null}
+          onOpenChange={(open) => !open && setSmartGoalClient(null)}
+          onSave={handleSaveSmartGoal}
         />
       </div>
     </div>

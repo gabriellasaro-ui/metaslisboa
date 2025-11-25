@@ -2,13 +2,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Client, GoalStatus, GoalType } from "@/data/clientsData";
-import { Target, TrendingUp, Users, AlertCircle, Pencil } from "lucide-react";
+import { Target, TrendingUp, Users, AlertCircle, Pencil, Sparkles } from "lucide-react";
 
 interface ClientsTableProps {
   clients: Client[];
   filterStatus?: "all" | GoalStatus;
   filterGoalType?: "all" | GoalType;
   onEditClient?: (client: Client, index: number) => void;
+  onDefineSmartGoal?: (client: Client, index: number) => void;
   showActions?: boolean;
 }
 
@@ -58,6 +59,7 @@ export const ClientsTable = ({
   filterStatus = "all", 
   filterGoalType = "all",
   onEditClient,
+  onDefineSmartGoal,
   showActions = true 
 }: ClientsTableProps) => {
   const filteredClients = clients.filter(client => {
@@ -113,15 +115,29 @@ export const ClientsTable = ({
                   </TableCell>
                   {showActions && (
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onEditClient?.(client, originalIndex)}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Pencil className="h-4 w-4" />
-                        <span className="sr-only">Editar cliente</span>
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        {(client.hasGoal === "NAO_DEFINIDO" || client.hasGoal === "NAO") && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onDefineSmartGoal?.(client, originalIndex)}
+                            className="h-8 px-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10"
+                            title="Definir Meta SMART"
+                          >
+                            <Sparkles className="h-4 w-4 mr-1" />
+                            SMART
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onEditClient?.(client, originalIndex)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Pencil className="h-4 w-4" />
+                          <span className="sr-only">Editar cliente</span>
+                        </Button>
+                      </div>
                     </TableCell>
                   )}
                 </TableRow>
