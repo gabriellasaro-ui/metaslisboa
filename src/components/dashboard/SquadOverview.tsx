@@ -1,13 +1,19 @@
 import { Squad } from "@/data/clientsData";
+import { getLeaderBySquad } from "@/data/leadersData";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { User, ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface SquadOverviewProps {
   squad: Squad;
 }
 
 export const SquadOverview = ({ squad }: SquadOverviewProps) => {
+  const navigate = useNavigate();
+  const leader = getLeaderBySquad(squad.name);
   const withGoals = squad.clients.filter(c => c.hasGoal === "SIM").length;
   const pending = squad.clients.filter(c => c.hasGoal === "NAO_DEFINIDO").length;
   const withoutGoals = squad.clients.filter(c => c.hasGoal === "NAO").length;
@@ -20,10 +26,20 @@ export const SquadOverview = ({ squad }: SquadOverviewProps) => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-xl">{squad.name}</CardTitle>
-            {squad.leader && (
+            {leader && (
               <CardDescription className="flex items-center gap-2 mt-2">
-                <User className="h-3 w-3" />
-                {squad.leader}
+                <Avatar className="h-6 w-6 border border-border">
+                  <AvatarImage src={leader.avatar} alt={leader.name} />
+                  <AvatarFallback className="text-xs">{leader.name[0]}</AvatarFallback>
+                </Avatar>
+                <Button
+                  variant="link"
+                  className="h-auto p-0 text-sm"
+                  onClick={() => navigate(`/leader/${leader.id}`)}
+                >
+                  {leader.name}
+                  <ExternalLink className="ml-1 h-3 w-3" />
+                </Button>
               </CardDescription>
             )}
           </div>
