@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -35,7 +34,6 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
   const [squadId, setSquadId] = useState("");
   const [status, setStatus] = useState<"ativo" | "aviso_previo" | "churned">("ativo");
   const [healthStatus, setHealthStatus] = useState<"safe" | "care" | "danger">("safe");
-  const [notes, setNotes] = useState("");
   const [squads, setSquads] = useState<Squad[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingSquads, setLoadingSquads] = useState(true);
@@ -46,7 +44,6 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
       setSquadId(client.squad_id);
       setStatus(client.status as any);
       setHealthStatus((client.health_status || "safe") as any);
-      setNotes(client.notes || "");
       fetchSquads();
     }
   }, [open, client]);
@@ -84,7 +81,6 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
           squad_id: squadId,
           status,
           health_status: healthStatus,
-          notes: notes || null,
         })
         .eq("id", client.id);
 
@@ -168,16 +164,6 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
                 <SelectItem value="danger">Perigo</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notas</Label>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={3}
-            />
           </div>
 
           <div className="flex gap-2 justify-end">
