@@ -20,7 +20,7 @@ export const squadsData: Squad[] = [
   {
     name: "SHARK",
     id: "shark",
-    leader: "Otavio Augusto Meireles Pimenta",
+    leader: "Otavio",
     clients: [
       { name: "Groupwork", hasGoal: "SIM", goalType: "Leads", goalValue: "Realizar a primeira venda" },
       { name: "Burning Fest", hasGoal: "SIM", goalType: "Faturamento", goalValue: "R$20.000.000/ano" },
@@ -44,9 +44,9 @@ export const squadsData: Squad[] = [
     ]
   },
   {
-    name: "CARCARÁS",
-    id: "carcaras",
-    leader: "Matheus Gândara",
+    name: "TIGERS",
+    id: "tigers",
+    leader: "Gabriel",
     clients: [
       { name: "B2E", hasGoal: "SIM", goalType: "Faturamento", goalValue: "8 vendas até janeiro" },
       { name: "Escritório do Geraldo", hasGoal: "SIM", goalType: "Faturamento", goalValue: "1 Venda até o final do ano" },
@@ -67,7 +67,7 @@ export const squadsData: Squad[] = [
   {
     name: "MIDAS",
     id: "midas",
-    leader: "Matheus Gândara",
+    leader: "Gabriel",
     clients: [
       { name: "Comatral", hasGoal: "SIM", goalType: "Faturamento", goalValue: "2 milhões com marketing" },
       { name: "TSA Tratores", hasGoal: "SIM", goalType: "Faturamento", goalValue: "Crescer 40% do faturamento" },
@@ -89,7 +89,7 @@ export const squadsData: Squad[] = [
   {
     name: "STRIKE FORCE",
     id: "strike-force",
-    leader: "Gabriel Henrique Lasaro Elias",
+    leader: "Otavio",
     clients: [
       { name: "HD Flex", hasGoal: "SIM", goalType: "Faturamento", goalValue: "Chegar ao faturamento: 40k" },
       { name: "Construtora Messa", hasGoal: "SIM", goalType: "Leads", goalValue: "1 Lead qualificado até dezembro 2025" },
@@ -114,7 +114,7 @@ export const squadsData: Squad[] = [
   {
     name: "INTERNACIONAL",
     id: "internacional",
-    leader: "Jose Angelo Moreira",
+    leader: "Gabriel",
     clients: [
       { name: "Tramontina Panamá", hasGoal: "SIM", goalType: "OUTROS", goalValue: "Fortalecer branding na América Central" },
       { name: "Tramontina Honduras", hasGoal: "SIM", goalType: "OUTROS", goalValue: "Fortalecer branding na América Central" },
