@@ -66,7 +66,7 @@ export const AdminStats = ({ stats }: AdminStatsProps) => {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Churned</p>
+              <p className="text-sm font-medium text-muted-foreground">Churn</p>
               <p className="text-3xl font-bold text-red-600">{stats.churnedClients}</p>
             </div>
             <XCircle className="h-10 w-10 text-red-500 opacity-20" />

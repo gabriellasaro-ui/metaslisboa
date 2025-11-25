@@ -25,7 +25,7 @@ const getClientStatusBadge = (status?: string) => {
     case "aviso_previo":
       return <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">Aviso Prévio</Badge>;
     case "churned":
-      return <Badge className="bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20">Churned</Badge>;
+      return <Badge className="bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20">Churn</Badge>;
     default:
       return <Badge variant="outline">Desconhecido</Badge>;
   }

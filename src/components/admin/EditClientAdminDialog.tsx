@@ -147,7 +147,7 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
               <SelectContent>
                 <SelectItem value="ativo">Ativo</SelectItem>
                 <SelectItem value="aviso_previo">Aviso Prévio</SelectItem>
-                <SelectItem value="churned">Churned</SelectItem>
+                <SelectItem value="churned">Churn</SelectItem>
               </SelectContent>
             </Select>
           </div>

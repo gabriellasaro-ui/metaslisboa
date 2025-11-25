@@ -66,7 +66,7 @@ export const AdminClientsList = ({ onUpdate }: AdminClientsListProps) => {
       },
       churned: { 
         className: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20", 
-        label: "Churned" 
+        label: "Churn" 
       },
     };
     const config = variants[status] || variants.ativo;
