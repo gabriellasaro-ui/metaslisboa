@@ -29,7 +29,8 @@ import { toast } from "sonner";
 import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
 import { Separator } from "@/components/ui/separator";
 import { CheckInsDemoCard } from "@/components/dashboard/CheckInsDemoCard";
-import { TourGuide } from "@/components/dashboard/TourGuide";
+import { TourButton } from "@/components/dashboard/TourButton";
+import { WelcomeDialog } from "@/components/dashboard/WelcomeDialog";
 
 const Index = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | GoalStatus>("all");
@@ -44,6 +45,18 @@ const Index = () => {
   const [squadFilter, setSquadFilter] = useState<"all" | string>("all");
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
+  const [showWelcome, setShowWelcome] = useState(() => {
+    // Mostrar welcome apenas na primeira visita
+    const hasVisited = localStorage.getItem("dashboard-visited");
+    return !hasVisited;
+  });
+
+  const handleCloseWelcome = (open: boolean) => {
+    setShowWelcome(open);
+    if (!open) {
+      localStorage.setItem("dashboard-visited", "true");
+    }
+  };
   
   // Recalcular stats com dados atualizados
   const stats = {
@@ -190,10 +203,16 @@ const Index = () => {
                 Acompanhamento estratégico de objetivos e resultados
               </p>
             </div>
-            <ThemeToggle />
+            <div className="flex items-center gap-3">
+              <TourButton />
+              <ThemeToggle />
+            </div>
           </div>
           <Separator className="bg-border/50" />
         </header>
+
+        {/* Welcome Dialog */}
+        <WelcomeDialog open={showWelcome} onOpenChange={handleCloseWelcome} />
 
         {/* Navigation Tabs */}
         <NavigationTabs 
@@ -204,9 +223,6 @@ const Index = () => {
 
           {/* Visão Geral Tab */}
           <TabsContent value="visao-geral" className="space-y-8 animate-fade-in">
-            {/* Tour Guide */}
-            <TourGuide />
-
             {/* Card Demo Check-ins */}
             <CheckInsDemoCard />
 
