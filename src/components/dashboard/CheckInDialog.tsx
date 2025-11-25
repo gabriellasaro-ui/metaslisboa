@@ -4,7 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Client, ProgressStatus, CheckIn } from "@/data/clientsData";
+import { Client } from "@/types";
+
+// Type for progress status
+export type ProgressStatus = "on_track" | "at_risk" | "delayed" | "completed";
+
+// Type for check-in
+export interface CheckIn {
+  id?: string;
+  date: Date;
+  comment: string;
+  progress: number;
+  status: ProgressStatus;
+  callLink?: string;
+  callSummary?: string;
+}
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
@@ -21,8 +35,8 @@ interface CheckInDialogProps {
 
 export function CheckInDialog({ client, open, onOpenChange, onSave, leaderName }: CheckInDialogProps) {
   const [date, setDate] = useState<Date>(new Date());
-  const [progress, setProgress] = useState<ProgressStatus>(client?.currentProgress || 0);
-  const [status, setStatus] = useState<"on_track" | "at_risk" | "delayed" | "completed">("on_track");
+  const [progress, setProgress] = useState<number>(client?.currentProgress || 0);
+  const [status, setStatus] = useState<ProgressStatus>("on_track");
   const [comment, setComment] = useState("");
 
   if (!client) return null;

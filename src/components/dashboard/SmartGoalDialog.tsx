@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { Client, GoalType } from "@/data/clientsData";
+import { Client, GoalType } from "@/types";
 import { SmartGoalFormData } from "@/types/smartGoal";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";

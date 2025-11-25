@@ -1,8 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { squadsData } from "@/data/clientsData";
+import { useClientsData } from "@/hooks/useClientsData";
 
 export const GoalTypesChart = () => {
+  const { squadsData } = useClientsData();
   const goalTypes = {
     "Faturamento": 0,
     "Leads": 0,

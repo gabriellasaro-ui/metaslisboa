@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Target, AlertCircle, Users } from "lucide-react";
-import { Client } from "@/data/clientsData";
+import { Client } from "@/types";
 
 interface FilterStatsProps {
   clients: Array<Client & { squadName: string; leader: string }>;

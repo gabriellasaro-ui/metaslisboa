@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { Squad, Client } from '@/data/clientsData';
+import { Squad, Client } from '@/types';
 
 export const exportToExcel = (squadsData: Squad[]) => {
   const workbook = XLSX.utils.book_new();

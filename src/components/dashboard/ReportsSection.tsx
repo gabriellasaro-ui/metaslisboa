@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileSpreadsheet, FileText, Download, TrendingUp, Target, Award } from "lucide-react";
-import { Squad } from "@/data/clientsData";
+import { Squad } from "@/types";
 import { exportToExcel, exportToPDF } from "@/utils/exportUtils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -131,7 +131,7 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
                 Melhor cobertura de metas
               </p>
               <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
-                Líder: {bestSquad.leader || 'N/A'}
+                Líder: {typeof bestSquad.leader === 'string' ? bestSquad.leader : bestSquad.leader?.name || 'N/A'}
               </Badge>
             </div>
           </div>
@@ -157,7 +157,7 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
                   <div className="space-y-1">
                     <h4 className="font-semibold">{squad.name}</h4>
                     <p className="text-sm text-muted-foreground">
-                      {squad.leader || 'Sem líder definido'}
+                      {typeof squad.leader === 'string' ? squad.leader : squad.leader?.name || 'Sem líder definido'}
                     </p>
                   </div>
                   <div className="flex items-center gap-6">

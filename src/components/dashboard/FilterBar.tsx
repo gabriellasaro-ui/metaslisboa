@@ -1,5 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { GoalStatus, GoalType } from "@/data/clientsData";
+import { GoalStatus, GoalType } from "@/types";
 import { Filter } from "lucide-react";
 
 interface FilterBarProps {

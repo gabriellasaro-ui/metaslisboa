@@ -1,16 +1,32 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { getOverallStats } from "@/data/clientsData";
 
-export const SquadsComparisonChart = () => {
-  const stats = getOverallStats();
-  
-  const data = Object.entries(stats.bySquad).map(([squad, values]) => ({
-    squad,
-    "Com Metas": values.withGoals,
-    "A Definir": values.pending,
-    "Sem Metas": values.withoutGoals,
-  }));
+interface Squad {
+  id: string;
+  name: string;
+  leader?: string;
+  clients: Array<{
+    hasGoal?: string;
+  }>;
+}
+
+interface SquadsComparisonChartProps {
+  squadsData: Squad[];
+}
+
+export const SquadsComparisonChart = ({ squadsData }: SquadsComparisonChartProps) => {
+  const data = squadsData.map(squad => {
+    const withGoals = squad.clients.filter(c => c.hasGoal === "SIM").length;
+    const pending = squad.clients.filter(c => c.hasGoal === "NAO_DEFINIDO").length;
+    const withoutGoals = squad.clients.filter(c => c.hasGoal === "NAO").length;
+    
+    return {
+      squad: squad.name,
+      "Com Metas": withGoals,
+      "A Definir": pending,
+      "Sem Metas": withoutGoals,
+    };
+  });
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {

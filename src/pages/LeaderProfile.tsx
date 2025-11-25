@@ -5,8 +5,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { getLeaderById } from "@/data/leadersData";
-import { squadsData } from "@/data/clientsData";
+import { useClientsData } from "@/hooks/useClientsData";
+import { Leader } from "@/types";
 import { MetricsCard } from "@/components/dashboard/MetricsCard";
 import { ClientsTable } from "@/components/dashboard/ClientsTable";
 import { ArrowLeft, Mail, Calendar, Target, TrendingUp, Users, Award, Briefcase } from "lucide-react";
@@ -16,7 +16,27 @@ import { ptBR } from "date-fns/locale";
 const LeaderProfile = () => {
   const { leaderId } = useParams();
   const navigate = useNavigate();
-  const leader = getLeaderById(leaderId || "");
+  const { squadsData, isLoading } = useClientsData();
+  
+  // Find leader from squads data
+  const leaderSquads = squadsData.filter(squad => 
+    typeof squad.leader !== 'string' && squad.leader?.id === leaderId
+  );
+  
+  const leader = leaderSquads.length > 0 && typeof leaderSquads[0].leader !== 'string' 
+    ? leaderSquads[0].leader 
+    : null;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!leader) {
     return (
@@ -36,10 +56,6 @@ const LeaderProfile = () => {
       </div>
     );
   }
-
-  const leaderSquads = squadsData.filter(squad => 
-    leader.squads.includes(squad.name.toUpperCase())
-  );
 
   const totalClients = leaderSquads.reduce((sum, squad) => sum + squad.clients.length, 0);
   const withGoals = leaderSquads.reduce((sum, squad) => 
