@@ -10,7 +10,6 @@ import { EditClientDialog } from "@/components/dashboard/EditClientDialog";
 import { SmartGoalDialog } from "@/components/dashboard/SmartGoalDialog";
 import { GoalsDistributionChart } from "@/components/dashboard/charts/GoalsDistributionChart";
 import { SquadsComparisonChart } from "@/components/dashboard/charts/SquadsComparisonChart";
-import { GoalTypesChart } from "@/components/dashboard/charts/GoalTypesChart";
 import { EvolutionTimelineChart } from "@/components/dashboard/charts/EvolutionTimelineChart";
 import { PerformanceAnalysisChart } from "@/components/dashboard/charts/PerformanceAnalysisChart";
 import { ReportsSection } from "@/components/dashboard/ReportsSection";
@@ -130,13 +129,8 @@ const Index = () => {
           {/* Segunda Linha - Comparação de Squads */}
           <SquadsComparisonChart />
 
-          {/* Terceira Linha - Tipos e Ranking */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <GoalTypesChart />
-            <div className="lg:col-span-2">
-              <SquadRankingCard squadsData={squadsData} />
-            </div>
-          </div>
+          {/* Terceira Linha - Ranking */}
+          <SquadRankingCard squadsData={squadsData} />
 
           {/* Quarta Linha - Visão Geral por Squad */}
           <Card>
