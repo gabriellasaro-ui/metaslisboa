@@ -179,7 +179,7 @@ const Admin = () => {
           </TabsList>
 
           <TabsContent value="clients" className="space-y-4 mt-6">
-            <Card>
+            <Card className="shadow-[0_8px_30px_rgba(139,92,246,0.12)] border-primary/10">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -201,7 +201,7 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="squads" className="space-y-4 mt-6">
-            <Card>
+            <Card className="shadow-[0_8px_30px_rgba(139,92,246,0.12)] border-primary/10">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>

@@ -14,7 +14,7 @@ interface AdminStatsProps {
 export const AdminStats = ({ stats }: AdminStatsProps) => {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-      <Card className="hover:shadow-lg transition-shadow">
+      <Card className="shadow-[0_8px_30px_rgba(139,92,246,0.15)] hover:shadow-[0_12px_40px_rgba(139,92,246,0.25)] transition-all duration-300 hover:-translate-y-1 border-primary/20">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
@@ -26,7 +26,7 @@ export const AdminStats = ({ stats }: AdminStatsProps) => {
         </CardContent>
       </Card>
 
-      <Card className="hover:shadow-lg transition-shadow">
+      <Card className="shadow-[0_8px_30px_rgba(59,130,246,0.15)] hover:shadow-[0_12px_40px_rgba(59,130,246,0.25)] transition-all duration-300 hover:-translate-y-1 border-blue-500/20">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
@@ -38,7 +38,7 @@ export const AdminStats = ({ stats }: AdminStatsProps) => {
         </CardContent>
       </Card>
 
-      <Card className="hover:shadow-lg transition-shadow">
+      <Card className="shadow-[0_8px_30px_rgba(16,185,129,0.15)] hover:shadow-[0_12px_40px_rgba(16,185,129,0.25)] transition-all duration-300 hover:-translate-y-1 border-emerald-500/20">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
@@ -50,7 +50,7 @@ export const AdminStats = ({ stats }: AdminStatsProps) => {
         </CardContent>
       </Card>
 
-      <Card className="hover:shadow-lg transition-shadow">
+      <Card className="shadow-[0_8px_30px_rgba(245,158,11,0.15)] hover:shadow-[0_12px_40px_rgba(245,158,11,0.25)] transition-all duration-300 hover:-translate-y-1 border-amber-500/20">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
@@ -62,7 +62,7 @@ export const AdminStats = ({ stats }: AdminStatsProps) => {
         </CardContent>
       </Card>
 
-      <Card className="hover:shadow-lg transition-shadow">
+      <Card className="shadow-[0_8px_30px_rgba(239,68,68,0.15)] hover:shadow-[0_12px_40px_rgba(239,68,68,0.25)] transition-all duration-300 hover:-translate-y-1 border-red-500/20">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
