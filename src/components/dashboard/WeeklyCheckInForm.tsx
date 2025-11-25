@@ -172,7 +172,7 @@ export const WeeklyCheckInForm = ({
               value={[progress]}
               onValueChange={(value) => setProgress(value[0])}
               max={100}
-              step={5}
+              step={25}
               className="py-4"
             />
             <div className="flex justify-between text-xs text-muted-foreground">
