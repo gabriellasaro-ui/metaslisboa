@@ -137,8 +137,12 @@ const Index = () => {
 
   // Get all clients with squad info for search
   // Filtrar por squad do usuário (a menos que seja supervisor)
+  const userSquads = squadsData.filter(squad => squad.id === squadId);
+  const hasMatchingSquad = userSquads.length > 0;
+  
+  // Se supervisor ou se não houver squad correspondente (dados estáticos), mostrar todos
   const allClientsWithSquad = squadsData
-    .filter(squad => isSupervisor || squad.id === squadId)
+    .filter(squad => isSupervisor || !hasMatchingSquad || squad.id === squadId)
     .flatMap(squad => 
       squad.clients.map(client => ({
         ...client,
