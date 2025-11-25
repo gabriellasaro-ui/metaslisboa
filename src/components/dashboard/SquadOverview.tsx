@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { User, ExternalLink, Users, Trophy, Medal, Shield } from "lucide-react";
+import { User, ExternalLink, Users, Trophy, Medal, Shield, Target, Fish, Sparkles, Cat } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Squad, Leader } from "@/types";
 import confetti from "canvas-confetti";
@@ -311,6 +311,25 @@ export const SquadOverview = ({ squad, rank, allSquadsComplete = false }: SquadO
   };
 
   const getSquadIcon = () => {
+    const squadName = squad.name.toUpperCase();
+    
+    if (squadName.includes("INTERNACIONAL")) {
+      return <span className="text-2xl">🇺🇸</span>;
+    }
+    if (squadName.includes("SHARK")) {
+      return <Fish className="h-6 w-6 text-blue-500" />;
+    }
+    if (squadName.includes("MIDAS")) {
+      return <Sparkles className="h-6 w-6 text-amber-500" />;
+    }
+    if (squadName.includes("TIGERS")) {
+      return <Cat className="h-6 w-6 text-orange-500" />;
+    }
+    if (squadName.includes("STRIKE")) {
+      return <Target className="h-6 w-6 text-red-500" />;
+    }
+    
+    // Ranking icons como fallback
     if (rank === 1) return <Trophy className="h-6 w-6 text-amber-500" />;
     if (rank === 2) return <Medal className="h-6 w-6 text-slate-400" />;
     if (rank === 3) return <Shield className="h-6 w-6 text-orange-600" />;

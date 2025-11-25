@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Trophy, Shield, Award, Target } from "lucide-react";
+import { Trophy, Shield, Award, Target, Fish, Sparkles, Cat } from "lucide-react";
 import { Squad, Leader } from "@/types";
 
 interface SquadRankingCardProps {
@@ -31,7 +31,26 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
     };
   }).sort((a, b) => b.coverageRate - a.coverageRate);
 
-  const getRankIcon = (index: number) => {
+  const getSquadIcon = (squadName: string, index: number) => {
+    const name = squadName.toUpperCase();
+    
+    if (name.includes("INTERNACIONAL")) {
+      return <span className="text-2xl">🇺🇸</span>;
+    }
+    if (name.includes("SHARK")) {
+      return <Fish className="h-5 w-5 text-blue-500" />;
+    }
+    if (name.includes("MIDAS")) {
+      return <Sparkles className="h-5 w-5 text-amber-500" />;
+    }
+    if (name.includes("TIGERS")) {
+      return <Cat className="h-5 w-5 text-orange-500" />;
+    }
+    if (name.includes("STRIKE")) {
+      return <Target className="h-5 w-5 text-red-500" />;
+    }
+    
+    // Ranking icons como fallback
     switch (index) {
       case 0:
         return <Trophy className="h-5 w-5 text-amber-500" />;
@@ -113,7 +132,7 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
                     'bg-gradient-to-br from-primary/20 to-primary/10 border-primary/30'
                   } shadow-lg`}>
                     <div className="relative">
-                      {getRankIcon(index)}
+                      {getSquadIcon(squad.name, index)}
                       <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
                         index === 0 ? 'bg-amber-500 text-white' :
                         index === 1 ? 'bg-slate-400 text-white' :
