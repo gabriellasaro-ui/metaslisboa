@@ -110,16 +110,21 @@ const LeaderProfile = () => {
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Briefcase className="h-4 w-4" />
-                    {leader.squads.length} {leader.squads.length === 1 ? 'Squad' : 'Squads'}
+                    {leaderSquads.length} {leaderSquads.length === 1 ? 'Squad' : 'Squads'}
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
-                  {leader.squads.map(squad => (
-                    <Badge key={squad} variant="outline">
-                      {squad}
-                    </Badge>
-                  ))}
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-lg">Squads sob liderança:</h3>
+                  {leaderSquads.length > 0 ? (
+                    <ul className="list-disc list-inside space-y-1">
+                      {leaderSquads.map((squad) => (
+                        <li key={squad.id} className="text-muted-foreground">{squad.name}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-muted-foreground">Nenhum squad encontrado</p>
+                  )}
                 </div>
               </div>
 

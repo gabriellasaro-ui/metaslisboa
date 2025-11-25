@@ -8,22 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { User, ExternalLink, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-interface Leader {
-  id: string;
-  name: string;
-  avatar?: string;
-}
-
-interface Squad {
-  id: string;
-  name: string;
-  leader?: Leader;
-  clients: Array<{
-    name: string;
-    hasGoal?: string;
-  }>;
-}
+import { Squad, Leader } from "@/types";
 
 interface SquadOverviewProps {
   squad: Squad;
@@ -32,7 +17,7 @@ interface SquadOverviewProps {
 export const SquadOverview = ({ squad }: SquadOverviewProps) => {
   const navigate = useNavigate();
   const [showClients, setShowClients] = useState(false);
-  const leader = squad.leader;
+  const leader = typeof squad.leader === 'string' ? null : squad.leader;
   const withGoals = squad.clients.filter(c => c.hasGoal === "SIM").length;
   const pending = squad.clients.filter(c => c.hasGoal === "NAO_DEFINIDO").length;
   const withoutGoals = squad.clients.filter(c => c.hasGoal === "NAO").length;

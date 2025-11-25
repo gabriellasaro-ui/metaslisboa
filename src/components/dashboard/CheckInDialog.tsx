@@ -4,21 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Client } from "@/types";
-
-// Type for progress status
-export type ProgressStatus = "on_track" | "at_risk" | "delayed" | "completed";
-
-// Type for check-in
-export interface CheckIn {
-  id?: string;
-  date: Date;
-  comment: string;
-  progress: number;
-  status: ProgressStatus;
-  callLink?: string;
-  callSummary?: string;
-}
+import { Client, CheckIn, ProgressStatus } from "@/types";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
@@ -48,7 +34,7 @@ export function CheckInDialog({ client, open, onOpenChange, onSave, leaderName }
       progress,
       status,
       comment,
-      updatedBy: leaderName,
+      created_by: leaderName,
     };
 
     const updatedClient: Client = {
@@ -111,7 +97,7 @@ export function CheckInDialog({ client, open, onOpenChange, onSave, leaderName }
 
           <div className="space-y-2">
             <Label htmlFor="progress">Progresso da Meta</Label>
-            <Select value={progress.toString()} onValueChange={(value) => setProgress(Number(value) as ProgressStatus)}>
+            <Select value={progress.toString()} onValueChange={(value) => setProgress(Number(value))}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o progresso" />
               </SelectTrigger>
