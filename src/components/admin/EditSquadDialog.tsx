@@ -75,7 +75,7 @@ export const EditSquadDialog = ({ squad, open, onOpenChange, onSuccess }: EditSq
         .update({
           name,
           slug,
-          leader_id: leaderId || null,
+          leader_id: leaderId === "none" || !leaderId ? null : leaderId,
         })
         .eq("id", squad.id);
 
@@ -123,7 +123,7 @@ export const EditSquadDialog = ({ squad, open, onOpenChange, onSuccess }: EditSq
 
           <div className="space-y-2">
             <Label htmlFor="leader">Líder</Label>
-            <Select value={leaderId} onValueChange={setLeaderId}>
+            <Select value={leaderId || "none"} onValueChange={(value) => setLeaderId(value === "none" ? "" : value)}>
               <SelectTrigger id="leader">
                 <SelectValue placeholder="Selecione um líder" />
               </SelectTrigger>
@@ -134,7 +134,7 @@ export const EditSquadDialog = ({ squad, open, onOpenChange, onSuccess }: EditSq
                   </div>
                 ) : (
                   <>
-                    <SelectItem value="">Nenhum</SelectItem>
+                    <SelectItem value="none">Nenhum</SelectItem>
                     {leaders.map((leader) => (
                       <SelectItem key={leader.id} value={leader.id}>
                         {leader.name}
