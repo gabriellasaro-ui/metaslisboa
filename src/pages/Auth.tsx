@@ -16,8 +16,17 @@ const signupSchema = z.object({
   }),
   password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
   name: z.string().min(2, "Nome deve ter no mínimo 2 caracteres"),
-  squad_id: z.string().min(1, "Selecione uma squad"),
   role: z.enum(["investidor", "coordenador", "supervisor"]),
+  squad_id: z.string().optional(),
+}).refine((data) => {
+  // Squad is required for investidor and coordenador, but optional for supervisor
+  if (data.role !== "supervisor" && !data.squad_id) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Selecione uma squad",
+  path: ["squad_id"],
 });
 
 const loginSchema = z.object({
@@ -193,25 +202,6 @@ export default function Auth() {
             {!isLogin && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="squad">Squad</Label>
-                  <Select
-                    value={formData.squad_id}
-                    onValueChange={(value) => setFormData({ ...formData, squad_id: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione sua squad" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {squads.map((squad) => (
-                        <SelectItem key={squad.id} value={squad.id}>
-                          {squad.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
                   <Label htmlFor="role">Cargo</Label>
                   <Select
                     value={formData.role}
@@ -227,6 +217,27 @@ export default function Auth() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {formData.role !== "supervisor" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="squad">Squad</Label>
+                    <Select
+                      value={formData.squad_id}
+                      onValueChange={(value) => setFormData({ ...formData, squad_id: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione sua squad" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {squads.map((squad) => (
+                          <SelectItem key={squad.id} value={squad.id}>
+                            {squad.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </>
             )}
 
