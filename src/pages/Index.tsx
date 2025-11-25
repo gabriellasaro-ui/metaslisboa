@@ -15,6 +15,7 @@ import { EvolutionTimelineChart } from "@/components/dashboard/charts/EvolutionT
 import { PerformanceAnalysisChart } from "@/components/dashboard/charts/PerformanceAnalysisChart";
 import { ReportsSection } from "@/components/dashboard/ReportsSection";
 import { SquadRankingCard } from "@/components/dashboard/SquadRankingCard";
+import { GoalsImportanceCard } from "@/components/dashboard/GoalsImportanceCard";
 import { useClientsData } from "@/hooks/useClientsData";
 import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
 
@@ -119,28 +120,38 @@ const Index = () => {
         </div>
 
         {/* Gráficos Visuais */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
-          <GoalsDistributionChart />
-          <div className="lg:col-span-2">
-            <SquadsComparisonChart />
+        <div className="grid gap-6 mb-8">
+          {/* Primeira Linha - Card de Importância das Metas */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <GoalsImportanceCard />
+            <GoalsDistributionChart />
           </div>
-          <GoalTypesChart />
-          <SquadRankingCard squadsData={squadsData} />
-          <div className="md:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Visão Geral por Squad</CardTitle>
-                <CardDescription>Cobertura de metas em cada time</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {squadsData.map((squad) => (
-                    <SquadOverview key={squad.id} squad={squad} />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+
+          {/* Segunda Linha - Comparação de Squads */}
+          <SquadsComparisonChart />
+
+          {/* Terceira Linha - Tipos e Ranking */}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <GoalTypesChart />
+            <div className="lg:col-span-2">
+              <SquadRankingCard squadsData={squadsData} />
+            </div>
           </div>
+
+          {/* Quarta Linha - Visão Geral por Squad */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Visão Geral por Squad</CardTitle>
+              <CardDescription>Cobertura de metas em cada time</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {squadsData.map((squad) => (
+                  <SquadOverview key={squad.id} squad={squad} />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Squads Tabs */}
