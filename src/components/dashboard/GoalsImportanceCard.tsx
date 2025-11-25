@@ -5,13 +5,26 @@ import { Badge } from "@/components/ui/badge";
 import { Lightbulb, Download, CheckCircle2, TrendingUp, Users, Shield, Zap } from "lucide-react";
 
 export const GoalsImportanceCard = () => {
-  const handleDownloadPDF = () => {
-    const link = document.createElement('a');
-    link.href = '/docs/importancia-metas.pdf';
-    link.download = 'Por-que-ter-metas-e-essencial.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownloadPDF = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    
+    // Método mais seguro usando fetch e blob
+    fetch('/docs/importancia-metas.pdf')
+      .then(response => response.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'Por-que-ter-metas-e-essencial.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.error('Erro ao baixar PDF:', error);
+      });
   };
 
   const benefits = [
@@ -82,7 +95,7 @@ export const GoalsImportanceCard = () => {
         <div className="flex gap-3 pt-2">
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="flex-1 bg-amber-600 hover:bg-amber-700">
+              <Button type="button" className="flex-1 bg-amber-600 hover:bg-amber-700">
                 <Lightbulb className="mr-2 h-4 w-4" />
                 Ver Todos os Benefícios
               </Button>
@@ -123,7 +136,12 @@ export const GoalsImportanceCard = () => {
               </div>
 
               <div className="flex justify-center pt-6">
-                <Button onClick={handleDownloadPDF} size="lg" className="bg-emerald-600 hover:bg-emerald-700">
+                <Button 
+                  type="button"
+                  onClick={handleDownloadPDF} 
+                  size="lg" 
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                >
                   <Download className="mr-2 h-4 w-4" />
                   Baixar Apresentação Completa (PDF)
                 </Button>
@@ -131,7 +149,12 @@ export const GoalsImportanceCard = () => {
             </DialogContent>
           </Dialog>
 
-          <Button variant="outline" onClick={handleDownloadPDF} className="flex-shrink-0">
+          <Button 
+            type="button"
+            variant="outline" 
+            onClick={handleDownloadPDF} 
+            className="flex-shrink-0"
+          >
             <Download className="mr-2 h-4 w-4" />
             PDF
           </Button>
