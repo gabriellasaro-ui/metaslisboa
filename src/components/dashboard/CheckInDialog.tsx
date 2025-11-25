@@ -143,7 +143,7 @@ export function CheckInDialog({ client, open, onOpenChange, onSave, leaderName }
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleSave} disabled={!comment.trim()}>
+          <Button variant="premium" onClick={handleSave} disabled={!comment.trim()}>
             Registrar Check-in
           </Button>
         </div>
