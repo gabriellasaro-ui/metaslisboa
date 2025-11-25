@@ -103,70 +103,11 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Overall Metrics */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <MetricsCard
-            title="Total de Clientes"
-            value={stats.total}
-            icon={Users}
-            description="Todos os clientes ativos"
-          />
-          <MetricsCard
-            title="Com Metas Definidas"
-            value={stats.withGoals}
-            icon={Target}
-            variant="success"
-            description={`${((stats.withGoals / stats.total) * 100).toFixed(0)}% do total`}
-          />
-          <MetricsCard
-            title="Metas A Definir"
-            value={stats.pending}
-            icon={AlertCircle}
-            variant="warning"
-            description="Em processo de definição"
-          />
-          <MetricsCard
-            title="Sem Metas"
-            value={stats.withoutGoals}
-            icon={TrendingUp}
-            variant="danger"
-            description="Oportunidade de expansão"
-          />
-        </div>
-
-        {/* Gráficos Visuais */}
-        <div className="grid gap-6 mb-8">
-          {/* Primeira Linha - Card de Importância das Metas */}
-          <div className="grid gap-6 md:grid-cols-2">
-            <GoalsImportanceCard />
-            <GoalsDistributionChart />
-          </div>
-
-          {/* Segunda Linha - Comparação de Squads */}
-          <SquadsComparisonChart />
-
-          {/* Terceira Linha - Ranking */}
-          <SquadRankingCard squadsData={squadsData} />
-
-          {/* Quarta Linha - Visão Geral por Squad */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Visão Geral por Squad</CardTitle>
-              <CardDescription>Cobertura de metas em cada time</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {squadsData.map((squad) => (
-                  <SquadOverview key={squad.id} squad={squad} />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Squads Tabs */}
-        <Tabs defaultValue="consolidado" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7">
+        {/* Tabs Navigation */}
+        <Tabs defaultValue="visao-geral" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9">
+            <TabsTrigger value="visao-geral">Visão Geral</TabsTrigger>
+            <TabsTrigger value="analises">Análises</TabsTrigger>
             <TabsTrigger value="consolidado">Consolidado</TabsTrigger>
             <TabsTrigger value="relatorios">Relatórios</TabsTrigger>
             {squadsData.map((squad) => (
@@ -175,6 +116,72 @@ const Index = () => {
               </TabsTrigger>
             ))}
           </TabsList>
+
+          {/* Visão Geral Tab */}
+          <TabsContent value="visao-geral" className="space-y-6">
+            {/* Overall Metrics */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <MetricsCard
+                title="Total de Clientes"
+                value={stats.total}
+                icon={Users}
+                description="Todos os clientes ativos"
+              />
+              <MetricsCard
+                title="Com Metas Definidas"
+                value={stats.withGoals}
+                icon={Target}
+                variant="success"
+                description={`${((stats.withGoals / stats.total) * 100).toFixed(0)}% do total`}
+              />
+              <MetricsCard
+                title="Metas A Definir"
+                value={stats.pending}
+                icon={AlertCircle}
+                variant="warning"
+                description="Em processo de definição"
+              />
+              <MetricsCard
+                title="Sem Metas"
+                value={stats.withoutGoals}
+                icon={TrendingUp}
+                variant="danger"
+                description="Oportunidade de expansão"
+              />
+            </div>
+
+            {/* Visão Geral por Squad */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Visão Geral por Squad</CardTitle>
+                <CardDescription>Cobertura de metas em cada time</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {squadsData.map((squad) => (
+                    <SquadOverview key={squad.id} squad={squad} />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Análises Tab */}
+          <TabsContent value="analises" className="space-y-6">
+            <div className="grid gap-6">
+              {/* Primeira Linha */}
+              <div className="grid gap-6 md:grid-cols-2">
+                <GoalsImportanceCard />
+                <GoalsDistributionChart />
+              </div>
+
+              {/* Segunda Linha - Comparação de Squads */}
+              <SquadsComparisonChart />
+
+              {/* Terceira Linha - Ranking */}
+              <SquadRankingCard squadsData={squadsData} />
+            </div>
+          </TabsContent>
 
           {/* Consolidated View */}
           <TabsContent value="consolidado" className="space-y-4">
