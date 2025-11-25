@@ -50,7 +50,6 @@ const LeaderProfile = () => {
     sum + squad.clients.filter(c => c.hasGoal === 'NAO').length, 0);
   
   const coverageRate = totalClients > 0 ? (withGoals / totalClients) * 100 : 0;
-  const conversionRate = totalClients > 0 ? ((withGoals + pending) / totalClients) * 100 : 0;
 
   const allClients = leaderSquads.flatMap(squad => 
     squad.clients.map(client => ({ ...client, squadName: squad.name }))
@@ -129,7 +128,7 @@ const LeaderProfile = () => {
         </Card>
 
         {/* Metrics Overview */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div className="grid gap-4 md:grid-cols-3 mb-8">
           <MetricsCard
             title="Total de Clientes"
             value={totalClients}
@@ -149,12 +148,6 @@ const LeaderProfile = () => {
             icon={TrendingUp}
             variant="warning"
             description="Metas em formulação"
-          />
-          <MetricsCard
-            title="Taxa de Conversão"
-            value={Math.round(conversionRate)}
-            icon={Award}
-            description="Com meta + A definir"
           />
         </div>
 
