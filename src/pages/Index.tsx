@@ -55,10 +55,10 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-background relative overflow-hidden">
       {/* Decorative background elements */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-accent/5 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-accent/5 via-transparent to-transparent pointer-events-none z-0" />
       
-      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 relative z-10 max-w-[1600px]">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 relative z-20 max-w-[1600px]">
         {/* Header */}
         <header className="mb-12 animate-fade-in">
           <div className="flex items-center justify-between mb-6 gap-4">
