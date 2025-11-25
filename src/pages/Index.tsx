@@ -28,7 +28,8 @@ import { FilterStats } from "@/components/dashboard/FilterStats";
 import { toast } from "sonner";
 import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
 import { Separator } from "@/components/ui/separator";
-import { MigrateDataButton } from "@/components/dashboard/MigrateDataButton";
+import { CheckInsDemoCard } from "@/components/dashboard/CheckInsDemoCard";
+import { TourGuide } from "@/components/dashboard/TourGuide";
 
 const Index = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | GoalStatus>("all");
@@ -203,8 +204,11 @@ const Index = () => {
 
           {/* Visão Geral Tab */}
           <TabsContent value="visao-geral" className="space-y-8 animate-fade-in">
-            {/* Botão de Migração - Remover após migrar */}
-            <MigrateDataButton />
+            {/* Tour Guide */}
+            <TourGuide />
+
+            {/* Card Demo Check-ins */}
+            <CheckInsDemoCard />
 
             <Separator className="bg-border/50" />
 

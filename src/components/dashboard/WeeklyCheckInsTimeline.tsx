@@ -1,0 +1,182 @@
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Calendar, TrendingUp, MessageSquare, Clock, User } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
+interface CheckIn {
+  id: string;
+  progress: number;
+  status: string;
+  comment: string;
+  created_at: string;
+  created_by: string;
+  client: {
+    name: string;
+  };
+}
+
+interface WeeklyCheckInsTimelineProps {
+  clientId?: string;
+  limit?: number;
+}
+
+export const WeeklyCheckInsTimeline = ({ clientId, limit = 10 }: WeeklyCheckInsTimelineProps) => {
+  const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCheckIns();
+  }, [clientId]);
+
+  const fetchCheckIns = async () => {
+    setIsLoading(true);
+    try {
+      let query = supabase
+        .from("check_ins")
+        .select(`
+          id,
+          progress,
+          status,
+          comment,
+          created_at,
+          created_by,
+          client:clients(name)
+        `)
+        .order("created_at", { ascending: false })
+        .limit(limit);
+
+      if (clientId) {
+        query = query.eq("client_id", clientId);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      setCheckIns(data as any);
+    } catch (error) {
+      console.error("Erro ao buscar check-ins:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      on_track: { label: "No Prazo", variant: "default" as const, color: "bg-green-500" },
+      at_risk: { label: "Em Risco", variant: "secondary" as const, color: "bg-yellow-500" },
+      delayed: { label: "Atrasado", variant: "destructive" as const, color: "bg-red-500" },
+      completed: { label: "Concluído", variant: "outline" as const, color: "bg-blue-500" },
+    };
+
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.on_track;
+
+    return (
+      <Badge variant={config.variant} className="flex items-center gap-1.5">
+        <div className={`h-2 w-2 rounded-full ${config.color}`} />
+        {config.label}
+      </Badge>
+    );
+  };
+
+  return (
+    <Card className="border-border/50 shadow-lg">
+      <CardHeader className="border-b border-border/30 pb-6">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-1.5 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
+          <div>
+            <CardTitle className="text-2xl font-bold">Timeline de Check-ins</CardTitle>
+            <CardDescription className="text-base mt-2">
+              {clientId ? "Histórico de acompanhamento do cliente" : "Últimos check-ins registrados"}
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-6">
+        {isLoading ? (
+          <div className="text-center text-muted-foreground py-8">Carregando...</div>
+        ) : checkIns.length === 0 ? (
+          <div className="text-center text-muted-foreground py-8">
+            <Calendar className="h-12 w-12 mx-auto mb-3 opacity-50" />
+            <p className="font-medium">Nenhum check-in registrado ainda</p>
+            <p className="text-sm mt-1">Faça o primeiro check-in para começar o acompanhamento</p>
+          </div>
+        ) : (
+          <ScrollArea className="h-[600px] pr-4">
+            <div className="space-y-6">
+              {checkIns.map((checkIn, index) => (
+                <div key={checkIn.id} className="relative">
+                  {/* Timeline connector */}
+                  {index < checkIns.length - 1 && (
+                    <div className="absolute left-[19px] top-12 w-0.5 h-full bg-gradient-to-b from-border to-transparent" />
+                  )}
+
+                  <div className="flex gap-4">
+                    {/* Timeline icon */}
+                    <div className="relative flex-shrink-0">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary/20">
+                        <TrendingUp className="h-5 w-5 text-primary" />
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 space-y-3 pb-6">
+                      {/* Header */}
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            {!clientId && (
+                              <h4 className="font-semibold text-foreground">
+                                {checkIn.client?.name || "Cliente"}
+                              </h4>
+                            )}
+                            {getStatusBadge(checkIn.status)}
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-1.5">
+                              <Clock className="h-3.5 w-3.5" />
+                              {format(new Date(checkIn.created_at), "dd MMM yyyy 'às' HH:mm", { locale: ptBR })}
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                              <User className="h-3.5 w-3.5" />
+                              {checkIn.created_by}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-primary">{checkIn.progress}%</div>
+                          <div className="text-xs text-muted-foreground">progresso</div>
+                        </div>
+                      </div>
+
+                      {/* Progress bar */}
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-500"
+                          style={{ width: `${checkIn.progress}%` }}
+                        />
+                      </div>
+
+                      {/* Comment */}
+                      <div className="bg-muted/30 rounded-lg p-4 border border-border/30">
+                        <div className="flex items-start gap-2">
+                          <MessageSquare className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <p className="text-sm text-foreground leading-relaxed">{checkIn.comment}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
