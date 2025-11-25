@@ -7,7 +7,7 @@ export const useClientsData = () => {
 
   // Fetch squads with their clients from Supabase
   const { data: squadsData = [], isLoading } = useQuery({
-    queryKey: ["squads-with-clients"],
+    queryKey: ["squads-with-clients-v2"], // Changed key to force refresh
     queryFn: async () => {
       // Fetch squads with leader info
       const { data: squads, error: squadsError } = await supabase
@@ -83,6 +83,7 @@ export const useClientsData = () => {
             // O health_status agora é gerenciado manualmente pelos usuários
 
             return {
+              id: client.id,
               name: client.name,
               hasGoal: hasGoalStatus,
               status: client.status,
@@ -125,15 +126,15 @@ export const useClientsData = () => {
 
   const updateClient = async (squadId: string, clientIndex: number, updatedClient: Client) => {
     // This is kept for compatibility but should be replaced with direct Supabase updates
-    queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] });
+    queryClient.invalidateQueries({ queryKey: ["squads-with-clients-v2"] });
   };
 
   const addClient = async (squadId: string, newClient: Client) => {
-    queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] });
+    queryClient.invalidateQueries({ queryKey: ["squads-with-clients-v2"] });
   };
 
   const deleteClient = async (squadId: string, clientIndex: number) => {
-    queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] });
+    queryClient.invalidateQueries({ queryKey: ["squads-with-clients-v2"] });
   };
 
   return {
