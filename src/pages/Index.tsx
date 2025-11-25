@@ -119,26 +119,58 @@ const Index = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-background relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-accent/5 via-transparent to-transparent pointer-events-none" />
+      
+      <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            Dashboard de Controle de Clientes
-          </h1>
-          <p className="text-muted-foreground">
+        <div className="mb-10 animate-fade-in">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="h-1 w-12 bg-gradient-to-r from-primary to-primary/50 rounded-full" />
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-primary to-primary/60 bg-clip-text text-transparent tracking-tight">
+              Dashboard de Controle de Clientes
+            </h1>
+          </div>
+          <p className="text-muted-foreground text-lg ml-[3.75rem] font-medium">
             Mapeamento de metas ao longo do tempo - 100 Dias
           </p>
         </div>
 
         {/* Tabs Navigation */}
-        <Tabs defaultValue="visao-geral" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="visao-geral">Visão Geral</TabsTrigger>
-            <TabsTrigger value="analises">Análises</TabsTrigger>
-            <TabsTrigger value="check-ins">Check-ins</TabsTrigger>
-            <TabsTrigger value="clientes">Pesquisa</TabsTrigger>
-            <TabsTrigger value="relatorios">Relatórios</TabsTrigger>
+        <Tabs defaultValue="visao-geral" className="space-y-8">
+          <TabsList className="grid w-full grid-cols-5 p-1.5 bg-muted/50 backdrop-blur-sm border border-border/50 shadow-lg h-auto">
+            <TabsTrigger 
+              value="visao-geral" 
+              className="data-[state=active]:bg-background data-[state=active]:shadow-md transition-all duration-300 py-3 data-[state=active]:scale-105"
+            >
+              <span className="font-semibold">Visão Geral</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="analises"
+              className="data-[state=active]:bg-background data-[state=active]:shadow-md transition-all duration-300 py-3 data-[state=active]:scale-105"
+            >
+              <span className="font-semibold">Análises</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="check-ins"
+              className="data-[state=active]:bg-background data-[state=active]:shadow-md transition-all duration-300 py-3 data-[state=active]:scale-105"
+            >
+              <span className="font-semibold">Check-ins</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="clientes"
+              className="data-[state=active]:bg-background data-[state=active]:shadow-md transition-all duration-300 py-3 data-[state=active]:scale-105"
+            >
+              <span className="font-semibold">Pesquisa</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="relatorios"
+              className="data-[state=active]:bg-background data-[state=active]:shadow-md transition-all duration-300 py-3 data-[state=active]:scale-105"
+            >
+              <span className="font-semibold">Relatórios</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* Visão Geral Tab */}
@@ -183,15 +215,22 @@ const Index = () => {
             </div>
 
             {/* Visão Geral por Squad */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Visão Geral por Squad</CardTitle>
-                <CardDescription>Cobertura de metas em cada time</CardDescription>
+            <Card className="border-border/50 shadow-xl bg-gradient-to-br from-card via-card to-muted/10 backdrop-blur-sm">
+              <CardHeader className="border-b border-border/30">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-1 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
+                  <div>
+                    <CardTitle className="text-2xl">Visão Geral por Squad</CardTitle>
+                    <CardDescription className="text-base mt-1">Cobertura de metas em cada time</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {squadsData.map((squad) => (
-                    <SquadOverview key={squad.id} squad={squad} />
+              <CardContent className="pt-6">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {squadsData.map((squad, index) => (
+                    <div key={squad.id} style={{ animationDelay: `${index * 0.1}s` }} className="animate-fade-in">
+                      <SquadOverview squad={squad} />
+                    </div>
                   ))}
                 </div>
               </CardContent>

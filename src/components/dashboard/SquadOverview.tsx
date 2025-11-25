@@ -21,56 +21,72 @@ export const SquadOverview = ({ squad }: SquadOverviewProps) => {
   const percentageWithGoals = total > 0 ? (withGoals / total) * 100 : 0;
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="group hover:shadow-xl hover:shadow-primary/5 transition-all duration-500 hover:scale-[1.02] bg-gradient-to-br from-card via-card to-muted/5 overflow-hidden relative border-border/50 hover:border-primary/30">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <CardHeader className="relative z-10">
         <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-xl">{squad.name}</CardTitle>
+          <div className="flex-1">
+            <CardTitle className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent group-hover:from-primary group-hover:to-primary/70 transition-all duration-500">
+              {squad.name}
+            </CardTitle>
             {leader && (
-              <CardDescription className="flex items-center gap-2 mt-2">
-                <Avatar className="h-6 w-6 border border-border">
+              <CardDescription className="flex items-center gap-2 mt-3">
+                <Avatar className="h-7 w-7 border-2 border-border group-hover:border-primary/50 transition-all duration-500 group-hover:scale-110">
                   <AvatarImage src={leader.avatar} alt={leader.name} />
-                  <AvatarFallback className="text-xs">{leader.name[0]}</AvatarFallback>
+                  <AvatarFallback className="text-xs bg-muted">{leader.name[0]}</AvatarFallback>
                 </Avatar>
                 <Button
                   variant="link"
-                  className="h-auto p-0 text-sm"
+                  className="h-auto p-0 text-sm hover:text-primary transition-colors duration-300"
                   onClick={() => navigate(`/leader/${leader.id}`)}
                 >
                   {leader.name}
-                  <ExternalLink className="ml-1 h-3 w-3" />
+                  <ExternalLink className="ml-1 h-3 w-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
                 </Button>
               </CardDescription>
             )}
           </div>
           <div className="text-right">
-            <div className="text-3xl font-bold">{total}</div>
-            <div className="text-sm text-muted-foreground">clientes</div>
+            <div className="text-4xl font-bold bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
+              {total}
+            </div>
+            <div className="text-xs text-muted-foreground font-medium">clientes</div>
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+      <CardContent className="relative z-10">
+        <div className="space-y-5">
           <div>
-            <div className="flex justify-between mb-2 text-sm">
-              <span className="text-muted-foreground">Cobertura de Metas</span>
-              <span className="font-medium">{percentageWithGoals.toFixed(0)}%</span>
+            <div className="flex justify-between mb-3 text-sm">
+              <span className="text-muted-foreground font-medium">Cobertura de Metas</span>
+              <span className="font-bold text-lg bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                {percentageWithGoals.toFixed(0)}%
+              </span>
             </div>
-            <Progress value={percentageWithGoals} className="h-2" />
+            <div className="relative">
+              <Progress value={percentageWithGoals} className="h-3 shadow-sm" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-background/20 to-transparent pointer-events-none" />
+            </div>
           </div>
           
-          <div className="grid grid-cols-3 gap-4 pt-4 border-t">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{withGoals}</div>
-              <div className="text-xs text-muted-foreground">Com Meta</div>
+          <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border/50">
+            <div className="text-center p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20 hover:bg-emerald-500/10 transition-all duration-300 group/stat">
+              <div className="text-2xl font-bold text-emerald-500 group-hover/stat:scale-110 transition-transform duration-300">
+                {withGoals}
+              </div>
+              <div className="text-xs text-muted-foreground font-medium mt-1">Com Meta</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">{pending}</div>
-              <div className="text-xs text-muted-foreground">A Definir</div>
+            <div className="text-center p-3 rounded-lg bg-amber-500/5 border border-amber-500/20 hover:bg-amber-500/10 transition-all duration-300 group/stat">
+              <div className="text-2xl font-bold text-amber-500 group-hover/stat:scale-110 transition-transform duration-300">
+                {pending}
+              </div>
+              <div className="text-xs text-muted-foreground font-medium mt-1">A Definir</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-muted-foreground">{withoutGoals}</div>
-              <div className="text-xs text-muted-foreground">Sem Meta</div>
+            <div className="text-center p-3 rounded-lg bg-muted/30 border border-border/30 hover:bg-muted/50 transition-all duration-300 group/stat">
+              <div className="text-2xl font-bold text-muted-foreground group-hover/stat:scale-110 transition-transform duration-300">
+                {withoutGoals}
+              </div>
+              <div className="text-xs text-muted-foreground font-medium mt-1">Sem Meta</div>
             </div>
           </div>
         </div>
