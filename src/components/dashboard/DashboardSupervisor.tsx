@@ -96,9 +96,8 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
           <MetricsCard title="Sem Metas" value={stats.withoutGoals} icon={TrendingUp} variant="danger" description="Oportunidade" />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           <SquadRankingCard squadsData={squadsData} />
-          <GoalsImportanceCard />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
@@ -110,14 +109,24 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
 
         <div className="space-y-6">
           <h2 className="text-2xl font-bold">Visão por Squad</h2>
-          {squadsData.map(squad => (
-            <SquadOverview key={squad.id} squad={squad} />
-          ))}
+          {squadsData
+            .map(squad => ({
+              ...squad,
+              coverage: squad.clients.length > 0 
+                ? (squad.clients.filter(c => c.hasGoal === "SIM").length / squad.clients.length) * 100 
+                : 0
+            }))
+            .sort((a, b) => b.coverage - a.coverage)
+            .map((squad, index) => (
+              <SquadOverview key={squad.id} squad={squad} rank={index + 1} />
+            ))}
         </div>
       </TabsContent>
 
       <TabsContent value="analises" className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <GoalsImportanceCard />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           <SquadsComparisonChart squadsData={squadsData} />
           <HealthStatusDistributionChart squadsData={squadsData} />
         </div>
