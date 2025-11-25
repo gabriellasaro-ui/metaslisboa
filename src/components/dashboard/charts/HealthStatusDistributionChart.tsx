@@ -9,9 +9,9 @@ interface HealthStatusDistributionChartProps {
 export const HealthStatusDistributionChart = ({ squadsData }: HealthStatusDistributionChartProps) => {
   // Processar dados por squad
   const data = squadsData.map(squad => {
-    const safe = squad.clients.filter(c => c.healthStatus === "safe").length;
-    const care = squad.clients.filter(c => c.healthStatus === "care").length;
-    const danger = squad.clients.filter(c => c.healthStatus === "danger").length;
+    const safe = squad.clients.filter(c => c.healthStatus === "safe" || c.status === "ativo").length;
+    const care = squad.clients.filter(c => c.healthStatus === "care" || c.status === "aviso_previo").length;
+    const danger = squad.clients.filter(c => c.healthStatus === "danger" || c.status === "churned").length;
 
     return {
       name: squad.name,

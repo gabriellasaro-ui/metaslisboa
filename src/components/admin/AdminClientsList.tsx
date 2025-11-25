@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Pencil, Loader2 } from "lucide-react";
+import { Pencil, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { EditClientAdminDialog } from "./EditClientAdminDialog";
 
@@ -27,6 +28,7 @@ export const AdminClientsList = ({ onUpdate }: AdminClientsListProps) => {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchClients();
@@ -73,6 +75,12 @@ export const AdminClientsList = ({ onUpdate }: AdminClientsListProps) => {
     return <Badge className={config.className}>{config.label}</Badge>;
   };
 
+  const filteredClients = clients.filter(client =>
+    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.squads.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.status.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -83,6 +91,18 @@ export const AdminClientsList = ({ onUpdate }: AdminClientsListProps) => {
 
   return (
     <>
+      <div className="mb-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por nome, squad ou status..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+      </div>
+      
       <div className="border rounded-lg">
         <Table>
           <TableHeader>
@@ -95,7 +115,7 @@ export const AdminClientsList = ({ onUpdate }: AdminClientsListProps) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {clients.map((client) => (
+            {filteredClients.map((client) => (
               <TableRow key={client.id}>
                 <TableCell className="font-medium">{client.name}</TableCell>
                 <TableCell>{client.squads.name}</TableCell>
