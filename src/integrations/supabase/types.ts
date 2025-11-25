@@ -76,6 +76,7 @@ export type Database = {
           aviso_previo_date: string | null
           churned_date: string | null
           created_at: string
+          health_status: Database["public"]["Enums"]["health_status"] | null
           id: string
           name: string
           notes: string | null
@@ -87,6 +88,7 @@ export type Database = {
           aviso_previo_date?: string | null
           churned_date?: string | null
           created_at?: string
+          health_status?: Database["public"]["Enums"]["health_status"] | null
           id?: string
           name: string
           notes?: string | null
@@ -98,6 +100,7 @@ export type Database = {
           aviso_previo_date?: string | null
           churned_date?: string | null
           created_at?: string
+          health_status?: Database["public"]["Enums"]["health_status"] | null
           id?: string
           name?: string
           notes?: string | null
@@ -216,6 +219,41 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          name: string
+          squad_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          name: string
+          squad_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          squad_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_squad_id_fkey"
+            columns: ["squad_id"]
+            isOneToOne: false
+            referencedRelation: "squads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       squads: {
         Row: {
           created_at: string
@@ -251,18 +289,45 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_squad_id: { Args: { _user_id: string }; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "investidor" | "coordenador" | "supervisor"
       checkin_status: "on_track" | "at_risk" | "delayed" | "completed"
       client_status: "ativo" | "aviso_previo" | "churned"
       goal_status: "nao_definida" | "em_andamento" | "concluida" | "cancelada"
       goal_type: "Faturamento" | "Leads" | "OUTROS"
+      health_status: "safe" | "care" | "danger"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -390,10 +455,12 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["investidor", "coordenador", "supervisor"],
       checkin_status: ["on_track", "at_risk", "delayed", "completed"],
       client_status: ["ativo", "aviso_previo", "churned"],
       goal_status: ["nao_definida", "em_andamento", "concluida", "cancelada"],
       goal_type: ["Faturamento", "Leads", "OUTROS"],
+      health_status: ["safe", "care", "danger"],
     },
   },
 } as const

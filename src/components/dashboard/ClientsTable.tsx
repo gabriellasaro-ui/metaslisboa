@@ -4,6 +4,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Client, GoalStatus, GoalType } from "@/data/clientsData";
 import { Target, TrendingUp, Users, AlertCircle, Pencil, Sparkles, ClipboardCheck, History } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { HealthStatusBadge } from "./HealthStatusBadge";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ClientsTableProps {
   clients: Client[];
@@ -67,6 +69,9 @@ export const ClientsTable = ({
   onViewProgress,
   showActions = true 
 }: ClientsTableProps) => {
+  const { isCoordenador, isSupervisor } = useAuth();
+  const canEdit = isCoordenador || isSupervisor;
+
   const filteredClients = clients.filter(client => {
     const statusMatch = filterStatus === "all" || client.hasGoal === filterStatus;
     const goalTypeMatch = filterGoalType === "all" || client.goalType === filterGoalType;
@@ -79,6 +84,7 @@ export const ClientsTable = ({
         <TableHeader>
           <TableRow>
             <TableHead className="w-[200px]">Cliente</TableHead>
+            <TableHead>Situação</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Tipo</TableHead>
             <TableHead>Meta</TableHead>
@@ -90,7 +96,7 @@ export const ClientsTable = ({
         <TableBody>
           {filteredClients.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={showActions ? 7 : 6} className="text-center text-muted-foreground py-8">
+              <TableCell colSpan={showActions ? 8 : 7} className="text-center text-muted-foreground py-8">
                 Nenhum cliente encontrado com os filtros selecionados
               </TableCell>
             </TableRow>
@@ -103,6 +109,9 @@ export const ClientsTable = ({
               return (
                 <TableRow key={index}>
                   <TableCell className="font-medium">{client.name}</TableCell>
+                  <TableCell>
+                    <HealthStatusBadge status={(client as any).health_status || 'safe'} />
+                  </TableCell>
                   <TableCell>{getStatusBadge(client.hasGoal)}</TableCell>
                   <TableCell>{getGoalTypeBadge(client.goalType)}</TableCell>
                   <TableCell className="max-w-md">
@@ -171,15 +180,17 @@ export const ClientsTable = ({
                             SMART
                           </Button>
                         )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onEditClient?.(client, originalIndex)}
-                          className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary hover:border hover:border-primary/20"
-                        >
-                          <Pencil className="h-4 w-4" />
-                          <span className="sr-only">Editar cliente</span>
-                        </Button>
+                        {canEdit && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onEditClient?.(client, originalIndex)}
+                            className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary hover:border hover:border-primary/20"
+                          >
+                            <Pencil className="h-4 w-4" />
+                            <span className="sr-only">Editar cliente</span>
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   )}
