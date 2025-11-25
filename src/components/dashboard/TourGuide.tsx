@@ -23,9 +23,9 @@ export const TourGuide = () => {
             <Info className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <CardTitle className="text-2xl">🎯 Tour Completo - O que está funcionando</CardTitle>
+            <CardTitle className="text-2xl">🎯 Tour do Dashboard</CardTitle>
             <CardDescription className="text-base mt-1">
-              Entenda tudo que foi implementado no seu sistema
+              Conheça todas as funcionalidades disponíveis
             </CardDescription>
           </div>
         </div>
@@ -36,16 +36,16 @@ export const TourGuide = () => {
         <Alert className="border-green-500/20 bg-green-500/5">
           <CheckCircle2 className="h-5 w-5 text-green-500" />
           <AlertDescription className="ml-2">
-            <span className="font-semibold">Sistema 100% Operacional</span> - Banco de dados migrado e check-ins funcionais
+            <span className="font-semibold">Sistema 100% Operacional</span> - Todos os recursos estão funcionando
           </AlertDescription>
         </Alert>
 
-        {/* Banco de Dados */}
+        {/* Dados do Sistema */}
         <div className="space-y-3">
           <div className="flex items-center gap-3">
             <Database className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-bold">1. Banco de Dados Real (Supabase)</h3>
-            <Badge variant="default" className="bg-green-500">✓ Concluído</Badge>
+            <h3 className="text-lg font-bold">1. Seus Dados</h3>
+            <Badge variant="default" className="bg-green-500">✓ Disponível</Badge>
           </div>
           
           <div className="bg-muted/30 rounded-lg p-4 space-y-3 border border-border/30">
@@ -73,15 +73,15 @@ export const TourGuide = () => {
             <div className="space-y-2 text-sm">
               <p className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-green-500" />
-                <span>Tabelas: <code className="text-primary">leaders, squads, clients, goals, check_ins</code></span>
+                <span>Status: 62 clientes ativos, 2 em aviso prévio, 12 churned</span>
               </p>
               <p className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-green-500" />
-                <span>Status de clientes: Ativo (62), Aviso Prévio (2), Churned (12)</span>
+                <span>Histórico completo de check-ins e progresso de metas</span>
               </p>
               <p className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-green-500" />
-                <span>RLS Policies configuradas para segurança</span>
+                <span>Dados organizados por squads e líderes</span>
               </p>
             </div>
           </div>
@@ -131,7 +131,7 @@ export const TourGuide = () => {
             <div className="flex items-center gap-2 text-sm bg-primary/5 p-3 rounded-lg border border-primary/20">
               <Zap className="h-4 w-4 text-primary" />
               <span className="font-medium">Atualização em tempo real</span>
-              <span className="text-muted-foreground">- Dados salvos no Supabase instantaneamente</span>
+              <span className="text-muted-foreground">- Dados salvos instantaneamente</span>
             </div>
           </div>
         </div>
@@ -140,71 +140,79 @@ export const TourGuide = () => {
         <div className="space-y-3">
           <div className="flex items-center gap-3">
             <Users className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-bold">3. Dashboard Principal</h3>
-            <Badge variant="secondary">Dados Mockados (temporário)</Badge>
+            <h3 className="text-lg font-bold">3. Dashboard Completo</h3>
+            <Badge variant="default" className="bg-green-500">✓ Disponível</Badge>
           </div>
           
           <div className="bg-muted/30 rounded-lg p-4 space-y-3 border border-border/30">
             <p className="text-sm text-muted-foreground">
-              O dashboard atual ainda mostra dados estáticos enquanto a integração completa é finalizada:
+              Dashboard com visualizações completas e ferramentas de análise:
             </p>
             <div className="space-y-2 text-sm">
               <p className="flex items-center gap-2">
-                <Target className="h-4 w-4 text-amber-500" />
-                <span>Abas: Visão Geral, Análises, Check-ins, Clientes</span>
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <span>4 abas navegáveis: Visão Geral, Análises, Check-ins e Clientes</span>
               </p>
               <p className="flex items-center gap-2">
-                <Target className="h-4 w-4 text-amber-500" />
-                <span>Métricas, gráficos, filtros e exportação funcionais</span>
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <span>Métricas em tempo real: clientes ativos, metas, taxa de interação</span>
               </p>
               <p className="flex items-center gap-2">
-                <Target className="h-4 w-4 text-amber-500" />
-                <span>Próximo passo: Conectar ao Supabase</span>
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <span>Gráficos: distribuição, evolução, performance e comparação</span>
+              </p>
+              <p className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <span>Filtros avançados por squad, status e período</span>
+              </p>
+              <p className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <span>Exportação de dados em Excel e PDF</span>
               </p>
             </div>
           </div>
         </div>
 
-        {/* Próximos Passos */}
+        {/* Recursos Principais */}
         <div className="space-y-3 pt-4 border-t border-border/30">
           <h3 className="text-lg font-bold flex items-center gap-2">
             <Zap className="h-5 w-5 text-primary" />
-            Próximas Funcionalidades
+            Recursos Disponíveis
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
-              <p className="font-semibold text-sm mb-1">🔐 Autenticação</p>
-              <p className="text-xs text-muted-foreground">Login/Signup para multi-usuários</p>
+              <p className="font-semibold text-sm mb-1">📊 Análise de Performance</p>
+              <p className="text-xs text-muted-foreground">Gráficos comparativos entre squads</p>
             </div>
             
             <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
-              <p className="font-semibold text-sm mb-1">🔄 Integração Completa</p>
-              <p className="text-xs text-muted-foreground">Conectar dashboard ao Supabase</p>
+              <p className="font-semibold text-sm mb-1">🎯 Gestão de Metas</p>
+              <p className="text-xs text-muted-foreground">Acompanhamento e criação de metas SMART</p>
             </div>
             
             <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
-              <p className="font-semibold text-sm mb-1">⚠️ Dashboard de Alertas</p>
-              <p className="text-xs text-muted-foreground">Clientes em risco e sem interação</p>
+              <p className="font-semibold text-sm mb-1">👥 Gestão de Clientes</p>
+              <p className="text-xs text-muted-foreground">Tabela completa com busca e filtros</p>
             </div>
             
             <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
-              <p className="font-semibold text-sm mb-1">📊 Métricas Avançadas</p>
-              <p className="text-xs text-muted-foreground">Taxa de interação e conversão real</p>
+              <p className="font-semibold text-sm mb-1">📈 Rankings e Comparações</p>
+              <p className="text-xs text-muted-foreground">Performance de squads e líderes</p>
             </div>
           </div>
         </div>
 
-        {/* Como Testar */}
+        {/* Como Usar */}
         <Alert className="border-blue-500/20 bg-blue-500/5">
           <Info className="h-5 w-5 text-blue-500" />
           <AlertDescription className="ml-2 space-y-2">
-            <p className="font-semibold">Como testar o sistema de check-ins:</p>
+            <p className="font-semibold">Como usar o sistema:</p>
             <ol className="text-sm space-y-1 list-decimal list-inside ml-2">
-              <li>Clique no card azul "Sistema de Check-ins Semanais" acima</li>
-              <li>Na página, clique em "Novo Check-in"</li>
-              <li>Preencha: progresso, status e comentário</li>
-              <li>Salve e veja aparecer na timeline e no gráfico!</li>
+              <li>Navegue pelas abas para explorar diferentes visualizações</li>
+              <li>Use os filtros para segmentar dados por squad, status ou período</li>
+              <li>Acesse Check-ins para registrar progresso semanal dos clientes</li>
+              <li>Exporte relatórios em Excel ou PDF quando necessário</li>
             </ol>
           </AlertDescription>
         </Alert>
