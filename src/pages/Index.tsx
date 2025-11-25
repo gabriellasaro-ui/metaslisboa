@@ -177,19 +177,18 @@ const Index = () => {
       
       <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Header */}
-        <div className="mb-10 animate-fade-in">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <div className="h-1 w-12 bg-gradient-to-r from-primary to-primary/50 rounded-full" />
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-primary to-primary/60 bg-clip-text text-transparent tracking-tight">
-                Dashboard de Controle de Clientes
+        <div className="mb-8 animate-fade-in">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+                Dashboard de Metas
               </h1>
+              <p className="text-muted-foreground mt-2">
+                Acompanhamento de metas e progresso dos clientes
+              </p>
             </div>
             <ThemeToggle />
           </div>
-          <p className="text-muted-foreground text-lg ml-[3.75rem] font-medium">
-            Mapeamento de metas ao longo do tempo - 100 Dias
-          </p>
         </div>
 
         {/* Tabs Navigation */}
