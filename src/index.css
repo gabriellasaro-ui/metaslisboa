@@ -205,7 +205,7 @@ All colors MUST be HSL.
 
   body {
     @apply text-foreground transition-colors duration-500;
-    background: linear-gradient(135deg, hsl(0, 0%, 3%) 0%, hsl(351, 40%, 12%) 50%, hsl(0, 0%, 3%) 100%);
+    background: linear-gradient(160deg, hsl(0, 0%, 3%) 0%, hsl(351, 70%, 15%) 25%, hsl(351, 85%, 20%) 50%, hsl(351, 70%, 15%) 75%, hsl(0, 0%, 3%) 100%);
     background-attachment: fixed;
   }
 }
