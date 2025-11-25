@@ -11,6 +11,7 @@ import { EditClientDialog } from "@/components/dashboard/EditClientDialog";
 import { SmartGoalDialog } from "@/components/dashboard/SmartGoalDialog";
 import { CheckInDialog } from "@/components/dashboard/CheckInDialog";
 import { GoalProgressTimeline } from "@/components/dashboard/GoalProgressTimeline";
+import { ClientSearchBar } from "@/components/dashboard/ClientSearchBar";
 import { GoalsDistributionChart } from "@/components/dashboard/charts/GoalsDistributionChart";
 import { SquadsComparisonChart } from "@/components/dashboard/charts/SquadsComparisonChart";
 import { EvolutionTimelineChart } from "@/components/dashboard/charts/EvolutionTimelineChart";
@@ -29,6 +30,8 @@ const Index = () => {
   const [smartGoalClient, setSmartGoalClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
   const [checkInClient, setCheckInClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
   const [viewingProgress, setViewingProgress] = useState<Client | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [leaderFilter, setLeaderFilter] = useState<"all" | string>("all");
   
   // Recalcular stats com dados atualizados
   const stats = {
@@ -90,6 +93,30 @@ const Index = () => {
     }
   };
 
+  // Get unique leaders
+  const uniqueLeaders = Array.from(new Set(squadsData.map(s => s.leader).filter(Boolean))) as string[];
+
+  // Get all clients with squad info for search
+  const allClientsWithSquad = squadsData.flatMap(squad => 
+    squad.clients.map(client => ({
+      ...client,
+      squadName: squad.name,
+      squadId: squad.id,
+      leader: squad.leader,
+    }))
+  );
+
+  // Filter clients by search and leader
+  const filteredClients = allClientsWithSquad.filter(client => {
+    const matchesSearch = searchQuery === "" || 
+      client.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesLeader = leaderFilter === "all" || client.leader === leaderFilter;
+    const matchesStatus = statusFilter === "all" || client.hasGoal === statusFilter;
+    const matchesGoalType = goalTypeFilter === "all" || client.goalType === goalTypeFilter;
+    
+    return matchesSearch && matchesLeader && matchesStatus && matchesGoalType;
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="container mx-auto px-4 py-8">
@@ -105,16 +132,11 @@ const Index = () => {
 
         {/* Tabs Navigation */}
         <Tabs defaultValue="visao-geral" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="visao-geral">Visão Geral</TabsTrigger>
             <TabsTrigger value="analises">Análises</TabsTrigger>
-            <TabsTrigger value="consolidado">Consolidado</TabsTrigger>
+            <TabsTrigger value="clientes">Pesquisa de Clientes</TabsTrigger>
             <TabsTrigger value="relatorios">Relatórios</TabsTrigger>
-            {squadsData.map((squad) => (
-              <TabsTrigger key={squad.id} value={squad.id}>
-                {squad.name}
-              </TabsTrigger>
-            ))}
           </TabsList>
 
           {/* Visão Geral Tab */}
@@ -183,27 +205,67 @@ const Index = () => {
             </div>
           </TabsContent>
 
-          {/* Consolidated View */}
-          <TabsContent value="consolidado" className="space-y-4">
+          {/* Pesquisa de Clientes Tab */}
+          <TabsContent value="clientes" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Todos os Clientes</CardTitle>
+                <CardTitle>Pesquisa de Clientes</CardTitle>
                 <CardDescription>
-                  Visão consolidada de todos os clientes em todas as squads
+                  Busque por cliente, filtre por líder, status ou tipo de meta
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                <ClientSearchBar
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  leaderFilter={leaderFilter}
+                  onLeaderFilterChange={setLeaderFilter}
+                  leaders={uniqueLeaders}
+                />
                 <FilterBar
                   statusFilter={statusFilter}
                   goalTypeFilter={goalTypeFilter}
                   onStatusFilterChange={setStatusFilter}
                   onGoalTypeFilterChange={setGoalTypeFilter}
                 />
+                <div className="text-sm text-muted-foreground mb-2">
+                  Mostrando {filteredClients.length} de {allClientsWithSquad.length} clientes
+                </div>
                 <ClientsTable
-                  clients={squadsData.flatMap(squad => squad.clients)}
-                  filterStatus={statusFilter}
-                  filterGoalType={goalTypeFilter}
-                  showActions={false}
+                  clients={filteredClients}
+                  filterStatus="all"
+                  filterGoalType="all"
+                  onEditClient={(client, index) => {
+                    const originalClient = allClientsWithSquad.find(c => c.name === client.name);
+                    if (originalClient) {
+                      const squad = squadsData.find(s => s.id === originalClient.squadId);
+                      if (squad) {
+                        const squadIndex = squad.clients.findIndex(c => c.name === client.name);
+                        handleEditClient(originalClient.squadId)(client, squadIndex);
+                      }
+                    }
+                  }}
+                  onDefineSmartGoal={(client, index) => {
+                    const originalClient = allClientsWithSquad.find(c => c.name === client.name);
+                    if (originalClient) {
+                      const squad = squadsData.find(s => s.id === originalClient.squadId);
+                      if (squad) {
+                        const squadIndex = squad.clients.findIndex(c => c.name === client.name);
+                        handleDefineSmartGoal(originalClient.squadId)(client, squadIndex);
+                      }
+                    }
+                  }}
+                  onCheckIn={(client, index) => {
+                    const originalClient = allClientsWithSquad.find(c => c.name === client.name);
+                    if (originalClient) {
+                      const squad = squadsData.find(s => s.id === originalClient.squadId);
+                      if (squad) {
+                        const squadIndex = squad.clients.findIndex(c => c.name === client.name);
+                        handleCheckIn(originalClient.squadId)(client, squadIndex);
+                      }
+                    }
+                  }}
+                  onViewProgress={setViewingProgress}
                 />
               </CardContent>
             </Card>
@@ -218,37 +280,6 @@ const Index = () => {
               <PerformanceAnalysisChart squadsData={squadsData} />
             </div>
           </TabsContent>
-
-          {/* Individual Squad Views */}
-          {squadsData.map((squad) => (
-            <TabsContent key={squad.id} value={squad.id} className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{squad.name}</CardTitle>
-                  <CardDescription>
-                    {squad.leader && `Líder: ${squad.leader}`}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FilterBar
-                    statusFilter={statusFilter}
-                    goalTypeFilter={goalTypeFilter}
-                    onStatusFilterChange={setStatusFilter}
-                    onGoalTypeFilterChange={setGoalTypeFilter}
-                  />
-                <ClientsTable
-                  clients={squad.clients}
-                  filterStatus={statusFilter}
-                  filterGoalType={goalTypeFilter}
-                  onEditClient={handleEditClient(squad.id)}
-                  onDefineSmartGoal={handleDefineSmartGoal(squad.id)}
-                  onCheckIn={handleCheckIn(squad.id)}
-                  onViewProgress={setViewingProgress}
-                />
-                </CardContent>
-              </Card>
-            </TabsContent>
-          ))}
         </Tabs>
 
         {/* Modals */}
