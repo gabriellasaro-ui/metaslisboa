@@ -325,10 +325,17 @@ export const SquadOverview = ({ squad, rank, allSquadsComplete = false }: SquadO
 
   const rankBadge = getRankBadge();
 
+  const getRankShadowClass = () => {
+    if (rank === 1) return "shadow-[0_8px_30px_rgba(245,158,11,0.15)] hover:shadow-[0_12px_40px_rgba(245,158,11,0.3)] border-amber-500/20 hover:border-amber-500/40";
+    if (rank === 2) return "shadow-[0_8px_30px_rgba(148,163,184,0.15)] hover:shadow-[0_12px_40px_rgba(148,163,184,0.3)] border-slate-400/20 hover:border-slate-400/40";
+    if (rank === 3) return "shadow-[0_8px_30px_rgba(234,88,12,0.15)] hover:shadow-[0_12px_40px_rgba(234,88,12,0.3)] border-orange-600/20 hover:border-orange-600/40";
+    return "shadow-[0_8px_30px_rgba(139,92,246,0.15)] hover:shadow-[0_12px_40px_rgba(139,92,246,0.25)] border-primary/20 hover:border-primary/40";
+  };
+
   return (
     <>
       <Card 
-        className="group animate-fade-in hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 bg-card/80 backdrop-blur-sm border-border/50 hover:border-primary/40 cursor-pointer overflow-hidden rounded-xl hover:scale-[1.01]"
+        className={`group animate-fade-in transition-all duration-300 bg-card/80 backdrop-blur-sm cursor-pointer overflow-hidden rounded-xl hover:scale-[1.02] ${getRankShadowClass()}`}
         onClick={handleCardClick}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
