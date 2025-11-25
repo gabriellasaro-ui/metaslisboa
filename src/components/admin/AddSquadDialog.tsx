@@ -69,7 +69,7 @@ export const AddSquadDialog = ({ open, onOpenChange, onSuccess }: AddSquadDialog
       const { error } = await supabase.from("squads").insert({
         name,
         slug,
-        leader_id: leaderId || null,
+        leader_id: leaderId === "none" || !leaderId ? null : leaderId,
       });
 
       if (error) throw error;
@@ -126,7 +126,7 @@ export const AddSquadDialog = ({ open, onOpenChange, onSuccess }: AddSquadDialog
 
           <div className="space-y-2">
             <Label htmlFor="leader">Líder (opcional)</Label>
-            <Select value={leaderId} onValueChange={setLeaderId}>
+            <Select value={leaderId || "none"} onValueChange={(value) => setLeaderId(value === "none" ? "" : value)}>
               <SelectTrigger id="leader">
                 <SelectValue placeholder="Selecione um líder" />
               </SelectTrigger>
@@ -137,7 +137,7 @@ export const AddSquadDialog = ({ open, onOpenChange, onSuccess }: AddSquadDialog
                   </div>
                 ) : (
                   <>
-                    <SelectItem value="">Nenhum</SelectItem>
+                    <SelectItem value="none">Nenhum</SelectItem>
                     {leaders.map((leader) => (
                       <SelectItem key={leader.id} value={leader.id}>
                         {leader.name}
