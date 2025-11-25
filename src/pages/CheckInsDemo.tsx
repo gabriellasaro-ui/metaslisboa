@@ -5,7 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WeeklyCheckInForm } from "@/components/dashboard/WeeklyCheckInForm";
 import { WeeklyCheckInsTimeline } from "@/components/dashboard/WeeklyCheckInsTimeline";
 import { WeeklyProgressChart } from "@/components/dashboard/WeeklyProgressChart";
-import { Calendar, TrendingUp, BarChart3, ArrowLeft } from "lucide-react";
+import { ClientProgressEvolution } from "@/components/dashboard/ClientProgressEvolution";
+import { Calendar, TrendingUp, BarChart3, ArrowLeft, LineChart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function CheckInsDemo() {
@@ -97,17 +98,17 @@ export default function CheckInsDemo() {
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <BarChart3 className="h-5 w-5 text-primary" />
+                  <LineChart className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <CardTitle>Gráficos</CardTitle>
-                  <CardDescription>Evolução visual</CardDescription>
+                  <CardTitle>Evolução por Cliente</CardTitle>
+                  <CardDescription>Progresso individual</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Acompanhe a evolução do progresso com gráficos de linha interativos
+                Visualize o histórico completo de progresso de cada cliente ao longo do tempo
               </p>
             </CardContent>
           </Card>
@@ -115,19 +116,27 @@ export default function CheckInsDemo() {
 
         {/* Main Content */}
         <Tabs defaultValue="timeline" className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-2xl grid-cols-3">
             <TabsTrigger value="timeline" className="gap-2">
               <TrendingUp className="h-4 w-4" />
               Timeline
             </TabsTrigger>
+            <TabsTrigger value="evolucao" className="gap-2">
+              <LineChart className="h-4 w-4" />
+              Evolução
+            </TabsTrigger>
             <TabsTrigger value="grafico" className="gap-2">
               <BarChart3 className="h-4 w-4" />
-              Gráfico
+              Visão Geral
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="timeline" className="space-y-6">
             <WeeklyCheckInsTimeline limit={50} refreshTrigger={refreshKey} />
+          </TabsContent>
+
+          <TabsContent value="evolucao" className="space-y-6">
+            <ClientProgressEvolution key={refreshKey} />
           </TabsContent>
 
           <TabsContent value="grafico" className="space-y-6">
