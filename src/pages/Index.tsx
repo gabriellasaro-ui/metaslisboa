@@ -23,6 +23,10 @@ import { GoalsImportanceCard } from "@/components/dashboard/GoalsImportanceCard"
 import { useClientsData } from "@/hooks/useClientsData";
 import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { AdvancedFilters, SortField, SortOrder } from "@/components/dashboard/AdvancedFilters";
+import { ExportButtons } from "@/components/dashboard/ExportButtons";
+import { FilterStats } from "@/components/dashboard/FilterStats";
+import { toast } from "sonner";
 
 const Index = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | GoalStatus>("all");
@@ -34,6 +38,9 @@ const Index = () => {
   const [viewingProgress, setViewingProgress] = useState<Client | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [leaderFilter, setLeaderFilter] = useState<"all" | string>("all");
+  const [squadFilter, setSquadFilter] = useState<"all" | string>("all");
+  const [sortField, setSortField] = useState<SortField>("name");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
   
   // Recalcular stats com dados atualizados
   const stats = {
@@ -78,6 +85,9 @@ const Index = () => {
     if (editingClient) {
       updateClient(editingClient.squadId, editingClient.index, updatedClient);
       setEditingClient(null);
+      toast.success("Cliente atualizado com sucesso!", {
+        description: `As informações de ${updatedClient.name} foram salvas.`,
+      });
     }
   };
 
@@ -85,6 +95,9 @@ const Index = () => {
     if (smartGoalClient) {
       updateClient(smartGoalClient.squadId, smartGoalClient.index, updatedClient);
       setSmartGoalClient(null);
+      toast.success("Meta SMART definida com sucesso!", {
+        description: `Meta criada para ${updatedClient.name}.`,
+      });
     }
   };
 
@@ -92,11 +105,15 @@ const Index = () => {
     if (checkInClient) {
       updateClient(checkInClient.squadId, checkInClient.index, updatedClient);
       setCheckInClient(null);
+      toast.success("Check-in registrado com sucesso!", {
+        description: `Progresso de ${updatedClient.name} atualizado.`,
+      });
     }
   };
 
-  // Get unique leaders
+  // Get unique leaders and squads
   const uniqueLeaders = Array.from(new Set(squadsData.map(s => s.leader).filter(Boolean))) as string[];
+  const uniqueSquads = squadsData.map(s => s.name);
 
   // Get all clients with squad info for search
   const allClientsWithSquad = squadsData.flatMap(squad => 
@@ -108,16 +125,49 @@ const Index = () => {
     }))
   );
 
-  // Filter clients by search and leader
+  // Filter clients
   const filteredClients = allClientsWithSquad.filter(client => {
     const matchesSearch = searchQuery === "" || 
       client.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesLeader = leaderFilter === "all" || client.leader === leaderFilter;
+    const matchesSquad = squadFilter === "all" || client.squadName === squadFilter;
     const matchesStatus = statusFilter === "all" || client.hasGoal === statusFilter;
     const matchesGoalType = goalTypeFilter === "all" || client.goalType === goalTypeFilter;
     
-    return matchesSearch && matchesLeader && matchesStatus && matchesGoalType;
+    return matchesSearch && matchesLeader && matchesSquad && matchesStatus && matchesGoalType;
   });
+
+  // Sort clients
+  const sortedAndFilteredClients = [...filteredClients].sort((a, b) => {
+    let comparison = 0;
+    
+    switch (sortField) {
+      case "name":
+        comparison = a.name.localeCompare(b.name);
+        break;
+      case "status":
+        const statusOrder = { SIM: 1, NAO_DEFINIDO: 2, NAO: 3 };
+        comparison = statusOrder[a.hasGoal] - statusOrder[b.hasGoal];
+        break;
+      case "progress":
+        comparison = (a.currentProgress || 0) - (b.currentProgress || 0);
+        break;
+      case "goalType":
+        const typeA = a.goalType || "";
+        const typeB = b.goalType || "";
+        comparison = typeA.localeCompare(typeB);
+        break;
+    }
+    
+    return sortOrder === "asc" ? comparison : -comparison;
+  });
+
+  const handleClearFilters = () => {
+    setStatusFilter("all");
+    setGoalTypeFilter("all");
+    setLeaderFilter("all");
+    setSquadFilter("all");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-background relative overflow-hidden">
@@ -243,18 +293,35 @@ const Index = () => {
 
           {/* Análises Tab */}
           <TabsContent value="analises" className="space-y-6 animate-fade-in">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <h2 className="text-2xl font-bold">Análises Detalhadas</h2>
+                <p className="text-muted-foreground mt-1">
+                  Insights e métricas de performance
+                </p>
+              </div>
+            </div>
+
             <div className="grid gap-6">
               {/* Primeira Linha */}
               <div className="grid gap-6 md:grid-cols-2">
-                <GoalsImportanceCard />
-                <GoalsDistributionChart />
+                <div className="animate-zoom-in" style={{ animationDelay: "0.1s" }}>
+                  <GoalsImportanceCard />
+                </div>
+                <div className="animate-zoom-in" style={{ animationDelay: "0.2s" }}>
+                  <GoalsDistributionChart />
+                </div>
               </div>
 
               {/* Segunda Linha - Comparação de Squads */}
-              <SquadsComparisonChart />
+              <div className="animate-slide-up" style={{ animationDelay: "0.3s" }}>
+                <SquadsComparisonChart />
+              </div>
 
               {/* Terceira Linha - Ranking */}
-              <SquadRankingCard squadsData={squadsData} />
+              <div className="animate-slide-up" style={{ animationDelay: "0.4s" }}>
+                <SquadRankingCard squadsData={squadsData} />
+              </div>
             </div>
           </TabsContent>
 
@@ -264,15 +331,25 @@ const Index = () => {
           </TabsContent>
 
           {/* Pesquisa de Clientes Tab */}
-          <TabsContent value="clientes" className="space-y-4 animate-fade-in">
-            <Card>
-              <CardHeader>
-                <CardTitle>Pesquisa de Clientes</CardTitle>
-                <CardDescription>
-                  Busque por cliente, filtre por líder, status ou tipo de meta
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+          <TabsContent value="clientes" className="space-y-6 animate-fade-in">
+            {/* Export Buttons */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Pesquisa Avançada</h2>
+                <p className="text-muted-foreground mt-1">
+                  Use filtros múltiplos e ordenação para encontrar clientes
+                </p>
+              </div>
+              <ExportButtons 
+                squadsData={squadsData} 
+                filteredClients={sortedAndFilteredClients}
+                mode="filtered"
+              />
+            </div>
+
+            {/* Search Bar */}
+            <Card className="border-border/50 bg-gradient-to-br from-card via-card to-muted/5">
+              <CardContent className="pt-6">
                 <ClientSearchBar
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
@@ -280,17 +357,58 @@ const Index = () => {
                   onLeaderFilterChange={setLeaderFilter}
                   leaders={uniqueLeaders}
                 />
-                <FilterBar
-                  statusFilter={statusFilter}
-                  goalTypeFilter={goalTypeFilter}
-                  onStatusFilterChange={setStatusFilter}
-                  onGoalTypeFilterChange={setGoalTypeFilter}
-                />
-                <div className="text-sm text-muted-foreground mb-2">
-                  Mostrando {filteredClients.length} de {allClientsWithSquad.length} clientes
+              </CardContent>
+            </Card>
+
+            {/* Advanced Filters */}
+            <AdvancedFilters
+              statusFilter={statusFilter}
+              goalTypeFilter={goalTypeFilter}
+              leaderFilter={leaderFilter}
+              squadFilter={squadFilter}
+              sortField={sortField}
+              sortOrder={sortOrder}
+              onStatusFilterChange={setStatusFilter}
+              onGoalTypeFilterChange={setGoalTypeFilter}
+              onLeaderFilterChange={setLeaderFilter}
+              onSquadFilterChange={setSquadFilter}
+              onSortFieldChange={setSortField}
+              onSortOrderChange={setSortOrder}
+              onClearFilters={handleClearFilters}
+              leaders={uniqueLeaders}
+              squads={uniqueSquads}
+            />
+
+            {/* Filter Statistics */}
+            {sortedAndFilteredClients.length > 0 && (
+              <FilterStats clients={sortedAndFilteredClients} />
+            )}
+
+            {/* Results */}
+            <Card className="border-border/50 bg-gradient-to-br from-card via-card to-muted/5">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Resultados da Pesquisa</CardTitle>
+                    <CardDescription className="mt-2">
+                      Mostrando {sortedAndFilteredClients.length} de {allClientsWithSquad.length} clientes
+                    </CardDescription>
+                  </div>
+                  {sortedAndFilteredClients.length > 0 && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>Ordenado por: {
+                        sortField === "name" ? "Nome" :
+                        sortField === "status" ? "Status" :
+                        sortField === "progress" ? "Progresso" :
+                        "Tipo de Meta"
+                      }</span>
+                    </div>
+                  )}
                 </div>
+              </CardHeader>
+              <CardContent>
                 <ClientsTable
-                  clients={filteredClients}
+                  clients={sortedAndFilteredClients}
                   filterStatus="all"
                   filterGoalType="all"
                   onEditClient={(client, index) => {
@@ -331,11 +449,26 @@ const Index = () => {
 
           {/* Relatórios Tab */}
           <TabsContent value="relatorios" className="space-y-6 animate-fade-in">
+            {/* Header with Export */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Relatórios e Análises</h2>
+                <p className="text-muted-foreground mt-1">
+                  Visualize métricas detalhadas e exporte dados
+                </p>
+              </div>
+              <ExportButtons squadsData={squadsData} mode="full" />
+            </div>
+
             <ReportsSection squadsData={squadsData} />
             
             <div className="grid gap-6">
-              <EvolutionTimelineChart squadsData={squadsData} />
-              <PerformanceAnalysisChart squadsData={squadsData} />
+              <div className="animate-slide-up" style={{ animationDelay: "0.1s" }}>
+                <EvolutionTimelineChart squadsData={squadsData} />
+              </div>
+              <div className="animate-slide-up" style={{ animationDelay: "0.2s" }}>
+                <PerformanceAnalysisChart squadsData={squadsData} />
+              </div>
             </div>
           </TabsContent>
         </Tabs>
