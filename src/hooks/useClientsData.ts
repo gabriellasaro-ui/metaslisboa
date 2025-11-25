@@ -64,10 +64,20 @@ export const useClientsData = () => {
           .map(client => {
             const hasGoals = client.goals && client.goals.length > 0;
             const activeGoal = hasGoals ? client.goals[0] : null;
+            
+            // Determinar o status correto da meta
+            let hasGoalStatus: "SIM" | "NAO" | "NAO_DEFINIDO" = "NAO";
+            if (hasGoals && activeGoal) {
+              if (activeGoal.status === "nao_definida") {
+                hasGoalStatus = "NAO_DEFINIDO";
+              } else if (activeGoal.status === "em_andamento" || activeGoal.status === "concluida") {
+                hasGoalStatus = "SIM";
+              }
+            }
 
             return {
               name: client.name,
-              hasGoal: !hasGoals ? "NAO_DEFINIDO" : "SIM",
+              hasGoal: hasGoalStatus,
               goalType: activeGoal?.goal_type || undefined,
               goalValue: activeGoal?.goal_value || undefined,
               currentProgress: activeGoal?.progress || 0,
