@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Client, GoalStatus, GoalType } from "@/data/clientsData";
 import { MetricsCard } from "@/components/dashboard/MetricsCard";
 import { ClientsTable } from "@/components/dashboard/ClientsTable";
 import { SquadOverview } from "@/components/dashboard/SquadOverview";
-import { FilterBar } from "@/components/dashboard/FilterBar";
 import { EditClientDialog } from "@/components/dashboard/EditClientDialog";
 import { SmartGoalDialog } from "@/components/dashboard/SmartGoalDialog";
 import { CheckInDialog } from "@/components/dashboard/CheckInDialog";
@@ -27,6 +26,8 @@ import { AdvancedFilters, SortField, SortOrder } from "@/components/dashboard/Ad
 import { ExportButtons } from "@/components/dashboard/ExportButtons";
 import { FilterStats } from "@/components/dashboard/FilterStats";
 import { toast } from "sonner";
+import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
+import { Separator } from "@/components/ui/separator";
 
 const Index = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | GoalStatus>("all");
@@ -175,67 +176,46 @@ const Index = () => {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-accent/5 via-transparent to-transparent pointer-events-none" />
       
-      <div className="container mx-auto px-4 py-8 relative z-10">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 relative z-10 max-w-[1600px]">
         {/* Header */}
-        <div className="mb-8 animate-fade-in">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+        <header className="mb-12 animate-fade-in">
+          <div className="flex items-center justify-between mb-6">
+            <div className="space-y-2">
+              <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
                 Dashboard de Metas
               </h1>
-              <p className="text-muted-foreground mt-2">
-                Acompanhamento de metas e progresso dos clientes
+              <p className="text-base md:text-lg text-muted-foreground font-medium">
+                Acompanhamento estratégico de objetivos e resultados
               </p>
             </div>
             <ThemeToggle />
           </div>
-        </div>
+          <Separator className="bg-border/50" />
+        </header>
 
-        {/* Tabs Navigation */}
-        <Tabs defaultValue="visao-geral" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-5 p-1.5 bg-muted/50 backdrop-blur-sm border border-border/50 shadow-lg h-auto">
-            <TabsTrigger 
-              value="visao-geral" 
-              className="data-[state=active]:bg-background data-[state=active]:shadow-md transition-all duration-300 py-3 data-[state=active]:scale-105"
-            >
-              <span className="font-semibold">Visão Geral</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="analises"
-              className="data-[state=active]:bg-background data-[state=active]:shadow-md transition-all duration-300 py-3 data-[state=active]:scale-105"
-            >
-              <span className="font-semibold">Análises</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="check-ins"
-              className="data-[state=active]:bg-background data-[state=active]:shadow-md transition-all duration-300 py-3 data-[state=active]:scale-105"
-            >
-              <span className="font-semibold">Check-ins</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="clientes"
-              className="data-[state=active]:bg-background data-[state=active]:shadow-md transition-all duration-300 py-3 data-[state=active]:scale-105"
-            >
-              <span className="font-semibold">Pesquisa</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="relatorios"
-              className="data-[state=active]:bg-background data-[state=active]:shadow-md transition-all duration-300 py-3 data-[state=active]:scale-105"
-            >
-              <span className="font-semibold">Relatórios</span>
-            </TabsTrigger>
-          </TabsList>
+        {/* Navigation Tabs */}
+        <NavigationTabs 
+          defaultValue="visao-geral"
+          totalClients={stats.total}
+          pendingCount={stats.pending}
+        >
 
           {/* Visão Geral Tab */}
-          <TabsContent value="visao-geral" className="space-y-6 animate-fade-in">
+          <TabsContent value="visao-geral" className="space-y-8 animate-fade-in">
+            {/* Section Header */}
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-foreground">Métricas Principais</h2>
+              <p className="text-muted-foreground">Visão consolidada dos indicadores-chave</p>
+            </div>
+
             {/* Overall Metrics */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               <div className="animate-bounce-in" style={{ animationDelay: "0.1s" }}>
                 <MetricsCard
                   title="Total de Clientes"
                   value={stats.total}
                   icon={Users}
-                  description="Todos os clientes ativos"
+                  description="Base ativa de clientes"
                 />
               </div>
               <div className="animate-bounce-in" style={{ animationDelay: "0.2s" }}>
@@ -253,7 +233,7 @@ const Index = () => {
                   value={stats.pending}
                   icon={AlertCircle}
                   variant="warning"
-                  description="Em processo de definição"
+                  description="Aguardando definição"
                 />
               </div>
               <div className="animate-bounce-in" style={{ animationDelay: "0.4s" }}>
@@ -267,19 +247,27 @@ const Index = () => {
               </div>
             </div>
 
+            <Separator className="bg-border/50" />
+
+            {/* Section Header */}
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-foreground">Performance por Squad</h2>
+              <p className="text-muted-foreground">Análise detalhada de cada equipe</p>
+            </div>
+
             {/* Visão Geral por Squad */}
             <Card className="border-border/50 shadow-xl bg-gradient-to-br from-card via-card to-muted/10 backdrop-blur-sm">
-              <CardHeader className="border-b border-border/30">
+              <CardHeader className="border-b border-border/30 pb-6">
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-1 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
+                  <div className="h-10 w-1.5 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
                   <div>
-                    <CardTitle className="text-2xl">Visão Geral por Squad</CardTitle>
-                    <CardDescription className="text-base mt-1">Cobertura de metas em cada time</CardDescription>
+                    <CardTitle className="text-2xl font-bold">Visão Geral por Squad</CardTitle>
+                    <CardDescription className="text-base mt-2">Cobertura de metas e distribuição em cada time</CardDescription>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-6">
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <CardContent className="pt-8">
+                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                   {squadsData.map((squad, index) => (
                     <div key={squad.id} style={{ animationDelay: `${(index + 5) * 0.1}s` }} className="animate-slide-up">
                       <SquadOverview squad={squad} />
@@ -291,19 +279,16 @@ const Index = () => {
           </TabsContent>
 
           {/* Análises Tab */}
-          <TabsContent value="analises" className="space-y-6 animate-fade-in">
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <h2 className="text-2xl font-bold">Análises Detalhadas</h2>
-                <p className="text-muted-foreground mt-1">
-                  Insights e métricas de performance
-                </p>
-              </div>
+          <TabsContent value="analises" className="space-y-8 animate-fade-in">
+            {/* Section Header */}
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-foreground">Análises Detalhadas</h2>
+              <p className="text-muted-foreground">Insights estratégicos e métricas de performance</p>
             </div>
 
-            <div className="grid gap-6">
+            <div className="grid gap-8">
               {/* Primeira Linha */}
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-8 md:grid-cols-2">
                 <div className="animate-zoom-in" style={{ animationDelay: "0.1s" }}>
                   <GoalsImportanceCard />
                 </div>
@@ -312,10 +297,14 @@ const Index = () => {
                 </div>
               </div>
 
+              <Separator className="bg-border/50" />
+
               {/* Segunda Linha - Comparação de Squads */}
               <div className="animate-slide-up" style={{ animationDelay: "0.3s" }}>
                 <SquadsComparisonChart />
               </div>
+
+              <Separator className="bg-border/50" />
 
               {/* Terceira Linha - Ranking */}
               <div className="animate-slide-up" style={{ animationDelay: "0.4s" }}>
@@ -330,13 +319,13 @@ const Index = () => {
           </TabsContent>
 
           {/* Pesquisa de Clientes Tab */}
-          <TabsContent value="clientes" className="space-y-6 animate-fade-in">
-            {/* Export Buttons */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold">Pesquisa Avançada</h2>
-                <p className="text-muted-foreground mt-1">
-                  Use filtros múltiplos e ordenação para encontrar clientes
+          <TabsContent value="clientes" className="space-y-8 animate-fade-in">
+            {/* Section Header with Export */}
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-foreground">Pesquisa Avançada</h2>
+                <p className="text-muted-foreground">
+                  Filtros múltiplos, ordenação inteligente e exportação de dados
                 </p>
               </div>
               <ExportButtons 
@@ -384,28 +373,29 @@ const Index = () => {
             )}
 
             {/* Results */}
-            <Card className="border-border/50 bg-gradient-to-br from-card via-card to-muted/5">
-              <CardHeader>
+            <Card className="border-border/50 bg-gradient-to-br from-card via-card to-muted/5 shadow-lg">
+              <CardHeader className="border-b border-border/30 pb-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Resultados da Pesquisa</CardTitle>
-                    <CardDescription className="mt-2">
+                  <div className="space-y-2">
+                    <CardTitle className="text-2xl font-bold">Resultados da Pesquisa</CardTitle>
+                    <CardDescription className="text-base">
                       Mostrando {sortedAndFilteredClients.length} de {allClientsWithSquad.length} clientes
                     </CardDescription>
                   </div>
                   {sortedAndFilteredClients.length > 0 && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span>Ordenado por: {
-                        sortField === "name" ? "Nome" :
-                        sortField === "status" ? "Status" :
-                        sortField === "progress" ? "Progresso" :
-                        "Tipo de Meta"
-                      }</span>
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-muted-foreground font-medium">Ordenado por:</span>
+                      <span className="font-semibold text-foreground">
+                        {sortField === "name" ? "Nome" :
+                         sortField === "status" ? "Status" :
+                         sortField === "progress" ? "Progresso" :
+                         "Tipo de Meta"}
+                      </span>
                     </div>
                   )}
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <ClientsTable
                   clients={sortedAndFilteredClients}
                   filterStatus="all"
@@ -447,13 +437,13 @@ const Index = () => {
           </TabsContent>
 
           {/* Relatórios Tab */}
-          <TabsContent value="relatorios" className="space-y-6 animate-fade-in">
-            {/* Header with Export */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold">Relatórios e Análises</h2>
-                <p className="text-muted-foreground mt-1">
-                  Visualize métricas detalhadas e exporte dados
+          <TabsContent value="relatorios" className="space-y-8 animate-fade-in">
+            {/* Section Header with Export */}
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-foreground">Relatórios e Análises</h2>
+                <p className="text-muted-foreground">
+                  Visualizações completas com opções de exportação
                 </p>
               </div>
               <ExportButtons squadsData={squadsData} mode="full" />
@@ -461,7 +451,9 @@ const Index = () => {
 
             <ReportsSection squadsData={squadsData} />
             
-            <div className="grid gap-6">
+            <Separator className="bg-border/50" />
+
+            <div className="grid gap-8">
               <div className="animate-slide-up" style={{ animationDelay: "0.1s" }}>
                 <EvolutionTimelineChart squadsData={squadsData} />
               </div>
@@ -470,7 +462,7 @@ const Index = () => {
               </div>
             </div>
           </TabsContent>
-        </Tabs>
+        </NavigationTabs>
 
         {/* Modals */}
         <EditClientDialog
