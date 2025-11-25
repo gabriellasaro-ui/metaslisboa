@@ -55,13 +55,22 @@ export const AdminClientsList = ({ onUpdate }: AdminClientsListProps) => {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: "default" | "secondary" | "destructive"; label: string }> = {
-      ativo: { variant: "default", label: "Ativo" },
-      aviso_previo: { variant: "secondary", label: "Aviso Prévio" },
-      churned: { variant: "destructive", label: "Churned" },
+    const variants: Record<string, { className: string; label: string }> = {
+      ativo: { 
+        className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20", 
+        label: "Ativo" 
+      },
+      aviso_previo: { 
+        className: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20", 
+        label: "Aviso Prévio" 
+      },
+      churned: { 
+        className: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20", 
+        label: "Churned" 
+      },
     };
     const config = variants[status] || variants.ativo;
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+    return <Badge variant="outline" className={config.className}>{config.label}</Badge>;
   };
 
   const getHealthBadge = (health: string | null) => {

@@ -77,11 +77,8 @@ export const useClientsData = () => {
             
             // Lógica automática de health_status baseado no client_status
             let autoHealthStatus = client.health_status || 'safe';
-            if (client.status === 'churned') {
-              autoHealthStatus = 'danger';
-            } else if (client.status === 'aviso_previo') {
-              autoHealthStatus = 'care';
-            }
+            // Não sobrescrever mais o health_status automaticamente
+            // O health_status agora é gerenciado manualmente pelos usuários
 
             return {
               name: client.name,
