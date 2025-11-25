@@ -136,14 +136,17 @@ const Index = () => {
   const uniqueSquads = squadsData.map(s => s.name);
 
   // Get all clients with squad info for search
-  const allClientsWithSquad = squadsData.flatMap(squad => 
-    squad.clients.map(client => ({
-      ...client,
-      squadName: squad.name,
-      squadId: squad.id,
-      leader: squad.leader,
-    }))
-  );
+  // Filtrar por squad do usuário (a menos que seja supervisor)
+  const allClientsWithSquad = squadsData
+    .filter(squad => isSupervisor || squad.id === squadId)
+    .flatMap(squad => 
+      squad.clients.map(client => ({
+        ...client,
+        squadName: squad.name,
+        squadId: squad.id,
+        leader: squad.leader,
+      }))
+    );
 
   // Filter clients
   const filteredClients = allClientsWithSquad.filter(client => {

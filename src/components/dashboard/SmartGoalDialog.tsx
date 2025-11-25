@@ -22,6 +22,9 @@ const smartGoalSchema = z.object({
   goalType: z.enum(["Faturamento", "Leads", "OUTROS"] as const, {
     required_error: "Selecione o tipo de meta",
   }),
+  goalPeriod: z.enum(["mensal", "trimestral", "semestral", "anual"] as const, {
+    required_error: "Selecione o período da meta",
+  }),
   specific: z.string()
     .trim()
     .min(10, "Descrição muito curta. Seja mais específico (mínimo 10 caracteres)")
@@ -58,6 +61,7 @@ export const SmartGoalDialog = ({ client, open, onOpenChange, onSave }: SmartGoa
   const [formData, setFormData] = useState<SmartGoalFormData>({
     clientName: client?.name || "",
     goalType: "Faturamento",
+    goalPeriod: "mensal" as const,
     specific: "",
     measurable: "",
     achievable: "",
@@ -127,7 +131,7 @@ export const SmartGoalDialog = ({ client, open, onOpenChange, onSave }: SmartGoa
   const isStepValid = (step: number): boolean => {
     switch (step) {
       case 1:
-        return formData.clientName.length > 0 && formData.goalType !== undefined;
+        return formData.clientName.length > 0 && formData.goalType !== undefined && formData.goalPeriod !== undefined;
       case 2:
         return formData.specific.length >= 10 && formData.measurable.length >= 5;
       case 3:
@@ -267,6 +271,47 @@ export const SmartGoalDialog = ({ client, open, onOpenChange, onSave }: SmartGoa
                 </Select>
                 {errors.goalType && (
                   <p className="text-sm text-destructive">{errors.goalType}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="goalPeriod">Período da Meta *</Label>
+                <Select
+                  value={formData.goalPeriod}
+                  onValueChange={(value: "mensal" | "trimestral" | "semestral" | "anual") => handleChange("goalPeriod", value)}
+                >
+                  <SelectTrigger id="goalPeriod" className={errors.goalPeriod ? "border-destructive" : ""}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mensal">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-blue-600" />
+                        Mensal
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="trimestral">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-purple-600" />
+                        Trimestral (Quarter)
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="semestral">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-orange-600" />
+                        Semestral
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="anual">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-emerald-600" />
+                        Anual
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.goalPeriod && (
+                  <p className="text-sm text-destructive">{errors.goalPeriod}</p>
                 )}
               </div>
             </div>
