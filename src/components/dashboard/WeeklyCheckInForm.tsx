@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
 import { Calendar, TrendingUp, MessageSquare, Target, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -175,70 +174,25 @@ export const WeeklyCheckInForm = ({
               <span className="text-2xl font-bold text-primary">{progress}%</span>
             </div>
             
-            {/* Barra de Progresso Visual */}
-            <div className="relative h-12 bg-muted/30 rounded-xl overflow-hidden border-2 border-border/50">
+            {/* Barra de Progresso Visual Simplificada */}
+            <div className="relative h-3 bg-muted rounded-full overflow-hidden">
               <div 
-                className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-primary to-primary/80 transition-all duration-700 ease-out flex items-center justify-end px-3"
+                className="absolute inset-y-0 left-0 bg-primary transition-all duration-500 ease-out rounded-full"
                 style={{ width: `${progress}%` }}
-              >
-                {progress > 0 && (
-                  <span className="text-primary-foreground font-bold text-sm animate-fade-in">
-                    {progress}%
-                  </span>
-                )}
-              </div>
-              {progress === 0 && (
-                <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">
-                  Deslize ou clique para definir o progresso
-                </div>
-              )}
+              />
             </div>
             
-            {/* Slider com marcadores visuais */}
-            <div className="relative py-6">
-              {/* Marcadores visuais */}
-              <div className="absolute top-0 left-0 right-0 flex justify-between px-1">
-                {[0, 25, 50, 75, 100].map((value) => (
-                  <div key={value} className="flex flex-col items-center gap-1">
-                    <div 
-                      className={`h-3 w-3 rounded-full transition-all duration-300 border-2 ${
-                        progress >= value
-                          ? 'bg-primary border-primary scale-110 shadow-lg shadow-primary/50' 
-                          : 'bg-background border-muted-foreground/30'
-                      }`}
-                    />
-                    {progress === value && (
-                      <div className="absolute -top-6 bg-primary text-primary-foreground px-2 py-0.5 rounded text-xs font-bold animate-bounce-in">
-                        {value}%
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              
-              {/* Slider */}
-              <div className="mt-8">
-                <Slider
-                  value={[progress]}
-                  onValueChange={(value) => setProgress(value[0])}
-                  max={100}
-                  step={25}
-                  className="py-2"
-                />
-              </div>
-            </div>
-            
-            {/* Labels dos valores clicáveis */}
-            <div className="flex justify-between gap-2">
+            {/* Botões de Porcentagem */}
+            <div className="flex gap-2">
               {[0, 25, 50, 75, 100].map((value) => (
                 <button
                   key={value}
                   type="button"
                   onClick={() => setProgress(value)}
-                  className={`flex-1 px-3 py-2 rounded-lg transition-all duration-200 text-sm font-semibold border-2 ${
+                  className={`flex-1 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-semibold ${
                     progress === value
-                      ? 'bg-primary text-primary-foreground border-primary shadow-lg scale-105'
-                      : 'bg-background border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/50 hover:scale-102'
+                      ? 'bg-primary text-primary-foreground shadow-md'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
                   }`}
                 >
                   {value}%
