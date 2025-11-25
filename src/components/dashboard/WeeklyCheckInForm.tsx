@@ -5,33 +5,46 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Calendar, TrendingUp, MessageSquare, Target } from "lucide-react";
+import { Calendar, TrendingUp, MessageSquare, Target, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ClientSelector } from "./ClientSelector";
 
 interface WeeklyCheckInFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  clientId: string;
-  clientName: string;
-  goalId: string | null;
-  currentProgress: number;
+  onSuccess?: () => void;
 }
 
 export const WeeklyCheckInForm = ({
   open,
   onOpenChange,
-  clientId,
-  clientName,
-  goalId,
-  currentProgress,
+  onSuccess,
 }: WeeklyCheckInFormProps) => {
-  const [progress, setProgress] = useState(currentProgress);
+  const [selectedClient, setSelectedClient] = useState<any>(null);
+  const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState<"on_track" | "at_risk" | "delayed" | "completed">("on_track");
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const handleClientSelect = (clientId: string, clientData: any) => {
+    setSelectedClient(clientData);
+    // Se o cliente tem meta, pegar o progresso atual
+    if (clientData.goals && clientData.goals.length > 0) {
+      setProgress(clientData.goals[0].progress || 0);
+    } else {
+      setProgress(0);
+    }
+  };
+
   const handleSubmit = async () => {
+    if (!selectedClient) {
+      toast.error("Cliente não selecionado", {
+        description: "Selecione um cliente antes de continuar",
+      });
+      return;
+    }
+
     if (!comment.trim()) {
       toast.error("Comentário obrigatório", {
         description: "Adicione um comentário sobre o progresso semanal",
@@ -42,9 +55,13 @@ export const WeeklyCheckInForm = ({
     setIsSubmitting(true);
 
     try {
+      const goalId = selectedClient.goals && selectedClient.goals.length > 0 
+        ? selectedClient.goals[0].id 
+        : null;
+
       // 1. Inserir check-in
       const { error: checkInError } = await supabase.from("check_ins").insert({
-        client_id: clientId,
+        client_id: selectedClient.id,
         goal_id: goalId,
         progress: progress,
         status: status,
@@ -69,14 +86,20 @@ export const WeeklyCheckInForm = ({
       }
 
       toast.success("Check-in registrado!", {
-        description: `Progresso de ${clientName} atualizado para ${progress}%`,
+        description: `Progresso de ${selectedClient.name} atualizado para ${progress}%`,
       });
 
       // Resetar form
       setComment("");
-      setProgress(currentProgress);
+      setProgress(0);
       setStatus("on_track");
+      setSelectedClient(null);
       onOpenChange(false);
+      
+      // Callback de sucesso para atualizar timeline
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error: any) {
       console.error("Erro ao registrar check-in:", error);
       toast.error("Erro ao registrar check-in", {
@@ -97,12 +120,45 @@ export const WeeklyCheckInForm = ({
             </div>
             <div>
               <DialogTitle className="text-xl">Check-in Semanal</DialogTitle>
-              <DialogDescription className="text-base mt-1">{clientName}</DialogDescription>
+              <DialogDescription className="text-base mt-1">
+                {selectedClient ? selectedClient.name : "Selecione um cliente"}
+              </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* Seleção de Cliente */}
+          <div className="space-y-2">
+            <Label className="text-base font-semibold flex items-center gap-2">
+              <User className="h-4 w-4 text-primary" />
+              Selecionar Cliente *
+            </Label>
+            <ClientSelector
+              value={selectedClient?.id}
+              onValueChange={handleClientSelect}
+              placeholder="Escolha o cliente para o check-in"
+            />
+            {selectedClient && (
+              <div className="bg-muted/30 rounded-lg p-3 border border-border/30 mt-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Squad:</span>
+                  <span className="font-semibold">{selectedClient.squad?.name}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm mt-1">
+                  <span className="text-muted-foreground">Líder:</span>
+                  <span className="font-semibold">{selectedClient.squad?.leader?.name}</span>
+                </div>
+                {selectedClient.goals && selectedClient.goals.length > 0 && (
+                  <div className="mt-2 pt-2 border-t border-border/30">
+                    <p className="text-xs text-muted-foreground mb-1">Meta Atual:</p>
+                    <p className="text-sm font-medium">{selectedClient.goals[0].goal_value}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Progresso */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -193,7 +249,7 @@ export const WeeklyCheckInForm = ({
           <Button
             variant="premium"
             onClick={handleSubmit}
-            disabled={isSubmitting || !comment.trim()}
+            disabled={isSubmitting || !comment.trim() || !selectedClient}
             className="flex-1"
           >
             {isSubmitting ? "Salvando..." : "Registrar Check-in"}

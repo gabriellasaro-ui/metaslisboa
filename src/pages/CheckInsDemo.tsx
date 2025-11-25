@@ -11,13 +11,11 @@ import { useNavigate } from "react-router-dom";
 export default function CheckInsDemo() {
   const navigate = useNavigate();
   const [showCheckInForm, setShowCheckInForm] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  // Dados de exemplo - em produção viriam do contexto ou props
-  const demoClient = {
-    id: "70ba8e8d-ce65-46c8-9355-b083a29173af",
-    name: "Groupwork",
-    goalId: "6e84734c-def6-41e9-b9fb-b1d48e13c441",
-    currentProgress: 25,
+  const handleCheckInSuccess = () => {
+    // Atualizar timeline após novo check-in
+    setRefreshKey(prev => prev + 1);
   };
 
   return (
@@ -129,11 +127,11 @@ export default function CheckInsDemo() {
           </TabsList>
 
           <TabsContent value="timeline" className="space-y-6">
-            <WeeklyCheckInsTimeline limit={20} />
+            <WeeklyCheckInsTimeline limit={50} refreshTrigger={refreshKey} />
           </TabsContent>
 
           <TabsContent value="grafico" className="space-y-6">
-            <WeeklyProgressChart weeks={8} />
+            <WeeklyProgressChart weeks={12} />
           </TabsContent>
         </Tabs>
 
@@ -141,10 +139,7 @@ export default function CheckInsDemo() {
         <WeeklyCheckInForm
           open={showCheckInForm}
           onOpenChange={setShowCheckInForm}
-          clientId={demoClient.id}
-          clientName={demoClient.name}
-          goalId={demoClient.goalId}
-          currentProgress={demoClient.currentProgress}
+          onSuccess={handleCheckInSuccess}
         />
       </div>
     </div>
