@@ -49,8 +49,8 @@ export const CheckInsDemoCard = () => {
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-secondary/10 to-secondary/5 border-2 border-secondary/20 hover:border-secondary/40 transition-all duration-300 hover:scale-105">
-            <div className="h-12 w-12 rounded-lg bg-secondary/20 flex items-center justify-center flex-shrink-0">
+          <div className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-secondary/10 to-secondary/5 border-2 border-secondary/30 hover:border-secondary/50 transition-all duration-300 hover:scale-105">
+            <div className="h-12 w-12 rounded-lg bg-secondary/30 flex items-center justify-center flex-shrink-0">
               <BarChart3 className="h-7 w-7 text-secondary-foreground" />
             </div>
             <div>

@@ -16,6 +16,8 @@ export type Database = {
     Tables: {
       check_ins: {
         Row: {
+          call_link: string | null
+          call_summary: string | null
           client_id: string | null
           comment: string
           created_at: string
@@ -27,6 +29,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          call_link?: string | null
+          call_summary?: string | null
           client_id?: string | null
           comment: string
           created_at?: string
@@ -38,6 +42,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          call_link?: string | null
+          call_summary?: string | null
           client_id?: string | null
           comment?: string
           created_at?: string
