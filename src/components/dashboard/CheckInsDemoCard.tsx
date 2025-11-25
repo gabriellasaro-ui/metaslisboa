@@ -54,22 +54,11 @@ export const CheckInsDemoCard = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 pt-4 border-t border-border/30">
-          <div className="flex-1">
-            <p className="text-sm font-medium text-foreground">✅ Totalmente funcional</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Conectado ao Supabase com 76 clientes e 46 metas
-            </p>
-          </div>
-          <Button
-            variant="premium"
-            size="lg"
-            onClick={() => navigate("/check-ins-demo")}
-            className="gap-2"
-          >
-            Ver Demo Completa
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+        <div className="pt-4 border-t border-border/30">
+          <p className="text-sm font-medium text-foreground">✅ Totalmente funcional</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Conectado ao Supabase com 76 clientes e 46 metas
+          </p>
         </div>
       </CardContent>
     </Card>
