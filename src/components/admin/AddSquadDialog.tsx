@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Fish, Sparkles, Cat, Target, Trophy, Shield, Users } from "lucide-react";
+import { Loader2, Fish, Sparkles, Cat, Target, Trophy, Shield, Users, Flag } from "lucide-react";
 
 interface Leader {
   id: string;
@@ -20,7 +20,7 @@ interface AddSquadDialogProps {
 }
 
 const iconOptions = [
-  { value: 'flag', icon: '🇺🇸', label: 'Bandeira EUA' },
+  { value: 'flag', icon: Flag, label: 'Bandeira' },
   { value: 'fish', icon: Fish, label: 'Tubarão' },
   { value: 'sparkles', icon: Sparkles, label: 'Midas' },
   { value: 'cat', icon: Cat, label: 'Tigre' },
@@ -159,11 +159,7 @@ export const AddSquadDialog = ({ open, onOpenChange, onSuccess }: AddSquadDialog
                     <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
                       isSelected ? 'bg-primary/20' : 'bg-muted'
                     }`}>
-                      {typeof IconComponent === 'string' ? (
-                        <span className="text-xl">{IconComponent}</span>
-                      ) : (
-                        <IconComponent className={`h-5 w-5 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
-                      )}
+                      <IconComponent className={`h-5 w-5 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
                     </div>
                     <span className={`text-xs text-center ${isSelected ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
                       {option.label}
