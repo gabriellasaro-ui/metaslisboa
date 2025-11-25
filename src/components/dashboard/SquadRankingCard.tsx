@@ -14,12 +14,7 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
     const total = squad.clients.length;
     const withGoals = squad.clients.filter(c => c.hasGoal === 'SIM').length;
     const pending = squad.clients.filter(c => c.hasGoal === 'NAO_DEFINIDO').length;
-    
-    // Calcular progresso médio das metas ativas
-    const clientsWithGoals = squad.clients.filter(c => c.hasGoal === 'SIM');
-    const avgProgress = clientsWithGoals.length > 0
-      ? clientsWithGoals.reduce((sum, c) => sum + (c.currentProgress || 0), 0) / clientsWithGoals.length
-      : 0;
+    const withoutGoals = squad.clients.filter(c => c.hasGoal === 'NAO').length;
     
     const coverageRate = total > 0 ? (withGoals / total) * 100 : 0;
     
@@ -31,8 +26,8 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
       total,
       withGoals,
       pending,
+      withoutGoals,
       coverageRate,
-      avgProgress,
     };
   }).sort((a, b) => b.coverageRate - a.coverageRate);
 
@@ -127,10 +122,10 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
                 <div className="text-xs text-muted-foreground">A Definir</div>
               </div>
               <div>
-                <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">
-                  {squad.avgProgress.toFixed(1)}%
+                <div className="text-lg font-semibold text-gray-600 dark:text-gray-400">
+                  {squad.withoutGoals}
                 </div>
-                <div className="text-xs text-muted-foreground">Progresso Médio</div>
+                <div className="text-xs text-muted-foreground">Sem Meta</div>
               </div>
             </div>
           </div>
