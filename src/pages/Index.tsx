@@ -28,6 +28,7 @@ import { FilterStats } from "@/components/dashboard/FilterStats";
 import { toast } from "sonner";
 import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
 import { Separator } from "@/components/ui/separator";
+import { MigrateDataButton } from "@/components/dashboard/MigrateDataButton";
 
 const Index = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | GoalStatus>("all");
@@ -202,6 +203,11 @@ const Index = () => {
 
           {/* Visão Geral Tab */}
           <TabsContent value="visao-geral" className="space-y-8 animate-fade-in">
+            {/* Botão de Migração - Remover após migrar */}
+            <MigrateDataButton />
+
+            <Separator className="bg-border/50" />
+
             {/* Section Header */}
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-foreground">Métricas Principais</h2>
