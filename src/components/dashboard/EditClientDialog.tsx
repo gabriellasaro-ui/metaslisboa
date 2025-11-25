@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Client, GoalStatus, GoalType, HealthStatus, ClientStatus } from "@/types";
+import { Client, GoalStatus, GoalType } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 
@@ -14,7 +13,6 @@ const clientSchema = z.object({
   hasGoal: z.enum(["SIM", "NAO_DEFINIDO", "NAO"] as const),
   goalType: z.enum(["Faturamento", "Leads", "OUTROS"] as const).optional(),
   goalValue: z.string().trim().max(500, "Meta deve ter no máximo 500 caracteres").optional(),
-  notes: z.string().trim().max(500, "Observações devem ter no máximo 500 caracteres").optional(),
 });
 
 interface EditClientDialogProps {
@@ -111,6 +109,18 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
             )}
           </div>
 
+          {client?.squadName && (
+            <div className="space-y-2">
+              <Label htmlFor="squad">Squad</Label>
+              <Input
+                id="squad"
+                value={client.squadName}
+                disabled
+                className="bg-muted"
+              />
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="hasGoal">Status da Meta *</Label>
             <Select
@@ -155,12 +165,11 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
 
               <div className="space-y-2">
                 <Label htmlFor="goalValue">Valor da Meta</Label>
-                <Textarea
+                <Input
                   id="goalValue"
                   value={formData.goalValue || ""}
                   onChange={(e) => handleChange("goalValue", e.target.value)}
                   placeholder="Ex: R$20.000.000/ano ou Realizar a primeira venda"
-                  rows={3}
                   className={errors.goalValue ? "border-destructive" : ""}
                 />
                 {errors.goalValue && (
@@ -169,21 +178,6 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
               </div>
             </>
           )}
-
-          <div className="space-y-2">
-            <Label htmlFor="notes">Observações</Label>
-            <Textarea
-              id="notes"
-              value={formData.notes || ""}
-              onChange={(e) => handleChange("notes", e.target.value)}
-              placeholder="Ex: Cliente em aviso prévio, Churn"
-              rows={2}
-              className={errors.notes ? "border-destructive" : ""}
-            />
-            {errors.notes && (
-              <p className="text-sm text-destructive">{errors.notes}</p>
-            )}
-          </div>
 
           <div className="flex justify-end gap-3">
             <Button
