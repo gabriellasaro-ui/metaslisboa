@@ -25,90 +25,85 @@ export const SquadOverview = ({ squad }: SquadOverviewProps) => {
   const percentageWithGoals = total > 0 ? (withGoals / total) * 100 : 0;
 
   const getStatusBadge = (hasGoal: string) => {
-    if (hasGoal === "SIM") return <Badge className="bg-gradient-to-r from-emerald-500/20 to-emerald-500/10 text-emerald-600 border-emerald-500/30 rounded-full px-3">Com Meta</Badge>;
-    if (hasGoal === "NAO_DEFINIDO") return <Badge className="bg-gradient-to-r from-amber-500/20 to-amber-500/10 text-amber-600 border-amber-500/30 rounded-full px-3">A Definir</Badge>;
-    return <Badge variant="outline" className="text-muted-foreground rounded-full px-3">Sem Meta</Badge>;
+    if (hasGoal === "SIM") return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-xs">Com Meta</Badge>;
+    if (hasGoal === "NAO_DEFINIDO") return <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20 text-xs">A Definir</Badge>;
+    return <Badge variant="outline" className="text-muted-foreground text-xs">Sem Meta</Badge>;
   };
 
   return (
     <>
       <Card 
-        className="group animate-fade-in hover:shadow-2xl hover:shadow-primary/30 transition-all duration-500 bg-gradient-to-br from-card/80 to-card/50 backdrop-blur-sm border-border/50 hover:border-primary/50 cursor-pointer overflow-hidden rounded-2xl hover:scale-[1.02]"
+        className="group animate-fade-in hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 bg-card/80 backdrop-blur-sm border-border/50 hover:border-primary/40 cursor-pointer overflow-hidden rounded-xl hover:scale-[1.01]"
         onClick={() => setShowClients(true)}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
-        <CardHeader className="pb-4 relative">
-          <div className="flex items-center justify-between">
+        <CardHeader className="pb-3 relative">
+          <div className="flex items-center justify-between gap-4">
             <div className="flex-1 animate-slide-up" style={{ animationDelay: '100ms' }}>
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mb-2">
+              <CardTitle className="text-lg font-bold text-primary mb-1.5">
                 {squad.name.toUpperCase()}
               </CardTitle>
               {leader && (
                 <CardDescription className="flex items-center gap-2">
-                  <Avatar className="h-6 w-6 border-2 border-primary/30 ring-2 ring-primary/10">
+                  <Avatar className="h-5 w-5 border border-primary/30">
                     <AvatarImage src={leader.avatar} alt={leader.name} />
                     <AvatarFallback className="text-xs bg-primary/10">{leader.name[0]}</AvatarFallback>
                   </Avatar>
                   <Button
                     variant="link"
-                    className="h-auto p-0 text-xs hover:text-primary transition-all duration-300 hover:translate-x-1"
+                    className="h-auto p-0 text-xs hover:text-primary transition-all duration-200"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/leader/${leader.id}`);
                     }}
                   >
                     {leader.name}
-                    <ExternalLink className="ml-1 h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                    <ExternalLink className="ml-1 h-3 w-3" />
                   </Button>
                 </CardDescription>
               )}
             </div>
-            <div className="text-right animate-scale-in" style={{ animationDelay: '200ms' }}>
-              <div className="text-6xl font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+            <div className="text-right animate-scale-in" style={{ animationDelay: '150ms' }}>
+              <div className="text-4xl font-bold text-primary">
                 {total}
               </div>
-              <div className="text-sm text-muted-foreground font-medium">clientes</div>
+              <div className="text-xs text-muted-foreground">clientes</div>
             </div>
           </div>
         </CardHeader>
         
-        <CardContent className="relative">
-          <div className="space-y-6">
-            <div className="animate-slide-up" style={{ animationDelay: '300ms' }}>
-              <div className="flex justify-between mb-3">
-                <span className="text-sm text-muted-foreground font-medium">Cobertura de Metas</span>
-                <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                  {percentageWithGoals.toFixed(0)}%
-                </span>
+        <CardContent className="relative space-y-4">
+          <div className="animate-slide-up" style={{ animationDelay: '200ms' }}>
+            <div className="flex justify-between mb-2">
+              <span className="text-xs text-muted-foreground">Cobertura de Metas</span>
+              <span className="text-lg font-bold text-primary">
+                {percentageWithGoals.toFixed(0)}%
+              </span>
+            </div>
+            <Progress value={percentageWithGoals} className="h-2 rounded-full" />
+          </div>
+          
+          <div className="grid grid-cols-3 gap-3">
+            <div className="text-center p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-200 hover:scale-105 animate-slide-up" style={{ animationDelay: '250ms' }}>
+              <div className="text-2xl font-bold text-emerald-500">
+                {withGoals}
               </div>
-              <div className="relative">
-                <div className="absolute inset-0 bg-primary/20 rounded-full blur-sm" />
-                <Progress value={percentageWithGoals} className="h-3 rounded-full relative" />
-              </div>
+              <div className="text-xs text-muted-foreground mt-1">Com Meta</div>
             </div>
             
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-5 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/30 hover:border-emerald-500/50 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/20 animate-slide-up" style={{ animationDelay: '400ms' }}>
-                <div className="text-5xl font-bold bg-gradient-to-br from-emerald-400 to-emerald-600 bg-clip-text text-transparent">
-                  {withGoals}
-                </div>
-                <div className="text-xs text-muted-foreground font-medium mt-2">Com Meta</div>
+            <div className="text-center p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 hover:border-amber-500/40 transition-all duration-200 hover:scale-105 animate-slide-up" style={{ animationDelay: '300ms' }}>
+              <div className="text-2xl font-bold text-amber-500">
+                {pending}
               </div>
-              
-              <div className="text-center p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 to-amber-500/5 border border-amber-500/30 hover:border-amber-500/50 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-amber-500/20 animate-slide-up" style={{ animationDelay: '500ms' }}>
-                <div className="text-5xl font-bold bg-gradient-to-br from-amber-400 to-amber-600 bg-clip-text text-transparent">
-                  {pending}
-                </div>
-                <div className="text-xs text-muted-foreground font-medium mt-2">A Definir</div>
+              <div className="text-xs text-muted-foreground mt-1">A Definir</div>
+            </div>
+            
+            <div className="text-center p-3 rounded-lg bg-muted/20 border border-border/30 hover:border-border/50 transition-all duration-200 hover:scale-105 animate-slide-up" style={{ animationDelay: '350ms' }}>
+              <div className="text-2xl font-bold text-muted-foreground">
+                {withoutGoals}
               </div>
-              
-              <div className="text-center p-5 rounded-2xl bg-gradient-to-br from-muted/30 to-muted/10 border border-border/40 hover:border-border/60 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-muted/20 animate-slide-up" style={{ animationDelay: '600ms' }}>
-                <div className="text-5xl font-bold text-muted-foreground">
-                  {withoutGoals}
-                </div>
-                <div className="text-xs text-muted-foreground font-medium mt-2">Sem Meta</div>
-              </div>
+              <div className="text-xs text-muted-foreground mt-1">Sem Meta</div>
             </div>
           </div>
         </CardContent>
@@ -116,15 +111,15 @@ export const SquadOverview = ({ squad }: SquadOverviewProps) => {
 
       {/* Dialog com lista de clientes */}
       <Dialog open={showClients} onOpenChange={setShowClients}>
-        <DialogContent className="sm:max-w-[500px] rounded-2xl">
+        <DialogContent className="sm:max-w-[480px] rounded-xl">
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ring-2 ring-primary/20">
-                <Users className="h-6 w-6 text-primary" />
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
+                <Users className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-bold">{squad.name}</DialogTitle>
-                <DialogDescription className="text-base mt-1">
+                <DialogTitle className="text-lg font-bold">{squad.name}</DialogTitle>
+                <DialogDescription className="text-sm">
                   {total} {total === 1 ? 'cliente' : 'clientes'}
                 </DialogDescription>
               </div>
@@ -136,14 +131,14 @@ export const SquadOverview = ({ squad }: SquadOverviewProps) => {
               {squad.clients.map((client, index) => (
                 <div 
                   key={client.name}
-                  className="flex items-center justify-between p-4 rounded-xl border border-border/50 hover:border-primary/40 hover:bg-muted/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-md animate-fade-in"
-                  style={{ animationDelay: `${index * 50}ms` }}
+                  className="flex items-center justify-between p-3 rounded-lg border border-border/50 hover:border-primary/30 hover:bg-muted/40 transition-all duration-200 animate-fade-in"
+                  style={{ animationDelay: `${index * 30}ms` }}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ring-2 ring-primary/10">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                       <User className="h-4 w-4 text-primary" />
                     </div>
-                    <span className="font-medium">{client.name}</span>
+                    <span className="font-medium text-sm">{client.name}</span>
                   </div>
                   {getStatusBadge(client.hasGoal)}
                 </div>
