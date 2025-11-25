@@ -23,6 +23,7 @@ const Admin = () => {
     totalSquads: 0,
     activeClients: 0,
     avisoClients: 0,
+    churnedClients: 0,
   });
   const [showAddClient, setShowAddClient] = useState(false);
   const [showAddSquad, setShowAddSquad] = useState(false);
@@ -53,12 +54,14 @@ const Admin = () => {
 
       const activeClients = clientsRes.data?.filter((c) => c.status === "ativo").length || 0;
       const avisoClients = clientsRes.data?.filter((c) => c.status === "aviso_previo").length || 0;
+      const churnedClients = clientsRes.data?.filter((c) => c.status === "churned").length || 0;
 
       setStats({
         totalClients: clientsRes.count || 0,
         totalSquads: squadsRes.count || 0,
         activeClients,
         avisoClients,
+        churnedClients,
       });
     } catch (error) {
       console.error("Error fetching stats:", error);

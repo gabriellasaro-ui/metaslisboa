@@ -15,8 +15,13 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
     const withGoals = squad.clients.filter(c => c.hasGoal === 'SIM').length;
     const pending = squad.clients.filter(c => c.hasGoal === 'NAO_DEFINIDO').length;
     
+    // Calcular progresso médio das metas ativas
+    const clientsWithGoals = squad.clients.filter(c => c.hasGoal === 'SIM');
+    const avgProgress = clientsWithGoals.length > 0
+      ? clientsWithGoals.reduce((sum, c) => sum + (c.currentProgress || 0), 0) / clientsWithGoals.length
+      : 0;
+    
     const coverageRate = total > 0 ? (withGoals / total) * 100 : 0;
-    const conversionRate = total > 0 ? ((withGoals + pending) / total) * 100 : 0;
     
     const leader = typeof squad.leader === 'string' ? null : squad.leader;
 
@@ -27,7 +32,7 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
       withGoals,
       pending,
       coverageRate,
-      conversionRate,
+      avgProgress,
     };
   }).sort((a, b) => b.coverageRate - a.coverageRate);
 
@@ -123,9 +128,9 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
               </div>
               <div>
                 <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">
-                  {squad.conversionRate.toFixed(0)}%
+                  {squad.avgProgress.toFixed(1)}%
                 </div>
-                <div className="text-xs text-muted-foreground">Conversão</div>
+                <div className="text-xs text-muted-foreground">Progresso Médio</div>
               </div>
             </div>
           </div>
