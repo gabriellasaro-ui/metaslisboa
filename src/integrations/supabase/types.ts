@@ -176,7 +176,7 @@ export type Database = {
           goal_value: string
           id: string
           measurable: string | null
-          period: Database["public"]["Enums"]["goal_period"] | null
+          period: Database["public"]["Enums"]["goal_period"]
           progress: number
           relevant: string | null
           specific: string | null
@@ -196,7 +196,7 @@ export type Database = {
           goal_value: string
           id?: string
           measurable?: string | null
-          period?: Database["public"]["Enums"]["goal_period"] | null
+          period?: Database["public"]["Enums"]["goal_period"]
           progress?: number
           relevant?: string | null
           specific?: string | null
@@ -216,7 +216,7 @@ export type Database = {
           goal_value?: string
           id?: string
           measurable?: string | null
-          period?: Database["public"]["Enums"]["goal_period"] | null
+          period?: Database["public"]["Enums"]["goal_period"]
           progress?: number
           relevant?: string | null
           specific?: string | null
