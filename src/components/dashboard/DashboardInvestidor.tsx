@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Client, Squad } from "@/types";
 import { MetricsCard } from "@/components/dashboard/MetricsCard";
 import { ClientsTable } from "@/components/dashboard/ClientsTable";
@@ -198,8 +199,21 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
                 .map(client => (
                   <div key={client.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="flex-1">
-                      <p className="font-semibold">{client.name}</p>
-                      <p className="text-sm text-muted-foreground">{client.goalType || 'Meta não especificada'}</p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-semibold">{client.name}</p>
+                        <Badge variant="outline" className="text-xs">
+                          {client.goalType}
+                        </Badge>
+                        {client.smartGoal?.period && (
+                          <Badge variant="secondary" className="text-xs">
+                            {client.smartGoal.period === 'mensal' && '📅 Mensal'}
+                            {client.smartGoal.period === 'trimestral' && '📊 Trimestral'}
+                            {client.smartGoal.period === 'semestral' && '📈 Semestral'}
+                            {client.smartGoal.period === 'anual' && '🎯 Anual'}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground">{client.smartGoal?.goalValue || client.goalValue || 'Meta não especificada'}</p>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="w-48 bg-muted rounded-full h-3 overflow-hidden">
