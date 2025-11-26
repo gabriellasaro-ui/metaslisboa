@@ -48,6 +48,15 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
     }
   }, [open, client]);
 
+  // Atualiza automaticamente o health_status quando o status mudar
+  useEffect(() => {
+    if (status === "aviso_previo") {
+      setHealthStatus("care");
+    } else if (status === "churned") {
+      setHealthStatus("danger");
+    }
+  }, [status]);
+
   const fetchSquads = async () => {
     try {
       const { data, error } = await supabase
@@ -154,8 +163,12 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
 
           <div className="space-y-2">
             <Label htmlFor="health">Health</Label>
-            <Select value={healthStatus} onValueChange={(v: any) => setHealthStatus(v)}>
-              <SelectTrigger id="health">
+            <Select 
+              value={healthStatus} 
+              onValueChange={(v: any) => setHealthStatus(v)}
+              disabled={status !== "ativo"}
+            >
+              <SelectTrigger id="health" className={status !== "ativo" ? "opacity-60" : ""}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -164,6 +177,11 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
                 <SelectItem value="danger">Perigo</SelectItem>
               </SelectContent>
             </Select>
+            {status !== "ativo" && (
+              <p className="text-xs text-muted-foreground">
+                Health Status é definido automaticamente para clientes em {status === "aviso_previo" ? "Aviso Prévio" : "Churn"}
+              </p>
+            )}
           </div>
 
           <div className="flex gap-2 justify-end">
