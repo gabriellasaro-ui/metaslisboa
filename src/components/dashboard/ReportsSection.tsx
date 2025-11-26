@@ -167,52 +167,6 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
         </Card>
       </div>
 
-      {/* Health Status Global */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Distribuição Global de Health Status</CardTitle>
-          <CardDescription>Status de saúde de todos os clientes</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-6 md:grid-cols-3">
-            <div className="flex items-center gap-4 p-4 rounded-lg border border-emerald-500/20 bg-emerald-500/5">
-              <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold text-xl">
-                {squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'safe').length, 0)}
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Safe</p>
-                <p className="text-2xl font-bold text-emerald-600">
-                  {((squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'safe').length, 0) / totalClients) * 100 || 0).toFixed(1)}%
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 p-4 rounded-lg border border-amber-500/20 bg-amber-500/5">
-              <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center text-white font-bold text-xl">
-                {squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'care').length, 0)}
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Care</p>
-                <p className="text-2xl font-bold text-amber-600">
-                  {((squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'care').length, 0) / totalClients) * 100 || 0).toFixed(1)}%
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 p-4 rounded-lg border border-red-500/20 bg-red-500/5">
-              <div className="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center text-white font-bold text-xl">
-                {squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'danger').length, 0)}
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Danger</p>
-                <p className="text-2xl font-bold text-red-600">
-                  {((squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'danger').length, 0) / totalClients) * 100 || 0).toFixed(1)}%
-                </p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Resumo por Squad */}
       <Card>
@@ -242,7 +196,7 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
                     </div>
                     <Badge 
                       variant={parseFloat(rate) >= 70 ? "default" : "secondary"}
-                      className="text-lg px-4 py-2"
+                      className={`text-lg px-4 py-2 ${parseFloat(rate) >= 70 ? 'bg-primary/10 text-primary border-primary/20' : 'bg-muted text-muted-foreground border-border'}`}
                     >
                       {rate}%
                     </Badge>
