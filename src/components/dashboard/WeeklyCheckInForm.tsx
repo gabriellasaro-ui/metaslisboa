@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Calendar, TrendingUp, MessageSquare, Target, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -119,8 +118,8 @@ export const WeeklyCheckInForm = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
               <Calendar className="h-5 w-5 text-primary" />
@@ -134,7 +133,7 @@ export const WeeklyCheckInForm = ({
           </div>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-4 overflow-y-auto flex-1 pr-2">
           {/* Seleção de Cliente */}
           <div className="space-y-2">
             <Label className="text-base font-semibold flex items-center gap-2">
@@ -171,7 +170,7 @@ export const WeeklyCheckInForm = ({
           </div>
 
           {/* Progresso */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-base font-semibold flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-primary" />
@@ -181,7 +180,7 @@ export const WeeklyCheckInForm = ({
             </div>
             
             {/* Barra de Progresso Visual */}
-            <div className="relative h-3 bg-muted rounded-full overflow-hidden">
+            <div className="relative h-2.5 bg-muted rounded-full overflow-hidden">
               <div 
                 className="absolute inset-y-0 left-0 bg-primary transition-all duration-500 ease-out rounded-full"
                 style={{ width: `${progress}%` }}
@@ -197,7 +196,7 @@ export const WeeklyCheckInForm = ({
                     key={value}
                     type="button"
                     onClick={() => setProgress(value)}
-                    className={`flex-1 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-semibold ${
+                    className={`flex-1 px-2 py-2 rounded-lg transition-all duration-200 text-sm font-semibold ${
                       progress === value
                         ? 'bg-primary text-primary-foreground shadow-md'
                         : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
@@ -208,49 +207,44 @@ export const WeeklyCheckInForm = ({
                 ))}
               </div>
             ) : (
-              // TRIMESTRAL/SEMESTRAL/ANUAL: Slider com incrementos sugeridos
-              <div className="space-y-4">
-                <div className="px-2">
-                  <Slider
-                    value={[progress]}
-                    onValueChange={(value) => setProgress(value[0])}
-                    max={100}
-                    step={1}
-                    className="cursor-pointer"
-                  />
-                </div>
-                
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setProgress(Math.min(100, progress + 5))}
-                    disabled={progress >= 100}
-                  >
-                    +5%
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setProgress(Math.min(100, progress + 10))}
-                    disabled={progress >= 100}
-                  >
-                    +10%
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setProgress(Math.min(100, progress + 15))}
-                    disabled={progress >= 100}
-                  >
-                    +15%
-                  </Button>
+              // OUTRAS PERÍODOS: Botões de incremento + Input customizado (sem slider para economizar espaço)
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setProgress(Math.min(100, progress + 5))}
+                      disabled={progress >= 100}
+                      className="h-8"
+                    >
+                      +5%
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setProgress(Math.min(100, progress + 10))}
+                      disabled={progress >= 100}
+                      className="h-8"
+                    >
+                      +10%
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setProgress(Math.min(100, progress + 15))}
+                      disabled={progress >= 100}
+                      className="h-8"
+                    >
+                      +15%
+                    </Button>
+                  </div>
                   
                   <div className="flex items-center gap-2 ml-auto">
-                    <Label htmlFor="progress-input" className="text-sm whitespace-nowrap">Ou digite:</Label>
+                    <Label htmlFor="progress-input" className="text-sm whitespace-nowrap">Digite:</Label>
                     <Input
                       id="progress-input"
                       type="number"
@@ -261,17 +255,19 @@ export const WeeklyCheckInForm = ({
                         const val = parseInt(e.target.value) || 0;
                         setProgress(Math.min(100, Math.max(0, val)));
                       }}
-                      className="w-20 h-8 text-center"
+                      className="w-16 h-8 text-center"
                     />
                     <span className="text-sm">%</span>
                   </div>
                 </div>
                 
-                <div className="text-xs text-muted-foreground bg-muted/30 rounded-lg p-2 border border-border/30">
-                  {selectedClient?.goals?.[0]?.period === "trimestral" && "💡 Sugestão: ~8% por check-in (12 check-ins no trimestre)"}
-                  {selectedClient?.goals?.[0]?.period === "semestral" && "💡 Sugestão: ~4% por check-in (24 check-ins no semestre)"}
-                  {selectedClient?.goals?.[0]?.period === "anual" && "💡 Sugestão: ~2% por check-in (52 check-ins no ano)"}
-                </div>
+                {selectedClient?.goals?.[0]?.period && (
+                  <div className="text-xs text-muted-foreground bg-muted/30 rounded-lg px-3 py-1.5 border border-border/30">
+                    💡 {selectedClient.goals[0].period === "trimestral" && "~8% por semana"}
+                    {selectedClient.goals[0].period === "semestral" && "~4% por semana"}
+                    {selectedClient.goals[0].period === "anual" && "~2% por semana"}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -325,7 +321,7 @@ export const WeeklyCheckInForm = ({
               placeholder="Descreva o progresso desta semana, desafios enfrentados e próximos passos..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              rows={4}
+              rows={3}
               className="resize-none"
             />
             <p className="text-xs text-muted-foreground">
@@ -333,44 +329,43 @@ export const WeeklyCheckInForm = ({
             </p>
           </div>
 
-          {/* Documento da Call */}
-          <div className="space-y-2">
-            <Label className="text-base font-semibold flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-accent-foreground" />
-              Documento da Call (Opcional)
-            </Label>
-            <p className="text-xs text-muted-foreground mb-2">
-              Cole o link do Google Docs com o resumo da call
-            </p>
-            <input
-              type="url"
-              placeholder="https://docs.google.com/document/d/..."
-              value={callSummary}
-              onChange={(e) => setCallSummary(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            />
-          </div>
+          {/* Campos Opcionais - Compactos */}
+          <div className="space-y-2 p-3 bg-muted/30 rounded-lg border border-border/30">
+            <p className="text-xs font-medium text-muted-foreground mb-2">📎 Links Opcionais</p>
+            
+            <div className="space-y-1.5">
+              <Label htmlFor="call-summary" className="text-sm flex items-center gap-1.5">
+                <MessageSquare className="h-3.5 w-3.5" />
+                Documento da Call
+              </Label>
+              <input
+                id="call-summary"
+                type="url"
+                placeholder="https://docs.google.com/document/d/..."
+                value={callSummary}
+                onChange={(e) => setCallSummary(e.target.value)}
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
 
-          {/* Link da Call */}
-          <div className="space-y-2">
-            <Label className="text-base font-semibold flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-accent-foreground" />
-              Link da Call no Drive (Opcional)
-            </Label>
-            <input
-              type="url"
-              placeholder="https://drive.google.com/..."
-              value={callLink}
-              onChange={(e) => setCallLink(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            />
-            <p className="text-xs text-muted-foreground">
-              Cole o link da gravação ou documentos relacionados
-            </p>
+            <div className="space-y-1.5">
+              <Label htmlFor="call-link" className="text-sm flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5" />
+                Link da Gravação
+              </Label>
+              <input
+                id="call-link"
+                type="url"
+                placeholder="https://drive.google.com/..."
+                value={callLink}
+                onChange={(e) => setCallLink(e.target.value)}
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
           </div>
         </div>
 
-        <div className="flex gap-3 pt-4 border-t">
+        <div className="flex gap-3 pt-3 border-t flex-shrink-0">
           <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
             Cancelar
           </Button>
