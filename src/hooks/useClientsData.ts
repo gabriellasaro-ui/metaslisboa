@@ -86,7 +86,7 @@ export const useClientsData = () => {
               name: client.name,
               hasGoal: hasGoalStatus,
               status: client.status,
-              health_status: autoHealthStatus,
+              healthStatus: autoHealthStatus,
               goalType: activeGoal?.goal_type || undefined,
               goalValue: activeGoal?.goal_value || undefined,
               currentProgress: activeGoal?.progress || 0,
