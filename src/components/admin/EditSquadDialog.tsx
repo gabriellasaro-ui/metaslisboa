@@ -46,16 +46,22 @@ export const EditSquadDialog = ({ squad, open, onOpenChange, onSuccess }: EditSq
 
   const fetchLeaders = async () => {
     try {
+      // Buscar coordenadores (usuários com role coordenador)
       const { data, error } = await supabase
-        .from("leaders")
-        .select("id, name")
+        .from("profiles")
+        .select(`
+          id,
+          name,
+          user_roles!inner(role)
+        `)
+        .eq("user_roles.role", "coordenador")
         .order("name");
 
       if (error) throw error;
       setLeaders(data || []);
     } catch (error) {
-      console.error("Error fetching leaders:", error);
-      toast.error("Erro ao carregar líderes");
+      console.error("Error fetching coordinators:", error);
+      toast.error("Erro ao carregar coordenadores");
     } finally {
       setLoadingLeaders(false);
     }
@@ -122,10 +128,10 @@ export const EditSquadDialog = ({ squad, open, onOpenChange, onSuccess }: EditSq
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="leader">Líder</Label>
+            <Label htmlFor="leader">Coordenador</Label>
             <Select value={leaderId || "none"} onValueChange={(value) => setLeaderId(value === "none" ? "" : value)}>
               <SelectTrigger id="leader">
-                <SelectValue placeholder="Selecione um líder" />
+                <SelectValue placeholder="Selecione um coordenador" />
               </SelectTrigger>
               <SelectContent>
                 {loadingLeaders ? (

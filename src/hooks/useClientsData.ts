@@ -17,7 +17,7 @@ export const useClientsData = () => {
           name,
           slug,
           leader_id,
-          leaders (
+          profiles (
             id,
             name,
             email
@@ -114,7 +114,7 @@ export const useClientsData = () => {
         return {
           id: squad.id,
           name: squad.name,
-          leader: squad.leaders?.name || "Sem Líder",
+          leader: squad.profiles?.name || "Sem Coordenador",
           clients: squadClients,
         };
       });
