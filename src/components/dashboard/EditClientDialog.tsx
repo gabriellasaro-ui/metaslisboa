@@ -35,6 +35,7 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
       hasGoal: "NAO",
     }
   );
+  const [goalPeriod, setGoalPeriod] = useState<"mensal" | "trimestral" | "semestral" | "anual">("mensal");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,6 +89,7 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
               goal_type: validatedData.goalType || "OUTROS",
               goal_value: validatedData.goalValue || "",
               status: goalStatus,
+              period: goalPeriod,
             })
             .eq("id", existingGoal.id);
         } else {
@@ -100,6 +102,7 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
               goal_value: validatedData.goalValue || "",
               status: goalStatus,
               progress: 0,
+              period: goalPeriod,
             });
         }
       }
@@ -247,6 +250,24 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
                 {errors.goalValue && (
                   <p className="text-sm text-destructive">{errors.goalValue}</p>
                 )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="goalPeriod">Período da Meta</Label>
+                <Select
+                  value={goalPeriod}
+                  onValueChange={(value: "mensal" | "trimestral" | "semestral" | "anual") => setGoalPeriod(value)}
+                >
+                  <SelectTrigger id="goalPeriod">
+                    <SelectValue placeholder="Selecione o período" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mensal">📅 Mensal (4 check-ins)</SelectItem>
+                    <SelectItem value="trimestral">📊 Trimestral (12 check-ins)</SelectItem>
+                    <SelectItem value="semestral">📈 Semestral (24 check-ins)</SelectItem>
+                    <SelectItem value="anual">🎯 Anual (52 check-ins)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </>
           )}
