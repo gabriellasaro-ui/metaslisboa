@@ -121,6 +121,50 @@ export type Database = {
           },
         ]
       }
+      goal_history: {
+        Row: {
+          change_type: string
+          changed_at: string
+          changed_by: string
+          created_at: string
+          field_name: string
+          goal_id: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+        }
+        Insert: {
+          change_type: string
+          changed_at?: string
+          changed_by: string
+          created_at?: string
+          field_name: string
+          goal_id: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+        }
+        Update: {
+          change_type?: string
+          changed_at?: string
+          changed_by?: string
+          created_at?: string
+          field_name?: string
+          goal_id?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_history_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goals: {
         Row: {
           achievable: string | null
