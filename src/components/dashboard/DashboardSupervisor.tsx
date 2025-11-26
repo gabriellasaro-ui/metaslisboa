@@ -176,7 +176,7 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
       </TabsContent>
 
       <TabsContent value="relatorios" className="space-y-6">
-        <div className="grid gap-6 md:grid-cols-3 mb-6">
+        <div className="grid gap-6 md:grid-cols-4 mb-6">
           <Card className="border-emerald-500/20 bg-emerald-500/5">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">Cobertura de Metas</CardTitle>
@@ -187,6 +187,24 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 {stats.withGoals} de {stats.total} clientes
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-emerald-500/20 bg-emerald-500/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Taxa de Health Safe</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-emerald-600">
+                {(() => {
+                  const totalSafe = squadsData.reduce((sum, squad) => 
+                    sum + squad.clients.filter(c => c.healthStatus === 'safe').length, 0);
+                  return ((totalSafe / stats.total) * 100 || 0).toFixed(1);
+                })()}%
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Clientes seguros
               </p>
             </CardContent>
           </Card>
