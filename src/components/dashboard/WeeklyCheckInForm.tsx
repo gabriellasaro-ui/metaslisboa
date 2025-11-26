@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
 import { Calendar, TrendingUp, MessageSquare, Target, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -178,7 +180,7 @@ export const WeeklyCheckInForm = ({
               <span className="text-2xl font-bold text-primary">{progress}%</span>
             </div>
             
-            {/* Barra de Progresso Visual Simplificada */}
+            {/* Barra de Progresso Visual */}
             <div className="relative h-3 bg-muted rounded-full overflow-hidden">
               <div 
                 className="absolute inset-y-0 left-0 bg-primary transition-all duration-500 ease-out rounded-full"
@@ -186,23 +188,92 @@ export const WeeklyCheckInForm = ({
               />
             </div>
             
-            {/* Botões de Porcentagem */}
-            <div className="flex gap-2">
-              {[0, 25, 50, 75, 100].map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setProgress(value)}
-                  className={`flex-1 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-semibold ${
-                    progress === value
-                      ? 'bg-primary text-primary-foreground shadow-md'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
-                  }`}
-                >
-                  {value}%
-                </button>
-              ))}
-            </div>
+            {/* UI Dinâmica baseada no período da meta */}
+            {selectedClient?.goals?.[0]?.period === "mensal" ? (
+              // MENSAL: Botões fixos 0, 25, 50, 75, 100%
+              <div className="flex gap-2">
+                {[0, 25, 50, 75, 100].map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setProgress(value)}
+                    className={`flex-1 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-semibold ${
+                      progress === value
+                        ? 'bg-primary text-primary-foreground shadow-md'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
+                    }`}
+                  >
+                    {value}%
+                  </button>
+                ))}
+              </div>
+            ) : (
+              // TRIMESTRAL/SEMESTRAL/ANUAL: Slider com incrementos sugeridos
+              <div className="space-y-4">
+                <div className="px-2">
+                  <Slider
+                    value={[progress]}
+                    onValueChange={(value) => setProgress(value[0])}
+                    max={100}
+                    step={1}
+                    className="cursor-pointer"
+                  />
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setProgress(Math.min(100, progress + 5))}
+                    disabled={progress >= 100}
+                  >
+                    +5%
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setProgress(Math.min(100, progress + 10))}
+                    disabled={progress >= 100}
+                  >
+                    +10%
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setProgress(Math.min(100, progress + 15))}
+                    disabled={progress >= 100}
+                  >
+                    +15%
+                  </Button>
+                  
+                  <div className="flex items-center gap-2 ml-auto">
+                    <Label htmlFor="progress-input" className="text-sm whitespace-nowrap">Ou digite:</Label>
+                    <Input
+                      id="progress-input"
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={progress}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value) || 0;
+                        setProgress(Math.min(100, Math.max(0, val)));
+                      }}
+                      className="w-20 h-8 text-center"
+                    />
+                    <span className="text-sm">%</span>
+                  </div>
+                </div>
+                
+                <div className="text-xs text-muted-foreground bg-muted/30 rounded-lg p-2 border border-border/30">
+                  {selectedClient?.goals?.[0]?.period === "trimestral" && "💡 Sugestão: ~8% por check-in (12 check-ins no trimestre)"}
+                  {selectedClient?.goals?.[0]?.period === "semestral" && "💡 Sugestão: ~4% por check-in (24 check-ins no semestre)"}
+                  {selectedClient?.goals?.[0]?.period === "anual" && "💡 Sugestão: ~2% por check-in (52 check-ins no ano)"}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Status */}
