@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Client, Squad } from "@/types";
 import { MetricsCard } from "@/components/dashboard/MetricsCard";
@@ -55,7 +54,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
       pendingCount={stats.pending}
     >
       {/* Visão Geral */}
-      <TabsContent value="visao-geral" className="space-y-6">
+      <div data-value="visao-geral" className="space-y-6">
         <div className="grid gap-4 md:grid-cols-3">
           <MetricsCard
             title="Total de Clientes"
@@ -92,15 +91,15 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
             />
           </CardContent>
         </Card>
-      </TabsContent>
+      </div>
 
       {/* Check-ins */}
-      <TabsContent value="check-ins" className="space-y-6">
+      <div data-value="check-ins" className="space-y-6">
         <CheckInsTimeline squadsData={mySquad ? [mySquad] : []} />
-      </TabsContent>
+      </div>
 
       {/* Clientes */}
-      <TabsContent value="clientes" className="space-y-6">
+      <div data-value="clientes" className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Todos os Clientes</CardTitle>
@@ -115,7 +114,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
             />
           </CardContent>
         </Card>
-      </TabsContent>
+      </div>
 
       {/* Dialogs */}
       <CheckInDialog
