@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, User, Mail, Save } from "lucide-react";
+import { Loader2, User, Mail, Save, Users } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
@@ -19,6 +19,35 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
   const { profile, role, user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState(profile?.name || "");
+  const [squadName, setSquadName] = useState<string>("");
+
+  useEffect(() => {
+    if (profile && open) {
+      setName(profile.name || "");
+      fetchSquadName();
+    }
+  }, [profile, open]);
+
+  const fetchSquadName = async () => {
+    if (!profile?.squad_id) {
+      setSquadName("Nenhum squad atribuído");
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("squads")
+        .select("name")
+        .eq("id", profile.squad_id)
+        .maybeSingle();
+
+      if (error) throw error;
+      setSquadName(data?.name || "Squad não encontrado");
+    } catch (error) {
+      console.error("Error fetching squad:", error);
+      setSquadName("Erro ao carregar squad");
+    }
+  };
 
   const handleSave = async () => {
     if (!user?.id) return;
@@ -130,6 +159,23 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
             </div>
             <p className="text-xs text-muted-foreground">
               Sua função é definida pelo administrador do sistema
+            </p>
+          </div>
+
+          {/* Squad (read-only) */}
+          <div className="space-y-2">
+            <Label className="text-base font-semibold flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Squad
+            </Label>
+            <div className="p-3 bg-muted/50 rounded-md border">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">{squadName || "Carregando..."}</span>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Seu squad é atribuído pelo administrador do sistema
             </p>
           </div>
         </div>
