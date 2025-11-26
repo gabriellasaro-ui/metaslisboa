@@ -14,7 +14,7 @@ interface Squad {
   name: string;
   slug: string;
   leader_id: string | null;
-  leaders: {
+  profiles: {
     name: string;
   } | null;
   clients: { count: number }[];
@@ -41,7 +41,7 @@ export const AdminSquadsList = ({ onUpdate }: AdminSquadsListProps) => {
         .from("squads")
         .select(`
           *,
-          leaders(name)
+          profiles(name)
         `)
         .order("name");
 
@@ -73,7 +73,7 @@ export const AdminSquadsList = ({ onUpdate }: AdminSquadsListProps) => {
 
   const filteredSquads = squads.filter(squad =>
     squad.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    squad.leaders?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    squad.profiles?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {
@@ -103,7 +103,7 @@ export const AdminSquadsList = ({ onUpdate }: AdminSquadsListProps) => {
           <TableHeader>
             <TableRow>
               <TableHead>Nome do Squad</TableHead>
-              <TableHead>Líder</TableHead>
+              <TableHead>Coordenador</TableHead>
               <TableHead>Clientes</TableHead>
               {isSupervisor && <TableHead className="text-right">Ações</TableHead>}
             </TableRow>
@@ -113,10 +113,10 @@ export const AdminSquadsList = ({ onUpdate }: AdminSquadsListProps) => {
               <TableRow key={squad.id}>
                 <TableCell className="font-medium">{squad.name}</TableCell>
                 <TableCell>
-                  {squad.leaders ? (
-                    <Badge variant="outline">{squad.leaders.name}</Badge>
+                  {squad.profiles ? (
+                    <Badge variant="outline">{squad.profiles.name}</Badge>
                   ) : (
-                    <span className="text-muted-foreground text-sm">Sem líder</span>
+                    <span className="text-muted-foreground text-sm">Sem coordenador</span>
                   )}
                 </TableCell>
                 <TableCell>

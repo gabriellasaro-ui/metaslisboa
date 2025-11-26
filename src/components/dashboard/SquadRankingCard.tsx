@@ -16,6 +16,10 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
     const pending = squad.clients.filter(c => c.hasGoal === 'NAO_DEFINIDO').length;
     const withoutGoals = squad.clients.filter(c => c.hasGoal === 'NAO').length;
     
+    // Novo cálculo de pontos:
+    // +3 para com meta, 0 para a definir, -1 para sem meta
+    const points = (withGoals * 3) + (pending * 0) + (withoutGoals * -1);
+    
     const coverageRate = total > 0 ? (withGoals / total) * 100 : 0;
     
     const leader = typeof squad.leader === 'string' ? null : squad.leader;
@@ -27,9 +31,10 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
       withGoals,
       pending,
       withoutGoals,
+      points,
       coverageRate,
     };
-  }).sort((a, b) => b.coverageRate - a.coverageRate);
+  }).sort((a, b) => b.points - a.points);
 
   const getRankIcon = (index: number) => {
     switch (index) {
@@ -95,8 +100,8 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold">{squad.coverageRate.toFixed(1)}%</div>
-                <div className="text-xs text-muted-foreground">Cobertura</div>
+                <div className="text-2xl font-bold">{squad.points}</div>
+                <div className="text-xs text-muted-foreground">Pontos</div>
               </div>
             </div>
 
