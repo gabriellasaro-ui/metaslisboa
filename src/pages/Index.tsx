@@ -4,9 +4,10 @@ import { useClientsData } from "@/hooks/useClientsData";
 import { LogOut, User, Info } from "lucide-react";
 import { WelcomeDialog } from "@/components/dashboard/WelcomeDialog";
 import { EditProfileDialog } from "@/components/dashboard/EditProfileDialog";
+import { LeadersOnboarding } from "@/components/dashboard/LeadersOnboarding";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DashboardInvestidor } from "@/components/dashboard/DashboardInvestidor";
 import { DashboardCoordenador } from "@/components/dashboard/DashboardCoordenador";
 import { DashboardSupervisor } from "@/components/dashboard/DashboardSupervisor";
@@ -89,6 +90,7 @@ const Index = () => {
                 className="hidden md:flex items-center gap-3 bg-card/50 border border-border/50 rounded-lg px-4 py-2 hover:bg-card hover:border-primary/30 transition-all cursor-pointer group"
               >
                 <Avatar className="h-8 w-8 group-hover:ring-2 group-hover:ring-primary/30 transition-all">
+                  {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={profile.name} />}
                   <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold group-hover:bg-primary/20">
                     {profile?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'U'}
                   </AvatarFallback>
@@ -138,6 +140,9 @@ const Index = () => {
           </div>
           <Separator className="bg-border/50" />
         </header>
+
+        {/* Onboarding de Líderes */}
+        {isSupervisor && <LeadersOnboarding />}
 
         {/* Welcome Dialog */}
         <WelcomeDialog open={showWelcome} onOpenChange={handleCloseWelcome} />

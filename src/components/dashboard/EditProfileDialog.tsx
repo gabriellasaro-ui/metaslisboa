@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, User, Mail, Save, Users } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Loader2, User, Mail, Save, Users, Upload, X } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 interface EditProfileDialogProps {
@@ -20,10 +20,13 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState(profile?.name || "");
   const [squadName, setSquadName] = useState<string>("");
+  const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar_url || "");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   useEffect(() => {
     if (profile && open) {
       setName(profile.name || "");
+      setAvatarUrl(profile.avatar_url || "");
       fetchSquadName();
     }
   }, [profile, open]);
@@ -49,6 +52,73 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
     }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user?.id) return;
+
+    // Validar tipo de arquivo
+    if (!file.type.startsWith('image/')) {
+      toast.error("Por favor, selecione uma imagem");
+      return;
+    }
+
+    // Validar tamanho (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("A imagem deve ter no máximo 2MB");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      // Deletar avatar antigo se existir
+      if (avatarUrl) {
+        const oldPath = avatarUrl.split('/').slice(-2).join('/');
+        await supabase.storage.from('avatars').remove([oldPath]);
+      }
+
+      // Upload novo avatar
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}/avatar.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Obter URL pública
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      setAvatarUrl(publicUrl);
+      toast.success("Avatar atualizado!");
+    } catch (error) {
+      console.error('Erro ao fazer upload:', error);
+      toast.error("Erro ao fazer upload da imagem");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!avatarUrl || !user?.id) return;
+
+    setUploadingAvatar(true);
+    try {
+      const oldPath = avatarUrl.split('/').slice(-2).join('/');
+      await supabase.storage.from('avatars').remove([oldPath]);
+
+      setAvatarUrl("");
+      toast.success("Avatar removido!");
+    } catch (error) {
+      console.error('Erro ao remover avatar:', error);
+      toast.error("Erro ao remover avatar");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!user?.id) return;
 
@@ -61,7 +131,10 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ name: name.trim() })
+        .update({ 
+          name: name.trim(),
+          avatar_url: avatarUrl || null
+        })
         .eq('id', user.id);
 
       if (error) throw error;
@@ -102,19 +175,62 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Avatar e Role */}
-          <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-lg border">
-            <Avatar className="h-16 w-16">
-              <AvatarFallback className="bg-primary/10 text-primary text-lg font-bold">
-                {profile?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <p className="font-semibold text-lg">{profile?.name || 'Usuário'}</p>
-              <Badge variant="outline" className="mt-1">
-                {getRoleName()}
-              </Badge>
+          {/* Avatar Upload */}
+          <div className="flex flex-col items-center gap-4 p-4 bg-muted/30 rounded-lg border">
+            <div className="relative">
+              <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
+                {avatarUrl ? (
+                  <AvatarImage src={avatarUrl} alt={profile?.name || 'Avatar'} />
+                ) : (
+                  <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">
+                    {profile?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'U'}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              {uploadingAvatar && (
+                <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-full">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                </div>
+              )}
             </div>
+
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById('avatar-upload')?.click()}
+                disabled={uploadingAvatar}
+                className="gap-2"
+              >
+                <Upload className="h-4 w-4" />
+                {avatarUrl ? 'Alterar Foto' : 'Adicionar Foto'}
+              </Button>
+              {avatarUrl && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleRemoveAvatar}
+                  disabled={uploadingAvatar}
+                  className="gap-2 text-destructive hover:text-destructive"
+                >
+                  <X className="h-4 w-4" />
+                  Remover
+                </Button>
+              )}
+            </div>
+            <input
+              id="avatar-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              className="hidden"
+            />
+            <p className="text-xs text-muted-foreground text-center">
+              Formatos aceitos: JPG, PNG, WEBP • Tamanho máximo: 2MB
+            </p>
+            <Badge variant="outline" className="mt-2">
+              {getRoleName()}
+            </Badge>
           </div>
 
           {/* Nome */}

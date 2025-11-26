@@ -7,6 +7,7 @@ interface Profile {
   name: string;
   email: string;
   squad_id: string | null;
+  avatar_url: string | null;
 }
 
 interface AuthContextType {

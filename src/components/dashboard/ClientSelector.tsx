@@ -54,7 +54,8 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
             id,
             goal_type,
             goal_value,
-            progress
+            progress,
+            period
           )
         `)
         .in("status", ["ativo", "aviso_previo"])
