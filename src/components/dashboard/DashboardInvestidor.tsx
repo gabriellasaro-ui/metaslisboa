@@ -10,11 +10,11 @@ import { GoalProgressTimeline } from "@/components/dashboard/GoalProgressTimelin
 import { CheckInsTimeline } from "@/components/dashboard/CheckInsTimeline";
 import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
 import { WeeklyCheckInForm } from "@/components/dashboard/WeeklyCheckInForm";
-import { ReportsSection } from "@/components/dashboard/ReportsSection";
+import { ReportsSectionInvestidor } from "@/components/dashboard/ReportsSectionInvestidor";
 import { GoalsDistributionChart } from "@/components/dashboard/charts/GoalsDistributionChart";
 import { HealthStatusDistributionChart } from "@/components/dashboard/charts/HealthStatusDistributionChart";
 import { WeeklyProgressChart } from "@/components/dashboard/WeeklyProgressChart";
-import { Target, Users, TrendingUp, Calendar, Plus } from "lucide-react";
+import { Target, Users, TrendingUp, Calendar, Plus, MessageSquare } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -71,18 +71,65 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
     >
       {/* Visão Geral */}
       <TabsContent value="visao-geral" className="space-y-6">
-        {/* Botão de Check-in flutuante */}
-        <div className="flex justify-end mb-4">
-          <Button
-            size="lg"
-            variant="premium"
-            className="gap-2 shadow-lg hover:shadow-xl transition-all"
-            onClick={() => setShowCheckInForm(true)}
-          >
-            <Plus className="h-5 w-5" />
-            Novo Check-in Semanal
-          </Button>
-        </div>
+        {/* Card de Check-in */}
+        <Card className="relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-background hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 group">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 group-hover:bg-primary/10 transition-all duration-700" />
+          <CardHeader className="relative z-10 pb-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
+                    <Calendar className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-2xl font-bold">Check-ins Semanais</CardTitle>
+                </div>
+                <CardDescription className="text-base leading-relaxed">
+                  Atualize o progresso dos seus clientes semanalmente. Registre avanços, compartilhe desafios e mantenha todos alinhados com as metas estabelecidas.
+                </CardDescription>
+              </div>
+              <Button
+                size="lg"
+                variant="premium"
+                className="gap-2 shadow-lg hover:shadow-xl transition-all hover:scale-105"
+                onClick={() => setShowCheckInForm(true)}
+              >
+                <Plus className="h-5 w-5" />
+                Novo Check-in
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Target className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm mb-1">Atualize o Progresso</p>
+                  <p className="text-xs text-muted-foreground">Registre a evolução das metas de cada cliente</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <MessageSquare className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm mb-1">Adicione Comentários</p>
+                  <p className="text-xs text-muted-foreground">Documente insights e próximos passos</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm mb-1">Acompanhe Evolução</p>
+                  <p className="text-xs text-muted-foreground">Visualize histórico e tendências</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="grid gap-4 md:grid-cols-4">
           <MetricsCard
@@ -202,7 +249,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
 
       {/* Relatórios */}
       <TabsContent value="relatorios" className="space-y-6">
-        <ReportsSection squadsData={mySquad ? [mySquad] : []} />
+        <ReportsSectionInvestidor squad={mySquad || null} />
       </TabsContent>
 
       {/* Dialogs */}
