@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useClientsData } from "@/hooks/useClientsData";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Info } from "lucide-react";
 import { WelcomeDialog } from "@/components/dashboard/WelcomeDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
@@ -89,6 +89,16 @@ const Index = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowWelcome(true)}
+                  className="hover:bg-primary/10 gap-2"
+                  title="Bem-vindo"
+                >
+                  <Info className="h-4 w-4" />
+                  <span className="hidden sm:inline">Bem-vindo</span>
+                </Button>
                 {(isCoordenador || isSupervisor) && (
                   <Button
                     variant="outline"
