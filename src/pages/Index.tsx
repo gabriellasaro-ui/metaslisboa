@@ -4,7 +4,6 @@ import { useClientsData } from "@/hooks/useClientsData";
 import { LogOut, User, Info } from "lucide-react";
 import { WelcomeDialog } from "@/components/dashboard/WelcomeDialog";
 import { EditProfileDialog } from "@/components/dashboard/EditProfileDialog";
-import { LeadersOnboarding } from "@/components/dashboard/LeadersOnboarding";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -141,9 +140,6 @@ const Index = () => {
           </div>
           <Separator className="bg-border/50" />
         </header>
-
-        {/* Onboarding de Líderes */}
-        {isSupervisor && <LeadersOnboarding />}
 
         {/* Force Password Change */}
         {mustChangePassword && profile && (
