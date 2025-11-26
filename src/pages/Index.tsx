@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useClientsData } from "@/hooks/useClientsData";
 import { LogOut, User } from "lucide-react";
-import { TourButton } from "@/components/dashboard/TourButton";
 import { WelcomeDialog } from "@/components/dashboard/WelcomeDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
@@ -90,7 +89,6 @@ const Index = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <TourButton />
                 {(isCoordenador || isSupervisor) && (
                   <Button
                     variant="outline"
