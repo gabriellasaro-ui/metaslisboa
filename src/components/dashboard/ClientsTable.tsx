@@ -72,6 +72,23 @@ const getGoalTypeBadge = (type?: GoalType) => {
   );
 };
 
+const getGoalPeriodBadge = (period?: string) => {
+  if (!period) return <span className="text-muted-foreground text-sm">-</span>;
+  
+  const periodLabels: Record<string, string> = {
+    mensal: "Mensal",
+    trimestral: "Trimestral",
+    semestral: "Semestral",
+    anual: "Anual",
+  };
+
+  return (
+    <Badge variant="outline" className="bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border-indigo-500/20">
+      {periodLabels[period] || period}
+    </Badge>
+  );
+};
+
 export const ClientsTable = ({ 
   clients, 
   filterStatus = "all", 
@@ -101,6 +118,7 @@ export const ClientsTable = ({
             <TableHead>Saúde</TableHead>
             <TableHead>Meta</TableHead>
             <TableHead>Tipo</TableHead>
+            <TableHead>Período</TableHead>
             <TableHead>Valor</TableHead>
             <TableHead>Progresso</TableHead>
             <TableHead>Observações</TableHead>
@@ -110,7 +128,7 @@ export const ClientsTable = ({
         <TableBody>
           {filteredClients.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={showActions ? 8 : 7} className="text-center text-muted-foreground py-8">
+              <TableCell colSpan={showActions ? 9 : 8} className="text-center text-muted-foreground py-8">
                 Nenhum cliente encontrado com os filtros selecionados
               </TableCell>
             </TableRow>
@@ -129,6 +147,7 @@ export const ClientsTable = ({
                   </TableCell>
                   <TableCell>{getGoalStatusBadge(client.hasGoal)}</TableCell>
                   <TableCell>{getGoalTypeBadge(client.goalType)}</TableCell>
+                  <TableCell>{getGoalPeriodBadge(client.smartGoal?.period)}</TableCell>
                   <TableCell className="max-w-md">
                     {client.goalValue ? (
                       <span className="text-sm">{client.goalValue}</span>
