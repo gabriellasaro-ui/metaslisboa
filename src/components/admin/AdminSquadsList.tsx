@@ -13,7 +13,6 @@ interface Squad {
   id: string;
   name: string;
   slug: string;
-  icon?: string | null;
   leader_id: string | null;
   leaders: {
     name: string;

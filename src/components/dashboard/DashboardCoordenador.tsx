@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Client, GoalStatus, GoalType, Squad } from "@/types";
@@ -83,7 +84,7 @@ export const DashboardCoordenador = ({ squadsData, squadId, updateClient }: Dash
       pendingCount={stats.pending}
     >
       {/* Visão Geral */}
-      <div data-value="visao-geral" className="space-y-6">
+      <TabsContent value="visao-geral" className="space-y-6">
         <div className="grid gap-4 md:grid-cols-4">
           <MetricsCard
             title="Total de Clientes"
@@ -129,10 +130,10 @@ export const DashboardCoordenador = ({ squadsData, squadId, updateClient }: Dash
             />
           </CardContent>
         </Card>
-      </div>
+      </TabsContent>
 
       {/* Análises */}
-      <div data-value="analises" className="space-y-6">
+      <TabsContent value="analises" className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
@@ -162,15 +163,15 @@ export const DashboardCoordenador = ({ squadsData, squadId, updateClient }: Dash
             </CardContent>
           </Card>
         </div>
-      </div>
+      </TabsContent>
 
       {/* Check-ins */}
-      <div data-value="check-ins" className="space-y-6">
+      <TabsContent value="check-ins" className="space-y-6">
         <CheckInsTimeline squadsData={mySquad ? [mySquad] : []} />
-      </div>
+      </TabsContent>
 
       {/* Clientes (Pesquisa) */}
-      <div data-value="clientes" className="space-y-6">
+      <TabsContent value="clientes" className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Todos os Clientes</CardTitle>
@@ -187,12 +188,12 @@ export const DashboardCoordenador = ({ squadsData, squadId, updateClient }: Dash
             />
           </CardContent>
         </Card>
-      </div>
+      </TabsContent>
 
       {/* Relatórios */}
-      <div data-value="relatorios" className="space-y-6">
+      <TabsContent value="relatorios" className="space-y-6">
         <ReportsSection squadsData={mySquad ? [mySquad] : []} />
-      </div>
+      </TabsContent>
 
       {/* Dialogs */}
       <EditClientDialog

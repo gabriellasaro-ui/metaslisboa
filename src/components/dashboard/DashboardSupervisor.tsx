@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Client, Squad } from "@/types";
@@ -87,7 +88,7 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
 
   return (
     <NavigationTabs defaultValue="visao-geral" totalClients={stats.total} pendingCount={stats.pending}>
-      <div data-value="visao-geral" className="space-y-6">
+      <TabsContent value="visao-geral" className="space-y-6">
         <div className="grid gap-4 md:grid-cols-4">
           <MetricsCard title="Total de Clientes" value={stats.total} icon={Users} description="Base ativa" />
           <MetricsCard title="Com Metas" value={stats.withGoals} icon={Target} variant="success" description={`${((stats.withGoals/stats.total)*100||0).toFixed(0)}%`} />
@@ -137,22 +138,22 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
             ));
           })()}
         </div>
-      </div>
+      </TabsContent>
 
-      <div data-value="analises" className="space-y-6">
+      <TabsContent value="analises" className="space-y-6">
         <GoalsImportanceCard />
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           <SquadsComparisonChart squadsData={squadsData} />
           <HealthStatusDistributionChart squadsData={squadsData} />
         </div>
-      </div>
+      </TabsContent>
 
-      <div data-value="check-ins" className="space-y-6">
+      <TabsContent value="check-ins" className="space-y-6">
         <CheckInsTimeline squadsData={squadsData} />
-      </div>
+      </TabsContent>
 
-      <div data-value="clientes" className="space-y-6">
+      <TabsContent value="clientes" className="space-y-6">
         {squadsData.map(squad => (
           <Card key={squad.id}>
             <CardHeader>
@@ -172,9 +173,9 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
             </CardContent>
           </Card>
         ))}
-      </div>
+      </TabsContent>
 
-      <div data-value="relatorios" className="space-y-6">
+      <TabsContent value="relatorios" className="space-y-6">
         <div className="grid gap-6 md:grid-cols-3 mb-6">
           <Card className="border-emerald-500/20 bg-emerald-500/5">
             <CardHeader className="pb-3">
@@ -228,7 +229,7 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
         </div>
 
         <ReportsSection squadsData={squadsData} />
-      </div>
+      </TabsContent>
 
       <EditClientDialog client={editingClient?.client || null} open={!!editingClient} onOpenChange={(open) => !open && setEditingClient(null)} onSave={handleUpdateClient} />
       <SmartGoalDialog client={smartGoalClient?.client || null} open={!!smartGoalClient} onOpenChange={(open) => !open && setSmartGoalClient(null)} onSave={handleSmartGoalSave} />

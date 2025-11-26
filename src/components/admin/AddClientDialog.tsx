@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-interface SquadOption {
+interface Squad {
   id: string;
   name: string;
 }
@@ -26,7 +26,7 @@ export const AddClientDialog = ({ open, onOpenChange, onSuccess }: AddClientDial
   const [status, setStatus] = useState<"ativo" | "aviso_previo" | "churned">("ativo");
   const [healthStatus, setHealthStatus] = useState<"safe" | "care" | "danger">("safe");
   const [notes, setNotes] = useState("");
-  const [squads, setSquads] = useState<SquadOption[]>([]);
+  const [squads, setSquads] = useState<Squad[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingSquads, setLoadingSquads] = useState(true);
 

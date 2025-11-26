@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-interface SquadOption {
+interface Squad {
   id: string;
   name: string;
 }
@@ -34,7 +34,7 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
   const [squadId, setSquadId] = useState("");
   const [status, setStatus] = useState<"ativo" | "aviso_previo" | "churned">("ativo");
   const [healthStatus, setHealthStatus] = useState<"safe" | "care" | "danger">("safe");
-  const [squads, setSquads] = useState<SquadOption[]>([]);
+  const [squads, setSquads] = useState<Squad[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingSquads, setLoadingSquads] = useState(true);
 

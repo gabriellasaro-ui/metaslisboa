@@ -18,7 +18,6 @@ interface Squad {
   name: string;
   slug: string;
   leader_id: string | null;
-  icon?: string | null;
 }
 
 interface EditSquadDialogProps {
