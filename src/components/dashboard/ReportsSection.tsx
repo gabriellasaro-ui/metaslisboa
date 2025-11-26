@@ -103,22 +103,47 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              <CardTitle>Taxa de Cobertura</CardTitle>
-            </div>
+            <CardTitle>Cobertura de Metas</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-4xl font-bold text-emerald-600">{coverageRate}%</div>
             <p className="text-sm text-muted-foreground mt-2">
               {withGoals} de {totalClients} clientes
             </p>
-            <Badge variant={parseFloat(coverageRate) >= 70 ? "default" : "secondary"} className="mt-3">
-              {parseFloat(coverageRate) >= 70 ? "Excelente" : "Em Desenvolvimento"}
-            </Badge>
           </CardContent>
         </Card>
 
+        <Card>
+          <CardHeader>
+            <CardTitle>Taxa de Health Care</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold text-amber-600">
+              {((squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'care').length, 0) / totalClients) * 100 || 0).toFixed(1)}%
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              Clientes em atenção
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Taxa de Health Danger</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold text-red-600">
+              {((squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'danger').length, 0) / totalClients) * 100 || 0).toFixed(1)}%
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              Clientes em risco
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Informações Adicionais */}
+      <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
