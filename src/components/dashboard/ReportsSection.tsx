@@ -101,51 +101,6 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
         </CardContent>
       </Card>
 
-      {/* Insights e Análises */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Taxa de Health Safe</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold text-emerald-600">
-              {((squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'safe').length, 0) / totalClients) * 100 || 0).toFixed(1)}%
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">
-              Clientes seguros
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Taxa de Health Care</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold text-amber-600">
-              {((squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'care').length, 0) / totalClients) * 100 || 0).toFixed(1)}%
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">
-              Clientes em atenção
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Taxa de Health Danger</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold text-red-600">
-              {((squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'danger').length, 0) / totalClients) * 100 || 0).toFixed(1)}%
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">
-              Clientes em risco
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Informações Adicionais */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
