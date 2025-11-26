@@ -13,10 +13,11 @@ import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
 import { WeeklyCheckInForm } from "@/components/dashboard/WeeklyCheckInForm";
 import { ReportsSectionInvestidor } from "@/components/dashboard/ReportsSectionInvestidor";
 import { EditGoalDialog } from "@/components/dashboard/EditGoalDialog";
+import { GoalHistoryDialog } from "@/components/dashboard/GoalHistoryDialog";
 import { GoalsDistributionChart } from "@/components/dashboard/charts/GoalsDistributionChart";
 import { HealthStatusDistributionChart } from "@/components/dashboard/charts/HealthStatusDistributionChart";
 import { WeeklyProgressChart } from "@/components/dashboard/WeeklyProgressChart";
-import { Target, Users, TrendingUp, Calendar, Plus, MessageSquare, Pencil } from "lucide-react";
+import { Target, Users, TrendingUp, Calendar, Plus, MessageSquare, Pencil, History } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -31,6 +32,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
   const [viewingProgress, setViewingProgress] = useState<Client | null>(null);
   const [showCheckInForm, setShowCheckInForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Client | null>(null);
+  const [viewingHistory, setViewingHistory] = useState<Client | null>(null);
   const queryClient = useQueryClient();
 
   // Filtrar apenas o squad do investidor
@@ -214,14 +216,26 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
                             {client.smartGoal.period === 'anual' && '🎯 Anual'}
                           </Badge>
                         )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => setEditingGoal(client)}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0"
+                            onClick={() => setEditingGoal(client)}
+                            title="Editar meta"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0"
+                            onClick={() => setViewingHistory(client)}
+                            title="Ver histórico"
+                          >
+                            <History className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
                       </div>
                       <p className="text-sm text-muted-foreground">{client.smartGoal?.goalValue || client.goalValue || 'Meta não especificada'}</p>
                     </div>
@@ -303,6 +317,12 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
         client={editingGoal}
         open={!!editingGoal}
         onOpenChange={(open) => !open && setEditingGoal(null)}
+      />
+
+      <GoalHistoryDialog
+        client={viewingHistory}
+        open={!!viewingHistory}
+        onOpenChange={(open) => !open && setViewingHistory(null)}
       />
     </NavigationTabs>
   );
