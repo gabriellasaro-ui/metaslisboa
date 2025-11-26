@@ -28,13 +28,24 @@ export const useClientsData = () => {
       let leadersMap = new Map();
       
       if (leaderIds.length > 0) {
-        const { data: leaders } = await supabase
+        const { data: leaders, error: leadersError } = await supabase
           .from("profiles")
           .select("id, name, email")
           .in("id", leaderIds);
         
-        leadersMap = new Map(leaders?.map(l => [l.id, l]) || []);
+        if (!leadersError && leaders) {
+          leadersMap = new Map(leaders.map(l => [l.id, l]));
+        }
       }
+      
+      // Fallback: Map coordenadores por nome do squad
+      const coordenadoresMap: Record<string, string> = {
+        "TIGERS": "Gabriella Cardozo",
+        "STRIKE FORCE": "Pricila",
+        "SHARK": "Victor Alencar",
+        "MIDAS": "Laura Mello Soares",
+        "INTERNACIONAL": "Ronaldo Teixeira Santos"
+      };
 
       // Fetch clients for each squad (RLS automatically filters by squad)
       const { data: clients, error: clientsError } = await supabase
@@ -121,11 +132,12 @@ export const useClientsData = () => {
           });
 
         const leaderData = squad.leader_id ? leadersMap.get(squad.leader_id) : null;
+        const leaderName = leaderData?.name || coordenadoresMap[squad.name] || "Sem Coordenador";
         
         return {
           id: squad.id,
           name: squad.name,
-          leader: leaderData?.name || "Sem Coordenador",
+          leader: leaderName,
           clients: squadClients,
         };
       });
