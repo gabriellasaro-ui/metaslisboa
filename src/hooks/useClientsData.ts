@@ -16,16 +16,24 @@ export const useClientsData = () => {
           id,
           name,
           slug,
-          leader_id,
-          profiles!squads_leader_id_fkey (
-            id,
-            name,
-            email
-          )
+          leader_id
         `)
         .order("name");
 
       if (squadsError) throw squadsError;
+
+      // Fetch all leaders (profiles that are squad leaders)
+      const leaderIds = squads?.map(s => s.leader_id).filter(Boolean) || [];
+      const { data: leaders } = await supabase
+        .from("profiles")
+        .select("id, name, email")
+        .in("id", leaderIds);
+
+      // Create a map of leader data
+      const leadersMap = new Map(leaders?.map(l => [l.id, l]) || []);
+      
+      console.log("Squads data from DB:", squads);
+      console.log("Leaders map:", leadersMap);
 
       // Fetch clients for each squad (RLS automatically filters by squad)
       const { data: clients, error: clientsError } = await supabase
@@ -111,13 +119,17 @@ export const useClientsData = () => {
             } as Client;
           });
 
+        const leaderData = squad.leader_id ? leadersMap.get(squad.leader_id) : null;
+        
         return {
           id: squad.id,
           name: squad.name,
-          leader: squad.profiles?.name || "Sem Coordenador",
+          leader: leaderData?.name || "Sem Coordenador",
           clients: squadClients,
         };
       });
+      
+      console.log("Transformed squads:", transformedSquads);
 
       return transformedSquads;
     },
