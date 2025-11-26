@@ -51,17 +51,19 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
     sum + squad.clients.filter(c => c.hasGoal === 'SIM').length, 0);
   const coverageRate = totalClients > 0 ? ((withGoals / totalClients) * 100).toFixed(1) : '0';
   
-  const bestSquad = squadsData.reduce((best, squad) => {
-    const squadTotal = squad.clients.length;
-    const squadWithGoals = squad.clients.filter(c => c.hasGoal === 'SIM').length;
-    const squadRate = squadTotal > 0 ? (squadWithGoals / squadTotal) * 100 : 0;
-    
-    const bestTotal = best.clients.length;
-    const bestWithGoals = best.clients.filter(c => c.hasGoal === 'SIM').length;
-    const bestRate = bestTotal > 0 ? (bestWithGoals / bestTotal) * 100 : 0;
-    
-    return squadRate > bestRate ? squad : best;
-  });
+  const bestSquad = squadsData.length > 0 
+    ? squadsData.reduce((best, squad) => {
+        const squadTotal = squad.clients.length;
+        const squadWithGoals = squad.clients.filter(c => c.hasGoal === 'SIM').length;
+        const squadRate = squadTotal > 0 ? (squadWithGoals / squadTotal) * 100 : 0;
+        
+        const bestTotal = best.clients.length;
+        const bestWithGoals = best.clients.filter(c => c.hasGoal === 'SIM').length;
+        const bestRate = bestTotal > 0 ? (bestWithGoals / bestTotal) * 100 : 0;
+        
+        return squadRate > bestRate ? squad : best;
+      })
+    : null;
 
   return (
     <div className="space-y-6">
@@ -154,11 +156,17 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{bestSquad.name}</div>
-            <p className="text-sm text-muted-foreground mt-2">Melhor cobertura</p>
-            <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20 mt-3">
-              {typeof bestSquad.leader === 'string' ? bestSquad.leader : bestSquad.leader?.name || 'N/A'}
-            </Badge>
+            {bestSquad ? (
+              <>
+                <div className="text-2xl font-bold">{bestSquad.name}</div>
+                <p className="text-sm text-muted-foreground mt-2">Melhor cobertura</p>
+                <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20 mt-3">
+                  {typeof bestSquad.leader === 'string' ? bestSquad.leader : bestSquad.leader?.name || 'N/A'}
+                </Badge>
+              </>
+            ) : (
+              <p className="text-muted-foreground">Nenhum squad disponível</p>
+            )}
           </CardContent>
         </Card>
 
