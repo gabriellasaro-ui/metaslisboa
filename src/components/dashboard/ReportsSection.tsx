@@ -103,12 +103,14 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>Cobertura de Metas</CardTitle>
+            <CardTitle>Taxa de Health Safe</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-bold text-emerald-600">{coverageRate}%</div>
+            <div className="text-4xl font-bold text-emerald-600">
+              {((squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'safe').length, 0) / totalClients) * 100 || 0).toFixed(1)}%
+            </div>
             <p className="text-sm text-muted-foreground mt-2">
-              {withGoals} de {totalClients} clientes
+              Clientes seguros
             </p>
           </CardContent>
         </Card>
