@@ -8,6 +8,7 @@ export const useClientsData = () => {
   // Fetch squads with their clients from Supabase
   const { data: squadsData = [], isLoading } = useQuery({
     queryKey: ["squads-with-clients"],
+    staleTime: 0, // Force fresh data
     queryFn: async () => {
       // Fetch squads with leader info
       const { data: squads, error: squadsError } = await supabase
@@ -24,16 +25,16 @@ export const useClientsData = () => {
 
       // Fetch all leaders (profiles that are squad leaders)
       const leaderIds = squads?.map(s => s.leader_id).filter(Boolean) || [];
-      const { data: leaders } = await supabase
-        .from("profiles")
-        .select("id, name, email")
-        .in("id", leaderIds);
-
-      // Create a map of leader data
-      const leadersMap = new Map(leaders?.map(l => [l.id, l]) || []);
+      let leadersMap = new Map();
       
-      console.log("Squads data from DB:", squads);
-      console.log("Leaders map:", leadersMap);
+      if (leaderIds.length > 0) {
+        const { data: leaders } = await supabase
+          .from("profiles")
+          .select("id, name, email")
+          .in("id", leaderIds);
+        
+        leadersMap = new Map(leaders?.map(l => [l.id, l]) || []);
+      }
 
       // Fetch clients for each squad (RLS automatically filters by squad)
       const { data: clients, error: clientsError } = await supabase
@@ -128,8 +129,6 @@ export const useClientsData = () => {
           clients: squadClients,
         };
       });
-      
-      console.log("Transformed squads:", transformedSquads);
 
       return transformedSquads;
     },
