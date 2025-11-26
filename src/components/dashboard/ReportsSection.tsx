@@ -195,8 +195,8 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
                       </p>
                     </div>
                     <Badge 
-                      variant={parseFloat(rate) >= 70 ? "default" : "secondary"}
-                      className={`text-lg px-4 py-2 ${parseFloat(rate) >= 70 ? 'bg-primary/10 text-primary border-primary/20' : 'bg-muted text-muted-foreground border-border'}`}
+                      variant="secondary"
+                      className="text-lg px-4 py-2 bg-muted text-foreground border-border"
                     >
                       {rate}%
                     </Badge>
