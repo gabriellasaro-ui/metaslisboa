@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useClientsData } from "@/hooks/useClientsData";
 import { LogOut, User, Info } from "lucide-react";
 import { WelcomeDialog } from "@/components/dashboard/WelcomeDialog";
+import { EditProfileDialog } from "@/components/dashboard/EditProfileDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -12,17 +13,27 @@ import { DashboardSupervisor } from "@/components/dashboard/DashboardSupervisor"
 import { Separator } from "@/components/ui/separator";
 
 const Index = () => {
-  const { profile, role, squadId, isInvestidor, isCoordenador, isSupervisor, signOut } = useAuth();
+  const { profile, role, squadId, isInvestidor, isCoordenador, isSupervisor, signOut, user } = useAuth();
   const { squadsData, updateClient } = useClientsData();
-  const [showWelcome, setShowWelcome] = useState(() => {
-    const hasVisited = localStorage.getItem("dashboard-visited");
-    return !hasVisited;
-  });
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
+
+  // Mostrar welcome dialog apenas no primeiro login
+  useEffect(() => {
+    if (!user?.id) return;
+    
+    const welcomeKey = `welcome-shown-${user.id}`;
+    const hasSeenWelcome = localStorage.getItem(welcomeKey);
+    
+    if (!hasSeenWelcome) {
+      setShowWelcome(true);
+    }
+  }, [user?.id]);
 
   const handleCloseWelcome = (open: boolean) => {
     setShowWelcome(open);
-    if (!open) {
-      localStorage.setItem("dashboard-visited", "true");
+    if (!open && user?.id) {
+      localStorage.setItem(`welcome-shown-${user.id}`, "true");
     }
   };
 
@@ -72,22 +83,25 @@ const Index = () => {
               </p>
             </div>
             <div className="flex items-center gap-4">
-              {/* User Info */}
-              <div className="hidden md:flex items-center gap-3 bg-card/50 border border-border/50 rounded-lg px-4 py-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+              {/* User Info - Clicável para editar perfil */}
+              <button
+                onClick={() => setShowEditProfile(true)}
+                className="hidden md:flex items-center gap-3 bg-card/50 border border-border/50 rounded-lg px-4 py-2 hover:bg-card hover:border-primary/30 transition-all cursor-pointer group"
+              >
+                <Avatar className="h-8 w-8 group-hover:ring-2 group-hover:ring-primary/30 transition-all">
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold group-hover:bg-primary/20">
                     {profile?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'U'}
                   </AvatarFallback>
                 </Avatar>
-                <div className="text-sm">
-                  <p className="font-medium text-foreground">{profile?.name || 'Usuário'}</p>
+                <div className="text-sm text-left">
+                  <p className="font-medium text-foreground group-hover:text-primary transition-colors">{profile?.name || 'Usuário'}</p>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">
                       {role === 'investidor' ? 'Investidor' : role === 'coordenador' ? 'Coordenador' : 'Supervisor'}
                     </Badge>
                   </div>
                 </div>
-              </div>
+              </button>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
@@ -127,6 +141,9 @@ const Index = () => {
 
         {/* Welcome Dialog */}
         <WelcomeDialog open={showWelcome} onOpenChange={handleCloseWelcome} />
+        
+        {/* Edit Profile Dialog */}
+        <EditProfileDialog open={showEditProfile} onOpenChange={setShowEditProfile} />
 
         {/* Dashboard segmentado por role */}
         {renderDashboard()}
