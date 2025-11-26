@@ -17,7 +17,7 @@ export const useClientsData = () => {
           name,
           slug,
           leader_id,
-          profiles (
+          profiles!squads_leader_id_fkey (
             id,
             name,
             email

@@ -41,7 +41,7 @@ export const AdminSquadsList = ({ onUpdate }: AdminSquadsListProps) => {
         .from("squads")
         .select(`
           *,
-          profiles(name)
+          profiles!squads_leader_id_fkey(name)
         `)
         .order("name");
 
