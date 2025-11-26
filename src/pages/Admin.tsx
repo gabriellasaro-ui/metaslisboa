@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { AdminClientsList } from "@/components/admin/AdminClientsList";
 import { AdminSquadsList } from "@/components/admin/AdminSquadsList";
+import { AdminUsersList } from "@/components/admin/AdminUsersList";
 import { AdminStats } from "@/components/admin/AdminStats";
 import { AddClientDialog } from "@/components/admin/AddClientDialog";
 import { AddSquadDialog } from "@/components/admin/AddSquadDialog";
@@ -171,7 +172,7 @@ const Admin = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="clients" className="mt-8">
-          <TabsList className="grid w-full grid-cols-2 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-3 lg:w-auto">
             <TabsTrigger value="clients" className="gap-2">
               <Users className="h-4 w-4" />
               Clientes
@@ -179,6 +180,10 @@ const Admin = () => {
             <TabsTrigger value="squads" className="gap-2">
               <Building2 className="h-4 w-4" />
               Squads
+            </TabsTrigger>
+            <TabsTrigger value="users" className="gap-2">
+              <UserPlus className="h-4 w-4" />
+              Usuários
             </TabsTrigger>
           </TabsList>
 
@@ -226,6 +231,24 @@ const Admin = () => {
               </CardHeader>
               <CardContent>
                 <AdminSquadsList onUpdate={fetchStats} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="users" className="space-y-4 mt-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Gerenciar Usuários</CardTitle>
+                    <CardDescription>
+                      Administre todos os usuários, edite cargos e atribua squads
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <AdminUsersList onUpdate={fetchStats} />
               </CardContent>
             </Card>
           </TabsContent>
