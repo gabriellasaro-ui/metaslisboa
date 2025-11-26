@@ -14,6 +14,9 @@ import { Loader2 } from "lucide-react";
 
 const goalSchema = z.object({
   goalType: z.enum(["Faturamento", "Leads", "OUTROS"] as const),
+  goalPeriod: z.enum(["mensal", "trimestral", "semestral", "anual"] as const, {
+    required_error: "Selecione o período da meta",
+  }),
   goalValue: z.string().trim().min(1, "Descrição da meta é obrigatória").max(500, "Descrição deve ter no máximo 500 caracteres"),
   description: z.string().trim().max(1000, "Descrição adicional deve ter no máximo 1000 caracteres").optional(),
 });
@@ -29,6 +32,7 @@ export const EditGoalDialog = ({ client, open, onOpenChange }: EditGoalDialogPro
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
   const [goalType, setGoalType] = useState<GoalType>("Faturamento");
+  const [goalPeriod, setGoalPeriod] = useState<"mensal" | "trimestral" | "semestral" | "anual">("mensal");
   const [goalValue, setGoalValue] = useState("");
   const [description, setDescription] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -36,6 +40,7 @@ export const EditGoalDialog = ({ client, open, onOpenChange }: EditGoalDialogPro
   useEffect(() => {
     if (client && open) {
       setGoalType(client.smartGoal?.goalType || client.goalType || "Faturamento");
+      setGoalPeriod((client.smartGoal?.period as "mensal" | "trimestral" | "semestral" | "anual") || "mensal");
       setGoalValue(client.smartGoal?.goalValue || client.goalValue || "");
       setDescription(client.smartGoal?.description || "");
     }
@@ -47,6 +52,7 @@ export const EditGoalDialog = ({ client, open, onOpenChange }: EditGoalDialogPro
     try {
       const validatedData = goalSchema.parse({
         goalType,
+        goalPeriod,
         goalValue,
         description,
       });
@@ -84,6 +90,7 @@ export const EditGoalDialog = ({ client, open, onOpenChange }: EditGoalDialogPro
         .from("goals")
         .update({
           goal_type: validatedData.goalType,
+          period: validatedData.goalPeriod,
           goal_value: validatedData.goalValue,
           description: validatedData.description || null,
         })
@@ -165,6 +172,36 @@ export const EditGoalDialog = ({ client, open, onOpenChange }: EditGoalDialogPro
             </Select>
             {errors.goalType && (
               <p className="text-sm text-destructive">{errors.goalType}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="goalPeriod">Período da Meta *</Label>
+            <Select
+              value={goalPeriod}
+              onValueChange={(value: "mensal" | "trimestral" | "semestral" | "anual") => {
+                setGoalPeriod(value);
+                if (errors.goalPeriod) {
+                  setErrors(prev => {
+                    const newErrors = { ...prev };
+                    delete newErrors.goalPeriod;
+                    return newErrors;
+                  });
+                }
+              }}
+            >
+              <SelectTrigger id="goalPeriod" className={errors.goalPeriod ? "border-destructive" : ""}>
+                <SelectValue placeholder="Selecione o período" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mensal">📅 Mensal</SelectItem>
+                <SelectItem value="trimestral">📅 Trimestral (Quarter)</SelectItem>
+                <SelectItem value="semestral">📅 Semestral</SelectItem>
+                <SelectItem value="anual">📅 Anual</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.goalPeriod && (
+              <p className="text-sm text-destructive">{errors.goalPeriod}</p>
             )}
           </div>
 
