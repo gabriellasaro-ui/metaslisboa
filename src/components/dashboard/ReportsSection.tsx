@@ -181,15 +181,23 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
                     <div className="space-y-1">
                       <h4 className="font-semibold text-lg">{squad.name}</h4>
                       <p className="text-sm text-muted-foreground">
-                        {typeof squad.leader === 'string' ? squad.leader : squad.leader?.name || 'Sem líder'}
+                        {typeof squad.leader === 'string' ? squad.leader : squad.leader?.name || 'Sem coordenador'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Total: {total} cliente{total !== 1 ? 's' : ''}
                       </p>
                     </div>
-                    <Badge 
-                      variant="secondary"
-                      className="text-lg px-4 py-2 bg-muted text-foreground border-border"
-                    >
-                      {rate}%
-                    </Badge>
+                    <div className="text-right">
+                      <Badge 
+                        variant="secondary"
+                        className="text-2xl px-4 py-2 bg-muted text-foreground border-border"
+                      >
+                        {rate}%
+                      </Badge>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Cobertura de Metas
+                      </p>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
