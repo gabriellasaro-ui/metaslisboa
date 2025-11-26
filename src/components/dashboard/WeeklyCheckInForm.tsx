@@ -156,9 +156,20 @@ export const WeeklyCheckInForm = ({
                   <span className="font-semibold">{selectedClient.squad?.leader?.name}</span>
                 </div>
                 {selectedClient.goals && selectedClient.goals.length > 0 ? (
-                  <div className="mt-2 pt-2 border-t border-border/30">
-                    <p className="text-xs text-muted-foreground mb-1">Meta Atual:</p>
-                    <p className="text-sm font-medium break-words">{selectedClient.goals[0].goal_value}</p>
+                  <div className="mt-2 pt-2 border-t border-border/30 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-muted-foreground">Período da Meta:</p>
+                      <span className="inline-flex items-center rounded-md bg-indigo-500/10 px-2 py-1 text-xs font-medium text-indigo-700 dark:text-indigo-400 border border-indigo-500/20">
+                        {selectedClient.goals[0].period === "mensal" && "📅 Mensal"}
+                        {selectedClient.goals[0].period === "trimestral" && "📅 Trimestral"}
+                        {selectedClient.goals[0].period === "semestral" && "📅 Semestral"}
+                        {selectedClient.goals[0].period === "anual" && "📅 Anual"}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Meta Atual:</p>
+                      <p className="text-sm font-medium break-words">{selectedClient.goals[0].goal_value}</p>
+                    </div>
                   </div>
                 ) : (
                   <div className="mt-2 pt-2 border-t border-border/30">
