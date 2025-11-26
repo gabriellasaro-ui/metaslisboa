@@ -12,10 +12,11 @@ import { CheckInsTimeline } from "@/components/dashboard/CheckInsTimeline";
 import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
 import { WeeklyCheckInForm } from "@/components/dashboard/WeeklyCheckInForm";
 import { ReportsSectionInvestidor } from "@/components/dashboard/ReportsSectionInvestidor";
+import { EditGoalDialog } from "@/components/dashboard/EditGoalDialog";
 import { GoalsDistributionChart } from "@/components/dashboard/charts/GoalsDistributionChart";
 import { HealthStatusDistributionChart } from "@/components/dashboard/charts/HealthStatusDistributionChart";
 import { WeeklyProgressChart } from "@/components/dashboard/WeeklyProgressChart";
-import { Target, Users, TrendingUp, Calendar, Plus, MessageSquare } from "lucide-react";
+import { Target, Users, TrendingUp, Calendar, Plus, MessageSquare, Pencil } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -29,6 +30,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
   const [checkInClient, setCheckInClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
   const [viewingProgress, setViewingProgress] = useState<Client | null>(null);
   const [showCheckInForm, setShowCheckInForm] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<Client | null>(null);
   const queryClient = useQueryClient();
 
   // Filtrar apenas o squad do investidor
@@ -197,7 +199,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
                 .filter(c => c.hasGoal === "SIM")
                 .sort((a, b) => (b.progress || 0) - (a.progress || 0))
                 .map(client => (
-                  <div key={client.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div key={client.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors group">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <p className="font-semibold">{client.name}</p>
@@ -212,6 +214,14 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
                             {client.smartGoal.period === 'anual' && '🎯 Anual'}
                           </Badge>
                         )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => setEditingGoal(client)}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
                       </div>
                       <p className="text-sm text-muted-foreground">{client.smartGoal?.goalValue || client.goalValue || 'Meta não especificada'}</p>
                     </div>
@@ -288,6 +298,12 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
           )}
         </DialogContent>
       </Dialog>
+
+      <EditGoalDialog
+        client={editingGoal}
+        open={!!editingGoal}
+        onOpenChange={(open) => !open && setEditingGoal(null)}
+      />
     </NavigationTabs>
   );
 };
