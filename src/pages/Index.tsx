@@ -12,9 +12,10 @@ import { DashboardInvestidor } from "@/components/dashboard/DashboardInvestidor"
 import { DashboardCoordenador } from "@/components/dashboard/DashboardCoordenador";
 import { DashboardSupervisor } from "@/components/dashboard/DashboardSupervisor";
 import { Separator } from "@/components/ui/separator";
+import { ForcePasswordChange } from "@/components/auth/ForcePasswordChange";
 
 const Index = () => {
-  const { profile, role, squadId, isInvestidor, isCoordenador, isSupervisor, signOut, user } = useAuth();
+  const { profile, role, squadId, isInvestidor, isCoordenador, isSupervisor, signOut, user, mustChangePassword, refreshProfile } = useAuth();
   const { squadsData, updateClient } = useClientsData();
   const [showWelcome, setShowWelcome] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -143,6 +144,14 @@ const Index = () => {
 
         {/* Onboarding de Líderes */}
         {isSupervisor && <LeadersOnboarding />}
+
+        {/* Force Password Change */}
+        {mustChangePassword && profile && (
+          <ForcePasswordChange
+            userId={profile.id}
+            onPasswordChanged={refreshProfile}
+          />
+        )}
 
         {/* Welcome Dialog */}
         <WelcomeDialog open={showWelcome} onOpenChange={handleCloseWelcome} />

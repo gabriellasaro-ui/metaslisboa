@@ -8,6 +8,7 @@ interface Profile {
   email: string;
   squad_id: string | null;
   avatar_url: string | null;
+  must_change_password: boolean | null;
 }
 
 interface AuthContextType {
@@ -20,7 +21,9 @@ interface AuthContextType {
   isCoordenador: boolean;
   isSupervisor: boolean;
   isLoading: boolean;
+  mustChangePassword: boolean;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -105,6 +108,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setRole(null);
   };
 
+  const refreshProfile = async () => {
+    if (user) {
+      await fetchUserData(user.id);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     session,
@@ -115,7 +124,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isCoordenador: role === 'coordenador',
     isSupervisor: role === 'supervisor',
     isLoading,
+    mustChangePassword: profile?.must_change_password ?? false,
     signOut,
+    refreshProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
