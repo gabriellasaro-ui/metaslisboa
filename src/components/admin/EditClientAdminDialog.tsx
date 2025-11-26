@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Squad {
   id: string;
@@ -30,6 +31,7 @@ interface EditClientAdminDialogProps {
 }
 
 export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }: EditClientAdminDialogProps) => {
+  const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [squadId, setSquadId] = useState("");
   const [status, setStatus] = useState<"ativo" | "aviso_previo" | "churned">("ativo");
@@ -95,6 +97,9 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
 
       if (error) throw error;
 
+      // Invalida cache para atualizar todas as telas
+      queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] });
+      
       toast.success("Cliente atualizado com sucesso!");
       onSuccess();
       onOpenChange(false);

@@ -125,7 +125,7 @@ export const ClientsTable = ({
                   <TableCell className="font-medium">{client.name}</TableCell>
                   <TableCell>{getClientStatusBadge(client.status)}</TableCell>
                   <TableCell>
-                    <HealthStatusBadge status={(client as any).health_status || 'safe'} />
+                    <HealthStatusBadge status={client.healthStatus || 'safe'} />
                   </TableCell>
                   <TableCell>{getGoalStatusBadge(client.hasGoal)}</TableCell>
                   <TableCell>{getGoalTypeBadge(client.goalType)}</TableCell>

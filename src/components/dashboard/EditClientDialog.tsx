@@ -7,6 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Client, GoalStatus, GoalType } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 const clientSchema = z.object({
   name: z.string().trim().min(1, "Nome é obrigatório").max(100, "Nome deve ter no máximo 100 caracteres"),
@@ -24,6 +27,8 @@ interface EditClientDialogProps {
 
 export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditClientDialogProps) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<Client>(
     client || {
       name: "",
@@ -32,7 +37,7 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
@@ -43,6 +48,64 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
         validatedData.goalType = undefined;
         validatedData.goalValue = undefined;
       }
+
+      setLoading(true);
+
+      // Buscar o cliente no banco para obter o ID
+      const { data: clientData, error: clientError } = await supabase
+        .from("clients")
+        .select("id")
+        .eq("name", client?.name)
+        .single();
+
+      if (clientError) throw clientError;
+
+      // Atualizar o cliente no Supabase
+      const { error: updateError } = await supabase
+        .from("clients")
+        .update({
+          name: validatedData.name,
+        })
+        .eq("id", clientData.id);
+
+      if (updateError) throw updateError;
+
+      // Atualizar ou criar a meta se necessário
+      if (validatedData.hasGoal === "SIM" || validatedData.hasGoal === "NAO_DEFINIDO") {
+        const goalStatus = validatedData.hasGoal === "SIM" ? "em_andamento" : "nao_definida";
+        
+        const { data: existingGoal } = await supabase
+          .from("goals")
+          .select("id")
+          .eq("client_id", clientData.id)
+          .single();
+
+        if (existingGoal) {
+          // Atualizar meta existente
+          await supabase
+            .from("goals")
+            .update({
+              goal_type: validatedData.goalType || "OUTROS",
+              goal_value: validatedData.goalValue || "",
+              status: goalStatus,
+            })
+            .eq("id", existingGoal.id);
+        } else {
+          // Criar nova meta
+          await supabase
+            .from("goals")
+            .insert({
+              client_id: clientData.id,
+              goal_type: validatedData.goalType || "OUTROS",
+              goal_value: validatedData.goalValue || "",
+              status: goalStatus,
+              progress: 0,
+            });
+        }
+      }
+
+      // Invalidar cache
+      queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] });
       
       onSave(validatedData as Client);
       toast({
@@ -65,7 +128,16 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
           description: "Por favor, corrija os erros no formulário.",
           variant: "destructive",
         });
+      } else {
+        console.error("Error updating client:", error);
+        toast({
+          title: "Erro ao atualizar",
+          description: "Não foi possível atualizar o cliente.",
+          variant: "destructive",
+        });
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -184,10 +256,12 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              disabled={loading}
             >
               Cancelar
             </Button>
-            <Button type="submit" variant="premium">
+            <Button type="submit" variant="premium" disabled={loading}>
+              {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Salvar Alterações
             </Button>
           </div>
