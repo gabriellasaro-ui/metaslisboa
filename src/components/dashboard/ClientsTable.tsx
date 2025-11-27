@@ -12,7 +12,6 @@ interface ClientsTableProps {
   filterStatus?: "all" | GoalStatus;
   filterGoalType?: "all" | GoalType;
   onEditClient?: (client: Client, index: number) => void;
-  onDefineSmartGoal?: (client: Client, index: number) => void;
   onViewProgress?: (client: Client) => void;
   showActions?: boolean;
 }
@@ -93,7 +92,6 @@ export const ClientsTable = ({
   filterStatus = "all", 
   filterGoalType = "all",
   onEditClient,
-  onDefineSmartGoal,
   onViewProgress,
   showActions = true 
 }: ClientsTableProps) => {
@@ -186,16 +184,16 @@ export const ClientsTable = ({
                             Check-ins
                           </Button>
                         )}
-                        {(client.hasGoal === "NAO_DEFINIDO" || client.hasGoal === "NAO") && (
+                        {(isCoordenador || isSupervisor) && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => onDefineSmartGoal?.(client, originalIndex)}
-                            className="h-8 px-2 hover:bg-emerald-500/10 hover:text-emerald-600 hover:border hover:border-emerald-500/20"
-                            title="Definir Meta SMART"
+                            onClick={() => onEditClient?.(client, originalIndex)}
+                            className="h-8 px-2 hover:bg-primary/10 hover:text-primary"
+                            title="Editar cliente"
                           >
-                            <Sparkles className="h-4 w-4 mr-1" />
-                            SMART
+                            <Pencil className="h-4 w-4 mr-1" />
+                            Editar
                           </Button>
                         )}
                         {canEdit && (
