@@ -54,7 +54,7 @@ export const AdminUsersList = ({ onUpdate }: AdminUsersListProps) => {
           name,
           email,
           squad_id,
-          squads(name)
+          squads!profiles_squad_id_fkey(name)
         `)
         .order("name");
 
