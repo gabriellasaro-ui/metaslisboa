@@ -188,8 +188,8 @@ export const AdminUsersList = ({ onUpdate }: AdminUsersListProps) => {
 
   return (
     <>
-      <div className="mb-4">
-        <div className="relative">
+      <div className="mb-4 flex gap-2">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Buscar por nome, email ou squad..."
@@ -198,6 +198,13 @@ export const AdminUsersList = ({ onUpdate }: AdminUsersListProps) => {
             className="pl-9"
           />
         </div>
+        <Button 
+          variant="outline" 
+          onClick={fetchUsers}
+          disabled={loading}
+        >
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Atualizar"}
+        </Button>
       </div>
       
       <div className="border rounded-lg">
