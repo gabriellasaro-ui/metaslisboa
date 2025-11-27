@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Client, Squad } from "@/types";
 import { MetricsCard } from "@/components/dashboard/MetricsCard";
 import { ClientsTable } from "@/components/dashboard/ClientsTable";
-import { CheckInsTimeline } from "@/components/dashboard/CheckInsTimeline";
+import { WeeklyCheckInsTimeline } from "@/components/dashboard/WeeklyCheckInsTimeline";
 import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
 import { WeeklyCheckInForm } from "@/components/dashboard/WeeklyCheckInForm";
 import { ReportsSectionInvestidor } from "@/components/dashboard/ReportsSectionInvestidor";
@@ -255,7 +255,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
 
       {/* Check-ins */}
       <TabsContent value="check-ins" className="space-y-6">
-        <CheckInsTimeline squadsData={mySquad ? [mySquad] : []} />
+        <WeeklyCheckInsTimeline squadFilter={squadId || undefined} />
       </TabsContent>
 
       {/* Clientes */}
@@ -295,7 +295,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
                 <h2 className="text-2xl font-bold">{viewingProgress.name}</h2>
                 <p className="text-muted-foreground">Histórico de Check-ins</p>
               </div>
-              <CheckInsTimeline squadsData={mySquad ? [mySquad] : []} />
+              <WeeklyCheckInsTimeline clientId={viewingProgress.id} />
             </>
           )}
         </DialogContent>
