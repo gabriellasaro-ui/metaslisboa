@@ -143,7 +143,11 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
       <SelectTrigger className="w-full h-11 bg-background border-border hover:bg-accent/50 transition-colors">
         <SelectValue placeholder={isLoading ? "Carregando clientes..." : placeholder} />
       </SelectTrigger>
-      <SelectContent className="w-[420px] max-h-[440px] bg-background border-border shadow-xl z-[100]">
+      <SelectContent 
+        className="w-[420px] max-h-[420px] bg-background border-border shadow-xl z-[100] overflow-auto"
+        position="popper"
+        sideOffset={5}
+      >
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -155,27 +159,27 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
             <p className="text-xs text-muted-foreground">Clientes precisam ter meta definida</p>
           </div>
         ) : (
-          <div className="py-2">
+          <div className="p-1">
             {Object.entries(squads).map(([squadName, squadClients]) => (
-              <SelectGroup key={squadName} className="mb-1">
-                <SelectLabel className="flex items-center gap-2 px-3 py-1.5 mb-1 text-[11px] font-bold text-muted-foreground uppercase tracking-wider bg-background">
+              <SelectGroup key={squadName} className="mb-2">
+                <SelectLabel className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
                   <Building2 className="h-3 w-3" />
                   <span>{squadName}</span>
                   <Badge variant="outline" className="ml-auto text-[10px] h-4 px-1.5 font-normal">
                     {squadClients.length}
                   </Badge>
                 </SelectLabel>
-                <div className="space-y-0.5">
+                <div className="space-y-1">
                   {squadClients.map((client) => (
                     <SelectItem 
                       key={client.id} 
                       value={client.id}
-                      className="cursor-pointer mx-1 px-2 py-2 rounded hover:bg-accent/80 focus:bg-accent data-[state=checked]:bg-accent"
+                      className="cursor-pointer px-2 py-3 rounded hover:bg-accent/80 focus:bg-accent data-[state=checked]:bg-accent"
                     >
                       <div className="flex items-center gap-2 w-full">
                         <Users className="h-3.5 w-3.5 text-primary flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 mb-0.5">
+                          <div className="flex items-center gap-1.5 mb-1">
                             <span className="font-medium text-sm truncate">{client.name}</span>
                             {client.status === "aviso_previo" && (
                               <Badge className="text-[9px] h-4 px-1 bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border-yellow-500/30">
