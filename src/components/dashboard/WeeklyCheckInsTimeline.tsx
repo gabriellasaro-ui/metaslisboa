@@ -65,7 +65,17 @@ export const WeeklyCheckInsTimeline = ({
   const [clients, setClients] = useState<Array<{id: string, name: string}>>([]);
 
   const canDeleteCheckIn = (checkInCreatedBy: string) => {
-    return checkInCreatedBy === user?.id || isCoordenador || isSupervisor;
+    console.log("🔍 DEBUG - Verificando permissão de exclusão:");
+    console.log("  - created_by do check-in:", checkInCreatedBy);
+    console.log("  - user?.id atual:", user?.id);
+    console.log("  - São iguais?", checkInCreatedBy === user?.id);
+    console.log("  - É coordenador?", isCoordenador);
+    console.log("  - É supervisor?", isSupervisor);
+    
+    const canDelete = checkInCreatedBy === user?.id || isCoordenador || isSupervisor;
+    console.log("  - Pode deletar?", canDelete);
+    
+    return canDelete;
   };
 
   useEffect(() => {
@@ -187,13 +197,21 @@ export const WeeklyCheckInsTimeline = ({
   };
 
   const handleDeleteCheckIn = async (id: string) => {
+    console.log("🗑️ Tentando excluir check-in:", id);
+    
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("check_ins")
         .delete()
-        .eq("id", id);
+        .eq("id", id)
+        .select();
 
-      if (error) throw error;
+      console.log("📤 Resultado da exclusão:", { data, error });
+
+      if (error) {
+        console.error("❌ Erro RLS ou de permissão:", error);
+        throw error;
+      }
 
       toast.success("Check-in excluído!", {
         description: "O registro foi removido com sucesso.",
@@ -202,9 +220,9 @@ export const WeeklyCheckInsTimeline = ({
       // Atualizar lista
       fetchCheckIns();
     } catch (error: any) {
-      console.error("Erro ao excluir check-in:", error);
+      console.error("❌ Erro ao excluir check-in:", error);
       toast.error("Erro ao excluir check-in", {
-        description: error.message || "Tente novamente",
+        description: error.message || "Você não tem permissão para excluir este check-in",
       });
     } finally {
       setDeleteCheckInId(null);
