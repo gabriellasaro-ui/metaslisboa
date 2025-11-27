@@ -143,67 +143,44 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
       <SelectTrigger className="w-full h-11 bg-background border-border hover:bg-accent/50 transition-colors">
         <SelectValue placeholder={isLoading ? "Carregando clientes..." : placeholder} />
       </SelectTrigger>
-      <SelectContent 
-        className="w-[420px] max-h-[420px] bg-background border-border shadow-xl z-[100] overflow-auto"
-        position="popper"
-        sideOffset={5}
-      >
+      <SelectContent className="max-h-[400px] bg-background border-border shadow-xl">
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : Object.keys(squads).length === 0 ? (
-          <div className="p-6 text-center space-y-2">
-            <AlertCircle className="h-10 w-10 mx-auto text-muted-foreground" />
+          <div className="p-6 text-center">
+            <AlertCircle className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
             <p className="font-medium text-sm">Nenhum cliente disponível</p>
             <p className="text-xs text-muted-foreground">Clientes precisam ter meta definida</p>
           </div>
         ) : (
-          <div className="p-1">
+          <>
             {Object.entries(squads).map(([squadName, squadClients]) => (
-              <SelectGroup key={squadName} className="mb-2">
-                <SelectLabel className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                  <Building2 className="h-3 w-3" />
-                  <span>{squadName}</span>
-                  <Badge variant="outline" className="ml-auto text-[10px] h-4 px-1.5 font-normal">
-                    {squadClients.length}
-                  </Badge>
+              <SelectGroup key={squadName}>
+                <SelectLabel className="text-xs font-bold text-muted-foreground">
+                  {squadName} ({squadClients.length})
                 </SelectLabel>
-                <div className="space-y-1">
-                  {squadClients.map((client) => (
-                    <SelectItem 
-                      key={client.id} 
-                      value={client.id}
-                      className="cursor-pointer px-2 py-3 rounded hover:bg-accent/80 focus:bg-accent data-[state=checked]:bg-accent"
-                    >
-                      <div className="flex items-center gap-2 w-full">
-                        <Users className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <span className="font-medium text-sm truncate">{client.name}</span>
-                            {client.status === "aviso_previo" && (
-                              <Badge className="text-[9px] h-4 px-1 bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border-yellow-500/30">
-                                Aviso
-                              </Badge>
-                            )}
-                          </div>
-                          {client.goals && client.goals.length > 0 && (
-                            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                              <Target className="h-3 w-3" />
-                              <span className="truncate">{client.goals[0].goal_type} - {client.goals[0].period}</span>
-                              <Badge variant="secondary" className="ml-auto text-[9px] h-3.5 px-1">
-                                {client.goals.length}
-                              </Badge>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </div>
+                {squadClients.map((client) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{client.name}</span>
+                      {client.status === "aviso_previo" && (
+                        <Badge className="text-[9px] h-4 px-1 bg-yellow-500/20 text-yellow-700 dark:text-yellow-300">
+                          Aviso
+                        </Badge>
+                      )}
+                      {client.goals && client.goals.length > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          • {client.goals[0].goal_type} - {client.goals[0].period}
+                        </span>
+                      )}
+                    </div>
+                  </SelectItem>
+                ))}
               </SelectGroup>
             ))}
-          </div>
+          </>
         )}
       </SelectContent>
     </Select>
