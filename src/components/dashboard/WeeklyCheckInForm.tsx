@@ -90,6 +90,13 @@ export const WeeklyCheckInForm = ({
 
       console.log("👤 Usuário autenticado:", userId);
 
+      if (!userId) {
+        toast.error("Erro de autenticação", {
+          description: "Não foi possível identificar o usuário",
+        });
+        return;
+      }
+
       const goalId = selectedClient.goals && selectedClient.goals.length > 0 
         ? selectedClient.goals[0].id 
         : null;
@@ -104,7 +111,7 @@ export const WeeklyCheckInForm = ({
         comment: comment.trim(),
         call_summary: callSummary?.trim() || null,
         call_link: callLink?.trim() || null,
-        created_by: userId || null,
+        created_by: userId, // CORRIGIDO: agora usa o UUID do usuário
       };
 
       console.log("📤 Dados do check-in a serem inseridos:", checkInData);
