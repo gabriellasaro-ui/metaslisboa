@@ -53,6 +53,12 @@ export const WeeklyCheckInForm = ({
   };
 
   const handleSubmit = async () => {
+    console.log("🔍 DEBUG - handleSubmit chamado");
+    console.log("📋 Cliente selecionado:", selectedClient);
+    console.log("📊 Progresso:", progress);
+    console.log("⚡ Status:", status);
+    console.log("💬 Comentário:", comment);
+    
     if (!selectedClient) {
       toast.error("Cliente não selecionado", {
         description: "Selecione um cliente antes de continuar",
@@ -67,39 +73,77 @@ export const WeeklyCheckInForm = ({
       return;
     }
 
+    // Validação de progresso
+    if (progress < 0 || progress > 100) {
+      toast.error("Progresso inválido", {
+        description: "O progresso deve estar entre 0 e 100",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
+      // Obter usuário autenticado
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id;
+
+      console.log("👤 Usuário autenticado:", userId);
+
       const goalId = selectedClient.goals && selectedClient.goals.length > 0 
         ? selectedClient.goals[0].id 
         : null;
 
-      // 1. Inserir check-in
-      const { error: checkInError } = await supabase.from("check_ins").insert({
+      console.log("🎯 Goal ID:", goalId);
+
+      const checkInData = {
         client_id: selectedClient.id,
         goal_id: goalId,
         progress: progress,
         status: status,
-        comment: comment,
-        call_summary: callSummary || null,
-        call_link: callLink || null,
-        created_by: "Sistema", // TODO: substituir por usuário autenticado
-      });
+        comment: comment.trim(),
+        call_summary: callSummary?.trim() || null,
+        call_link: callLink?.trim() || null,
+        created_by: userId || null,
+      };
 
-      if (checkInError) throw checkInError;
+      console.log("📤 Dados do check-in a serem inseridos:", checkInData);
+
+      // 1. Inserir check-in
+      const { data: checkInResult, error: checkInError } = await supabase
+        .from("check_ins")
+        .insert(checkInData)
+        .select();
+
+      if (checkInError) {
+        console.error("❌ Erro ao inserir check-in:", checkInError);
+        throw checkInError;
+      }
+
+      console.log("✅ Check-in inserido com sucesso:", checkInResult);
 
       // 2. Atualizar progresso da meta (se existir)
       if (goalId) {
-        const { error: goalError } = await supabase
-          .from("goals")
-          .update({
-            progress: progress,
-            status: progress === 100 ? "concluida" : "em_andamento",
-            completed_date: progress === 100 ? new Date().toISOString() : null,
-          })
-          .eq("id", goalId);
+        const goalUpdate = {
+          progress: progress,
+          status: (progress === 100 ? "concluida" : "em_andamento") as "concluida" | "em_andamento" | "nao_definida" | "cancelada",
+          completed_date: progress === 100 ? new Date().toISOString() : null,
+        };
 
-        if (goalError) throw goalError;
+        console.log("📤 Atualizando meta:", goalUpdate);
+
+        const { data: goalResult, error: goalError } = await supabase
+          .from("goals")
+          .update(goalUpdate)
+          .eq("id", goalId)
+          .select();
+
+        if (goalError) {
+          console.error("❌ Erro ao atualizar meta:", goalError);
+          throw goalError;
+        }
+
+        console.log("✅ Meta atualizada com sucesso:", goalResult);
       }
 
       toast.success("Check-in registrado!", {
@@ -120,7 +164,7 @@ export const WeeklyCheckInForm = ({
         onSuccess();
       }
     } catch (error: any) {
-      console.error("Erro ao registrar check-in:", error);
+      console.error("❌ Erro geral ao registrar check-in:", error);
       toast.error("Erro ao registrar check-in", {
         description: error.message || "Tente novamente",
       });
