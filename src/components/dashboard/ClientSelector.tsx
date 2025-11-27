@@ -139,7 +139,7 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
   };
 
   return (
-    <Select value={value || undefined} onValueChange={handleChange}>
+    <Select value={value || ""} onValueChange={handleChange}>
       <SelectTrigger className="w-full h-11 bg-background border-border hover:bg-accent/50 transition-colors">
         <SelectValue placeholder={isLoading ? "Carregando clientes..." : placeholder} />
       </SelectTrigger>
