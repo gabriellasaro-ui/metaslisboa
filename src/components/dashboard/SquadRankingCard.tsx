@@ -39,27 +39,34 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
   const getRankIcon = (index: number) => {
     switch (index) {
       case 0:
-        return <Trophy className="h-5 w-5 text-amber-500" />;
+        return <Trophy className="h-6 w-6" />;
       case 1:
-        return <Award className="h-5 w-5 text-slate-400" />;
+        return <Award className="h-6 w-6" />;
       case 2:
-        return <Shield className="h-5 w-5 text-amber-700" />;
+        return <Shield className="h-6 w-6" />;
       default:
-        return <Target className="h-5 w-5 text-muted-foreground" />;
+        return <Target className="h-5 w-5" />;
     }
   };
 
   const getRankBadge = (index: number) => {
+    const position = index + 1;
     switch (index) {
       case 0:
-        return <Badge className="bg-amber-500 hover:bg-amber-600">🥇 1º Lugar</Badge>;
+        return <Badge variant="default" className="font-semibold">🥇 1º</Badge>;
       case 1:
-        return <Badge className="bg-slate-400 hover:bg-slate-500">🥈 2º Lugar</Badge>;
+        return <Badge variant="secondary" className="font-semibold">🥈 2º</Badge>;
       case 2:
-        return <Badge className="bg-amber-700 hover:bg-amber-800">🥉 3º Lugar</Badge>;
+        return <Badge variant="secondary" className="font-semibold">🥉 3º</Badge>;
       default:
-        return <Badge variant="outline">#{index + 1}</Badge>;
+        return <Badge variant="outline" className="font-medium">#{position}</Badge>;
     }
+  };
+
+  const getCardClass = (index: number) => {
+    if (index === 0) return "border-primary bg-primary/5";
+    if (index <= 2) return "border-border bg-card";
+    return "border-border bg-muted/30";
   };
 
   return (
@@ -71,69 +78,89 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
         </CardTitle>
         <CardDescription>Performance comparativa por cobertura de metas</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         {squadStats.map((squad, index) => (
-          <div key={squad.id} className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-border flex items-center justify-center">
+          <Card key={squad.id} className={`${getCardClass(index)} transition-all hover:shadow-md`}>
+            <CardContent className="p-4 space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className={`flex-shrink-0 h-14 w-14 rounded-xl flex items-center justify-center ${
+                    index === 0 ? 'bg-primary/10 text-primary' : 
+                    index <= 2 ? 'bg-secondary/50 text-secondary-foreground' : 
+                    'bg-muted text-muted-foreground'
+                  }`}>
                     {getRankIcon(index)}
                   </div>
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-semibold">{squad.name}</h4>
-                    {getRankBadge(index)}
-                  </div>
-                  {squad.leader && (
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <Avatar className="h-4 w-4 border border-border">
-                        <AvatarImage src={squad.leader.avatar} alt={squad.leader.name} />
-                        <AvatarFallback className="text-[8px]">{squad.leader.name[0]}</AvatarFallback>
-                      </Avatar>
-                      <p className="text-xs text-muted-foreground">
-                        Líder: {squad.leader.name}
-                      </p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      {getRankBadge(index)}
+                      <h4 className="font-semibold text-base truncate">{squad.name}</h4>
                     </div>
-                  )}
+                    {squad.leader && (
+                      <div className="flex items-center gap-1.5">
+                        <Avatar className="h-4 w-4 border border-border">
+                          <AvatarImage src={squad.leader.avatar} alt={squad.leader.name} />
+                          <AvatarFallback className="text-[8px]">{squad.leader.name[0]}</AvatarFallback>
+                        </Avatar>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {squad.leader.name}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex-shrink-0 text-right">
+                  <div className={`text-3xl font-bold ${
+                    index === 0 ? 'text-primary' : 'text-foreground'
+                  }`}>
+                    {squad.points}
+                  </div>
+                  <div className="text-xs text-muted-foreground font-medium">pontos</div>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold">{squad.points}</div>
-                <div className="text-xs text-muted-foreground">Pontos</div>
-              </div>
-            </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Progresso de Metas</span>
-                <span className="font-medium">{squad.withGoals}/{squad.total}</span>
+              <div className="space-y-2">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-sm text-muted-foreground">Cobertura de Metas</span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-sm font-bold">{squad.withGoals}</span>
+                    <span className="text-xs text-muted-foreground">de {squad.total}</span>
+                    <span className="text-xs font-medium text-muted-foreground ml-1">
+                      ({Math.round(squad.coverageRate)}%)
+                    </span>
+                  </div>
+                </div>
+                <Progress value={squad.coverageRate} className="h-2" />
               </div>
-              <Progress value={squad.coverageRate} className="h-2" />
-            </div>
 
-            <div className="grid grid-cols-3 gap-2 text-center pt-2 border-t">
-              <div>
-                <div className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
-                  {squad.withGoals}
+              <div className="grid grid-cols-3 gap-3 pt-2 border-t border-border/50">
+                <div className="text-center space-y-1">
+                  <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                    {squad.withGoals}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground uppercase font-medium tracking-wide">
+                    Com Meta
+                  </div>
                 </div>
-                <div className="text-xs text-muted-foreground">Com Meta</div>
-              </div>
-              <div>
-                <div className="text-lg font-semibold text-amber-600 dark:text-amber-400">
-                  {squad.pending}
+                <div className="text-center space-y-1 border-x border-border/50">
+                  <div className="text-xl font-bold text-amber-600 dark:text-amber-400">
+                    {squad.pending}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground uppercase font-medium tracking-wide">
+                    A Definir
+                  </div>
                 </div>
-                <div className="text-xs text-muted-foreground">A Definir</div>
-              </div>
-              <div>
-                <div className="text-lg font-semibold text-gray-600 dark:text-gray-400">
-                  {squad.withoutGoals}
+                <div className="text-center space-y-1">
+                  <div className="text-xl font-bold text-destructive">
+                    {squad.withoutGoals}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground uppercase font-medium tracking-wide">
+                    Sem Meta
+                  </div>
                 </div>
-                <div className="text-xs text-muted-foreground">Sem Meta</div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ))}
       </CardContent>
     </Card>
