@@ -155,46 +155,48 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
             <p className="text-xs text-muted-foreground">Clientes precisam ter meta definida</p>
           </div>
         ) : (
-          <div className="py-1">
+          <div className="py-2">
             {Object.entries(squads).map(([squadName, squadClients]) => (
-              <SelectGroup key={squadName}>
-                <SelectLabel className="flex items-center gap-2 px-3 py-2 text-xs font-semibold bg-muted/50 sticky top-0 z-10">
-                  <Building2 className="h-3.5 w-3.5" />
+              <SelectGroup key={squadName} className="mb-1">
+                <SelectLabel className="flex items-center gap-2 px-3 py-1.5 mb-1 text-[11px] font-bold text-muted-foreground uppercase tracking-wider bg-background">
+                  <Building2 className="h-3 w-3" />
                   <span>{squadName}</span>
-                  <Badge variant="outline" className="ml-auto text-[10px] h-4 px-1.5">
+                  <Badge variant="outline" className="ml-auto text-[10px] h-4 px-1.5 font-normal">
                     {squadClients.length}
                   </Badge>
                 </SelectLabel>
-                {squadClients.map((client) => (
-                  <SelectItem 
-                    key={client.id} 
-                    value={client.id}
-                    className="cursor-pointer px-3 py-2.5 focus:bg-accent/80 data-[state=checked]:bg-accent"
-                  >
-                    <div className="flex items-center gap-2.5 w-full">
-                      <Users className="h-4 w-4 text-primary flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          <span className="font-medium text-sm truncate">{client.name}</span>
-                          {client.status === "aviso_previo" && (
-                            <Badge className="text-[9px] h-4 px-1 bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border-yellow-500/30">
-                              Aviso
-                            </Badge>
+                <div className="space-y-0.5">
+                  {squadClients.map((client) => (
+                    <SelectItem 
+                      key={client.id} 
+                      value={client.id}
+                      className="cursor-pointer mx-1 px-2 py-2 rounded hover:bg-accent/80 focus:bg-accent data-[state=checked]:bg-accent"
+                    >
+                      <div className="flex items-center gap-2 w-full">
+                        <Users className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <span className="font-medium text-sm truncate">{client.name}</span>
+                            {client.status === "aviso_previo" && (
+                              <Badge className="text-[9px] h-4 px-1 bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border-yellow-500/30">
+                                Aviso
+                              </Badge>
+                            )}
+                          </div>
+                          {client.goals && client.goals.length > 0 && (
+                            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                              <Target className="h-3 w-3" />
+                              <span className="truncate">{client.goals[0].goal_type} - {client.goals[0].period}</span>
+                              <Badge variant="secondary" className="ml-auto text-[9px] h-3.5 px-1">
+                                {client.goals.length}
+                              </Badge>
+                            </div>
                           )}
                         </div>
-                        {client.goals && client.goals.length > 0 && (
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <Target className="h-3 w-3" />
-                            <span className="truncate">{client.goals[0].goal_type} - {client.goals[0].period}</span>
-                            <Badge variant="secondary" className="ml-auto text-[9px] h-4 px-1">
-                              {client.goals.length}
-                            </Badge>
-                          </div>
-                        )}
                       </div>
-                    </div>
-                  </SelectItem>
-                ))}
+                    </SelectItem>
+                  ))}
+                </div>
               </SelectGroup>
             ))}
           </div>
