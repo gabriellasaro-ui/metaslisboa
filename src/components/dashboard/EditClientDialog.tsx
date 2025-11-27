@@ -109,7 +109,7 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
           .from("goals")
           .select("id")
           .eq("client_id", clientData.id)
-          .single();
+          .maybeSingle();
 
         if (existingGoal) {
           // Atualizar meta existente
