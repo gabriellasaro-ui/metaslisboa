@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Loader2 } from "lucide-react";
+import { Users, Loader2, Building2, Target, AlertCircle } from "lucide-react";
 
 interface Client {
   id: string;
@@ -19,6 +19,7 @@ interface Client {
     goal_type: string;
     goal_value: string;
     progress: number;
+    period: string;
   }>;
 }
 
@@ -139,49 +140,76 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
 
   return (
     <Select value={value || undefined} onValueChange={handleChange}>
-      <SelectTrigger className="w-full">
+      <SelectTrigger className="w-full h-11 bg-background border-border hover:bg-accent/50 transition-colors">
         <SelectValue placeholder={isLoading ? "Carregando clientes..." : placeholder} />
       </SelectTrigger>
-      <SelectContent className="max-h-[400px] bg-background border-border z-50">
+      <SelectContent className="max-h-[500px] w-[400px] bg-background border-border shadow-lg z-50">
         {isLoading ? (
-          <div className="flex items-center justify-center p-4">
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          <div className="flex items-center justify-center p-6">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : Object.keys(squads).length === 0 ? (
-          <div className="p-4 text-center text-muted-foreground space-y-2">
-            <p className="font-semibold">Nenhum cliente disponível para check-in</p>
-            <p className="text-sm">Os clientes precisam ter meta, tipo e período definidos para fazer check-in.</p>
+          <div className="p-6 text-center space-y-3">
+            <div className="flex justify-center">
+              <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                <AlertCircle className="h-6 w-6 text-muted-foreground" />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <p className="font-semibold text-foreground">Nenhum cliente disponível</p>
+              <p className="text-sm text-muted-foreground">Os clientes precisam ter meta, tipo e período definidos para fazer check-in.</p>
+            </div>
           </div>
         ) : (
-          Object.entries(squads).map(([squadName, squadClients]) => (
-            <SelectGroup key={squadName}>
-              <SelectLabel className="font-bold text-primary flex items-center gap-2 py-2">
-                <Users className="h-4 w-4" />
-                {squadName}
-              </SelectLabel>
-              {squadClients.map((client) => (
-                <SelectItem key={client.id} value={client.id} className="cursor-pointer">
-                  <div className="flex items-center justify-between gap-3 w-full min-w-[300px]">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{client.name}</span>
-                      {client.status === "aviso_previo" && (
-                        <Badge variant="secondary" className="text-xs shrink-0 bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border-yellow-500/30">
-                          Aviso Prévio
-                        </Badge>
-                      )}
+          <div className="p-1">
+            {Object.entries(squads).map(([squadName, squadClients]) => (
+              <SelectGroup key={squadName} className="mb-2">
+                <SelectLabel className="flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-primary bg-primary/5 rounded-md mb-1">
+                  <Building2 className="h-4 w-4" />
+                  {squadName}
+                  <Badge variant="secondary" className="ml-auto text-xs">
+                    {squadClients.length}
+                  </Badge>
+                </SelectLabel>
+                {squadClients.map((client) => (
+                  <SelectItem 
+                    key={client.id} 
+                    value={client.id} 
+                    className="cursor-pointer hover:bg-accent focus:bg-accent px-3 py-3 my-1 rounded-md"
+                  >
+                    <div className="flex items-center justify-between gap-3 w-full">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <Users className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="font-medium text-foreground truncate">{client.name}</span>
+                          {client.goals && client.goals.length > 0 && (
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Target className="h-3 w-3" />
+                              {client.goals[0].goal_type} - {client.goals[0].period}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {client.status === "aviso_previo" && (
+                          <Badge variant="secondary" className="text-xs bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border-yellow-500/30">
+                            Aviso Prévio
+                          </Badge>
+                        )}
+                        {client.goals && client.goals.length > 0 && (
+                          <Badge variant="default" className="text-xs">
+                            {client.goals.length} {client.goals.length === 1 ? "meta" : "metas"}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    {client.goals && client.goals.length > 0 ? (
-                      <Badge variant="default" className="text-xs shrink-0">
-                        {client.goals.length} {client.goals.length === 1 ? "meta" : "metas"}
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="text-xs shrink-0">Sem meta</Badge>
-                    )}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          ))
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            ))}
+          </div>
         )}
       </SelectContent>
     </Select>
