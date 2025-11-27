@@ -53,8 +53,8 @@ export const AdminUsersList = ({ onUpdate }: AdminUsersListProps) => {
           schema: 'public',
           table: 'profiles'
         },
-        () => {
-          console.log('Profile changed, refreshing users...');
+        (payload) => {
+          console.log('✅ Profile changed:', payload);
           fetchUsers();
         }
       )
@@ -65,20 +65,24 @@ export const AdminUsersList = ({ onUpdate }: AdminUsersListProps) => {
           schema: 'public',
           table: 'user_roles'
         },
-        () => {
-          console.log('User role changed, refreshing users...');
+        (payload) => {
+          console.log('✅ User role changed:', payload);
           fetchUsers();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 Realtime subscription status:', status);
+      });
 
     return () => {
+      console.log('🔌 Disconnecting realtime channel');
       supabase.removeChannel(channel);
     };
   }, []);
 
   const fetchUsers = async () => {
     try {
+      console.log('🔄 Fetching users...');
       // Buscar todos os perfis com suas roles e squads
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
@@ -100,6 +104,9 @@ export const AdminUsersList = ({ onUpdate }: AdminUsersListProps) => {
 
       if (rolesError) throw rolesError;
 
+      console.log('📊 Profiles:', profiles);
+      console.log('👥 Roles:', roles);
+
       // Mapear roles por user_id
       const rolesMap = new Map(roles?.map(r => [r.user_id, r.role]) || []);
 
@@ -113,9 +120,10 @@ export const AdminUsersList = ({ onUpdate }: AdminUsersListProps) => {
         role: rolesMap.get(profile.id) || "investidor",
       })) || [];
 
+      console.log('✅ Users data loaded:', usersData);
       setUsers(usersData);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("❌ Error fetching users:", error);
       toast.error("Erro ao carregar usuários");
     } finally {
       setLoading(false);
