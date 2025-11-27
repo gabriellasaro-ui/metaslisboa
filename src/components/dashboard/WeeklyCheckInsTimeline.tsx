@@ -368,16 +368,16 @@ export const WeeklyCheckInsTimeline = ({
                             <div className="text-2xl font-bold text-primary">{checkIn.progress}%</div>
                             <div className="text-xs text-muted-foreground">progresso</div>
                           </div>
-                          {canDeleteCheckIn(checkIn.created_by) && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setDeleteCheckInId(checkIn.id)}
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => canDeleteCheckIn(checkIn.created_by) && setDeleteCheckInId(checkIn.id)}
+                            disabled={!canDeleteCheckIn(checkIn.created_by)}
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10 disabled:opacity-30 disabled:cursor-not-allowed"
+                            title={canDeleteCheckIn(checkIn.created_by) ? "Excluir check-in" : "Você não tem permissão para excluir este check-in"}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
 
@@ -397,30 +397,32 @@ export const WeeklyCheckInsTimeline = ({
                         </div>
                       </div>
 
-                      {/* Call Summary */}
-                      {checkIn.call_summary && (
-                        <div className="bg-accent/10 rounded-lg p-4 border border-accent/30">
-                          <div className="flex items-start gap-2">
-                            <FileText className="h-4 w-4 text-accent-foreground mt-0.5 flex-shrink-0" />
-                            <div>
-                              <p className="text-xs font-semibold text-accent-foreground mb-1">Resumo da Call</p>
-                              <p className="text-sm text-foreground leading-relaxed">{checkIn.call_summary}</p>
-                            </div>
-                          </div>
+                      {/* Links de Call Summary e Gravação */}
+                      {(checkIn.call_summary || checkIn.call_link) && (
+                        <div className="space-y-2 pt-2">
+                          {checkIn.call_summary && (
+                            <a
+                              href={checkIn.call_summary}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors hover:underline"
+                            >
+                              <FileText className="h-4 w-4" />
+                              <span>📄 Documento da Call</span>
+                            </a>
+                          )}
+                          {checkIn.call_link && (
+                            <a
+                              href={checkIn.call_link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors hover:underline"
+                            >
+                              <LinkIcon className="h-4 w-4" />
+                              <span>🎥 Gravação da Call</span>
+                            </a>
+                          )}
                         </div>
-                      )}
-
-                      {/* Call Link */}
-                      {checkIn.call_link && (
-                        <a
-                          href={checkIn.call_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
-                        >
-                          <LinkIcon className="h-4 w-4" />
-                          <span className="underline">Acessar gravação/documentos</span>
-                        </a>
                       )}
                     </div>
                   </div>
