@@ -5,7 +5,17 @@ import { FileText, Link as LinkIcon, Video, TrendingUp, Calendar, User } from "l
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import ReactMarkdown from "react-markdown";
-import { CheckIn } from "@/types";
+
+interface CheckIn {
+  id: string;
+  created_at: string;
+  progress: number;
+  status: string;
+  comment: string;
+  call_link?: string;
+  call_summary?: string;
+  created_by?: string;
+}
 
 interface Goal {
   id: string;
@@ -31,11 +41,7 @@ interface GoalFinalReportProps {
 
 export const GoalFinalReport = ({ open, onOpenChange, goal, checkIns, clientName }: GoalFinalReportProps) => {
   const sortedCheckIns = [...checkIns].sort(
-    (a, b) => {
-      const dateA = a.created_at ? new Date(a.created_at).getTime() : a.date.getTime();
-      const dateB = b.created_at ? new Date(b.created_at).getTime() : b.date.getTime();
-      return dateA - dateB;
-    }
+    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
   );
 
   const totalDays = goal.started_at && goal.target_date
@@ -118,54 +124,51 @@ export const GoalFinalReport = ({ open, onOpenChange, goal, checkIns, clientName
           <Card className="p-6">
             <h3 className="font-semibold text-lg mb-4">Timeline de Check-ins ({sortedCheckIns.length})</h3>
             <div className="space-y-4">
-              {sortedCheckIns.map((checkIn, index) => {
-                const checkInDate = checkIn.created_at ? new Date(checkIn.created_at) : checkIn.date;
-                return (
-                  <div
-                    key={checkIn.id || index}
-                    className="relative pl-6 pb-4 border-l-2 border-border last:border-l-0 last:pb-0"
-                  >
-                    <div className="absolute left-[-9px] top-0 h-4 w-4 rounded-full bg-primary border-2 border-background" />
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">
-                          {format(checkInDate, "dd 'de' MMMM, yyyy", { locale: ptBR })}
-                        </span>
-                        <Badge variant="outline" className="text-xs">
-                          {checkIn.progress}%
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{checkIn.comment}</p>
-                      {((checkIn.call_link || checkIn.callLink) || (checkIn.call_summary || checkIn.callSummary)) && (
-                        <div className="flex gap-2 mt-2">
-                          {(checkIn.call_summary || checkIn.callSummary) && (
-                            <a
-                              href={checkIn.call_summary || checkIn.callSummary}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                            >
-                              <FileText className="h-3 w-3" />
-                              Documento
-                            </a>
-                          )}
-                          {(checkIn.call_link || checkIn.callLink) && (
-                            <a
-                              href={checkIn.call_link || checkIn.callLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                            >
-                              <Video className="h-3 w-3" />
-                              Gravação
-                            </a>
-                          )}
-                        </div>
-                      )}
+              {sortedCheckIns.map((checkIn, index) => (
+                <div
+                  key={checkIn.id}
+                  className="relative pl-6 pb-4 border-l-2 border-border last:border-l-0 last:pb-0"
+                >
+                  <div className="absolute left-[-9px] top-0 h-4 w-4 rounded-full bg-primary border-2 border-background" />
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">
+                        {format(new Date(checkIn.created_at), "dd 'de' MMMM, yyyy", { locale: ptBR })}
+                      </span>
+                      <Badge variant="outline" className="text-xs">
+                        {checkIn.progress}%
+                      </Badge>
                     </div>
+                    <p className="text-sm text-muted-foreground">{checkIn.comment}</p>
+                    {(checkIn.call_link || checkIn.call_summary) && (
+                      <div className="flex gap-2 mt-2">
+                        {checkIn.call_summary && (
+                          <a
+                            href={checkIn.call_summary}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                          >
+                            <FileText className="h-3 w-3" />
+                            Documento
+                          </a>
+                        )}
+                        {checkIn.call_link && (
+                          <a
+                            href={checkIn.call_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                          >
+                            <Video className="h-3 w-3" />
+                            Gravação
+                          </a>
+                        )}
+                      </div>
+                    )}
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </Card>
 

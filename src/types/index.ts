@@ -18,14 +18,11 @@ export interface Leader {
 export interface CheckIn {
   id?: string;
   date: Date;
-  created_at?: string;
   comment: string;
   progress: number;
   status: ProgressStatus;
   callLink?: string;
-  call_link?: string;
   callSummary?: string;
-  call_summary?: string;
   created_by?: string;
 }
 
@@ -44,11 +41,6 @@ export interface SmartGoal {
   description?: string;
   progress?: number;
   status?: string;
-  started_at?: string;
-  started_by?: string;
-  completed_date?: string;
-  ai_analysis?: string;
-  final_report?: string;
 }
 
 export interface Client {
