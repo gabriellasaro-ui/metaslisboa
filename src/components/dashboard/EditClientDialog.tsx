@@ -10,6 +10,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const clientSchema = z.object({
   name: z.string().trim().min(1, "Nome é obrigatório").max(100, "Nome deve ter no máximo 100 caracteres"),
@@ -28,6 +29,7 @@ interface EditClientDialogProps {
 export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditClientDialogProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { isInvestidor } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<Client>(
     client || {
@@ -72,15 +74,17 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
 
       if (clientError) throw clientError;
 
-      // Atualizar o cliente no Supabase
-      const { error: updateError } = await supabase
-        .from("clients")
-        .update({
-          name: validatedData.name,
-        })
-        .eq("id", clientData.id);
+      // Atualizar o cliente no Supabase (só nome se não for investidor)
+      if (!isInvestidor) {
+        const { error: updateError } = await supabase
+          .from("clients")
+          .update({
+            name: validatedData.name,
+          })
+          .eq("id", clientData.id);
 
-      if (updateError) throw updateError;
+        if (updateError) throw updateError;
+      }
 
       // Atualizar ou criar a meta se necessário
       if (validatedData.hasGoal === "SIM" || validatedData.hasGoal === "NAO_DEFINIDO") {
@@ -174,26 +178,35 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Editar Cliente</DialogTitle>
+          <DialogTitle>{isInvestidor ? "Editar Meta do Cliente" : "Editar Cliente"}</DialogTitle>
           <DialogDescription>
-            Atualize as informações e metas do cliente
+            {isInvestidor ? "Atualize as informações de meta do cliente" : "Atualize as informações e metas do cliente"}
           </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="name">Nome do Cliente *</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => handleChange("name", e.target.value)}
-              placeholder="Ex: Groupwork"
-              className={errors.name ? "border-destructive" : ""}
-            />
-            {errors.name && (
-              <p className="text-sm text-destructive">{errors.name}</p>
-            )}
-          </div>
+          {!isInvestidor && (
+            <div className="space-y-2">
+              <Label htmlFor="name">Nome do Cliente *</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => handleChange("name", e.target.value)}
+                placeholder="Ex: Groupwork"
+                className={errors.name ? "border-destructive" : ""}
+              />
+              {errors.name && (
+                <p className="text-sm text-destructive">{errors.name}</p>
+              )}
+            </div>
+          )}
+
+          {isInvestidor && (
+            <div className="space-y-2">
+              <Label>Cliente</Label>
+              <div className="font-semibold text-lg">{client?.name}</div>
+            </div>
+          )}
 
           {client?.squadName && (
             <div className="space-y-2">
