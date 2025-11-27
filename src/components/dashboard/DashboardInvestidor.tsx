@@ -6,8 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Client, Squad } from "@/types";
 import { MetricsCard } from "@/components/dashboard/MetricsCard";
 import { ClientsTable } from "@/components/dashboard/ClientsTable";
-import { CheckInDialog } from "@/components/dashboard/CheckInDialog";
-import { GoalProgressTimeline } from "@/components/dashboard/GoalProgressTimeline";
 import { CheckInsTimeline } from "@/components/dashboard/CheckInsTimeline";
 import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
 import { WeeklyCheckInForm } from "@/components/dashboard/WeeklyCheckInForm";
@@ -29,7 +27,6 @@ interface DashboardInvestidorProps {
 }
 
 export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: DashboardInvestidorProps) => {
-  const [checkInClient, setCheckInClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
   const [viewingProgress, setViewingProgress] = useState<Client | null>(null);
   const [showCheckInForm, setShowCheckInForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Client | null>(null);
@@ -50,23 +47,12 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
     avgProgress: clients.reduce((sum, c) => sum + (c.progress || 0), 0) / (clients.length || 1),
   };
 
-  const handleCheckIn = (squadId: string) => (client: Client, index: number) => {
-    setCheckInClient({ client, squadId, index });
-  };
-
   const handleEditClient = (client: Client) => {
     setEditingClient(client);
   };
 
   const handleViewProgress = (client: Client) => {
     setViewingProgress(client);
-  };
-
-  const handleCheckInSave = (updatedClient: Client) => {
-    if (checkInClient) {
-      updateClient(checkInClient.squadId, checkInClient.index, updatedClient);
-      setCheckInClient(null);
-    }
   };
 
   const handleCheckInSuccess = () => {
@@ -179,7 +165,6 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
           <CardContent>
             <ClientsTable
               clients={clients}
-              onCheckIn={handleCheckIn(squadId || '')}
               onViewProgress={handleViewProgress}
               onEditClient={handleEditClient}
             />
@@ -283,7 +268,6 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
           <CardContent>
             <ClientsTable
               clients={clients}
-              onCheckIn={handleCheckIn(squadId || '')}
               onViewProgress={handleViewProgress}
               onEditClient={handleEditClient}
             />
@@ -303,18 +287,16 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
         onSuccess={handleCheckInSuccess}
       />
 
-      <CheckInDialog
-        client={checkInClient?.client || null}
-        open={!!checkInClient}
-        onOpenChange={(open) => !open && setCheckInClient(null)}
-        onSave={handleCheckInSave}
-        leaderName={mySquad?.leader && typeof mySquad.leader === 'object' ? mySquad.leader.name : typeof mySquad?.leader === 'string' ? mySquad.leader : "Líder"}
-      />
-
       <Dialog open={!!viewingProgress} onOpenChange={(open) => !open && setViewingProgress(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           {viewingProgress && (
-            <GoalProgressTimeline client={viewingProgress} />
+            <>
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold">{viewingProgress.name}</h2>
+                <p className="text-muted-foreground">Histórico de Check-ins</p>
+              </div>
+              <CheckInsTimeline squadsData={mySquad ? [mySquad] : []} />
+            </>
           )}
         </DialogContent>
       </Dialog>

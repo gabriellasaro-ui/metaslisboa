@@ -7,8 +7,6 @@ import { MetricsCard } from "@/components/dashboard/MetricsCard";
 import { SquadOverview } from "@/components/dashboard/SquadOverview";
 import { EditClientDialog } from "@/components/dashboard/EditClientDialog";
 import { SmartGoalDialog } from "@/components/dashboard/SmartGoalDialog";
-import { CheckInDialog } from "@/components/dashboard/CheckInDialog";
-import { GoalProgressTimeline } from "@/components/dashboard/GoalProgressTimeline";
 import { CheckInsTimeline } from "@/components/dashboard/CheckInsTimeline";
 import { SquadsComparisonChart } from "@/components/dashboard/charts/SquadsComparisonChart";
 import { HealthStatusDistributionChart } from "@/components/dashboard/charts/HealthStatusDistributionChart";
@@ -57,10 +55,6 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
     setSmartGoalClient({ client, squadId, index });
   };
 
-  const handleCheckIn = (squadId: string) => (client: Client, index: number) => {
-    setCheckInClient({ client, squadId, index });
-  };
-
   const handleViewProgress = (client: Client) => {
     setViewingProgress(client);
   };
@@ -76,14 +70,6 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
   const handleSmartGoalSave = () => {
     setSmartGoalClient(null);
     toast.success("Meta SMART definida!");
-  };
-
-  const handleCheckInSave = (updatedClient: Client) => {
-    if (checkInClient) {
-      updateClient(checkInClient.squadId, checkInClient.index, updatedClient);
-      setCheckInClient(null);
-      toast.success("Check-in registrado!");
-    }
   };
 
   return (
@@ -167,7 +153,6 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
                 clients={squad.clients}
                 onEditClient={handleEditClient(squad.id)}
                 onDefineSmartGoal={handleDefineSmartGoal(squad.id)}
-                onCheckIn={handleCheckIn(squad.id)}
                 onViewProgress={handleViewProgress}
               />
             </CardContent>
@@ -251,11 +236,10 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
 
       <EditClientDialog client={editingClient?.client || null} open={!!editingClient} onOpenChange={(open) => !open && setEditingClient(null)} onSave={handleUpdateClient} />
       <SmartGoalDialog client={smartGoalClient?.client || null} open={!!smartGoalClient} onOpenChange={(open) => !open && setSmartGoalClient(null)} onSave={handleSmartGoalSave} />
-      <CheckInDialog client={checkInClient?.client || null} open={!!checkInClient} onOpenChange={(open) => !open && setCheckInClient(null)} onSave={handleCheckInSave} leaderName="Líder" />
       
       <Dialog open={!!viewingProgress} onOpenChange={() => setViewingProgress(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          {viewingProgress && <GoalProgressTimeline client={viewingProgress} />}
+          {viewingProgress && <CheckInsTimeline squadsData={squadsData} />}
         </DialogContent>
       </Dialog>
     </NavigationTabs>
