@@ -82,26 +82,26 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
 
       if (profileError) throw profileError;
 
-      // Atualizar role (usando UPSERT para garantir que o registro existe)
-      const { error: roleError } = await supabase
+      // Atualizar role - deletar antiga e inserir nova devido à constraint única
+      // Primeiro, deletar qualquer role existente do usuário
+      const { error: deleteError } = await supabase
         .from("user_roles")
-        .upsert({ 
-          user_id: user.id,
+        .delete()
+        .eq("user_id", user.id);
+
+      if (deleteError) {
+        console.error('Error deleting old role:', deleteError);
+      }
+
+      // Depois, inserir a nova role
+      const { error: insertError } = await supabase
+        .from("user_roles")
+        .insert({ 
+          user_id: user.id, 
           role 
-        }, {
-          onConflict: 'user_id,role'
         });
 
-      if (roleError) {
-        // Se der erro de constraint, tentar deletar e inserir
-        console.log('Tentando deletar role antiga e inserir nova...');
-        await supabase.from("user_roles").delete().eq("user_id", user.id);
-        const { error: insertError } = await supabase
-          .from("user_roles")
-          .insert({ user_id: user.id, role });
-        
-        if (insertError) throw insertError;
-      }
+      if (insertError) throw insertError;
 
       toast.success("Usuário atualizado com sucesso!");
       onSuccess();
