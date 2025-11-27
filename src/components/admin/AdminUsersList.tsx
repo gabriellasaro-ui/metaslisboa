@@ -42,6 +42,39 @@ export const AdminUsersList = ({ onUpdate }: AdminUsersListProps) => {
 
   useEffect(() => {
     fetchUsers();
+    
+    // Setup realtime subscription
+    const channel = supabase
+      .channel('admin-users-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles'
+        },
+        () => {
+          console.log('Profile changed, refreshing users...');
+          fetchUsers();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_roles'
+        },
+        () => {
+          console.log('User role changed, refreshing users...');
+          fetchUsers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchUsers = async () => {
@@ -93,10 +126,21 @@ export const AdminUsersList = ({ onUpdate }: AdminUsersListProps) => {
     if (!deletingUser) return;
 
     try {
-      // Usar Admin API para deletar usuário
-      const { error } = await supabase.auth.admin.deleteUser(deletingUser.id);
+      // Primeiro deletar o registro em user_roles
+      const { error: roleError } = await supabase
+        .from("user_roles")
+        .delete()
+        .eq("user_id", deletingUser.id);
 
-      if (error) throw error;
+      if (roleError) throw roleError;
+
+      // Depois deletar o perfil (isso também deletará o usuário de auth devido ao cascade)
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", deletingUser.id);
+
+      if (profileError) throw profileError;
 
       toast.success("Usuário excluído com sucesso!");
       fetchUsers();
