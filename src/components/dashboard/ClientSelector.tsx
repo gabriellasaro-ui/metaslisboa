@@ -143,7 +143,7 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
       <SelectTrigger className="w-full h-11 bg-background border-border hover:bg-accent/50 transition-colors">
         <SelectValue placeholder={isLoading ? "Carregando clientes..." : placeholder} />
       </SelectTrigger>
-      <SelectContent className="max-h-[500px] min-w-[500px] max-w-[600px] bg-background border-border shadow-lg z-50">
+      <SelectContent className="max-h-[400px] w-[480px] bg-background border-border shadow-lg z-50 overflow-hidden">
         {isLoading ? (
           <div className="flex items-center justify-center p-6">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -161,13 +161,13 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
             </div>
           </div>
         ) : (
-          <div className="p-1">
+          <div className="p-2">
             {Object.entries(squads).map(([squadName, squadClients]) => (
-              <SelectGroup key={squadName} className="mb-2">
-                <SelectLabel className="flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-primary bg-primary/5 rounded-md mb-1">
-                  <Building2 className="h-4 w-4 flex-shrink-0" />
+              <SelectGroup key={squadName} className="mb-3">
+                <SelectLabel className="flex items-center gap-2 px-2 py-1.5 text-xs font-semibold text-primary bg-primary/5 rounded-md mb-1.5 sticky top-0 z-10">
+                  <Building2 className="h-3.5 w-3.5 flex-shrink-0" />
                   <span className="flex-1 truncate">{squadName}</span>
-                  <Badge variant="secondary" className="text-xs flex-shrink-0">
+                  <Badge variant="secondary" className="text-xs h-5 px-1.5 flex-shrink-0">
                     {squadClients.length}
                   </Badge>
                 </SelectLabel>
@@ -175,29 +175,29 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
                   <SelectItem 
                     key={client.id} 
                     value={client.id} 
-                    className="cursor-pointer hover:bg-accent focus:bg-accent px-3 py-3 my-1 rounded-md"
+                    className="cursor-pointer hover:bg-accent/80 focus:bg-accent data-[state=checked]:bg-accent/50 rounded-md mb-1 overflow-hidden"
                   >
-                    <div className="flex items-start gap-3 w-full pr-2">
-                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Users className="h-4 w-4 text-primary" />
+                    <div className="flex items-center gap-2.5 w-full min-w-0 py-1">
+                      <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Users className="h-3.5 w-3.5 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-foreground">{client.name}</span>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="font-medium text-sm text-foreground truncate">{client.name}</span>
                           {client.status === "aviso_previo" && (
-                            <Badge variant="secondary" className="text-xs bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border-yellow-500/30 flex-shrink-0">
-                              Aviso Prévio
+                            <Badge variant="secondary" className="text-[10px] h-4 px-1.5 bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border-yellow-500/30 flex-shrink-0 whitespace-nowrap">
+                              Aviso
                             </Badge>
                           )}
                         </div>
-                        <div className="flex items-center gap-3 flex-wrap">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground min-w-0">
                           {client.goals && client.goals.length > 0 && (
                             <>
-                              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <div className="flex items-center gap-1 min-w-0 truncate">
                                 <Target className="h-3 w-3 flex-shrink-0" />
-                                {client.goals[0].goal_type} - {client.goals[0].period}
-                              </span>
-                              <Badge variant="default" className="text-xs flex-shrink-0">
+                                <span className="truncate">{client.goals[0].goal_type} - {client.goals[0].period}</span>
+                              </div>
+                              <Badge variant="default" className="text-[10px] h-4 px-1.5 flex-shrink-0 whitespace-nowrap">
                                 {client.goals.length} {client.goals.length === 1 ? "meta" : "metas"}
                               </Badge>
                             </>
