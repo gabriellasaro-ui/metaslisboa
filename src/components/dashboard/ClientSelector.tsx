@@ -48,11 +48,15 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
         return;
       }
 
+      console.log("Usuário autenticado:", user.id);
+
       const { data: profile } = await supabase
         .from("profiles")
         .select("squad_id")
         .eq("id", user.id)
         .single();
+
+      console.log("Perfil do usuário:", profile);
 
       // Verificar se o usuário é supervisor
       const { data: roles } = await supabase
@@ -60,7 +64,11 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
         .select("role")
         .eq("user_id", user.id);
 
+      console.log("Roles do usuário:", roles);
+
       const isSupervisor = roles?.some(r => r.role === "supervisor");
+
+      console.log("É supervisor?", isSupervisor);
 
       // Buscar clientes
       let query = supabase
@@ -70,9 +78,8 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
           name,
           status,
           squad_id,
-          squad:squads(
-            name,
-            leader:profiles(name)
+          squads(
+            name
           ),
           goals(
             id,
@@ -92,22 +99,33 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error("Erro ao buscar clientes:", error);
+        throw error;
+      }
+
+      console.log("Clientes encontrados:", data);
 
       const clientsData = (data || []) as any[];
       
       // Agrupar por squad
       const grouped = clientsData.reduce((acc, client) => {
-        const squadName = client.squad?.name || "Sem Squad";
+        const squadName = client.squads?.name || "Sem Squad";
         if (!acc[squadName]) {
           acc[squadName] = [];
         }
-        acc[squadName].push(client);
+        acc[squadName].push({
+          ...client,
+          squad: { name: client.squads?.name || "Sem Squad", leader: { name: "" } }
+        });
         return acc;
       }, {} as Record<string, Client[]>);
 
       setSquads(grouped);
-      setClients(clientsData);
+      setClients(clientsData.map(c => ({ 
+        ...c, 
+        squad: { name: c.squads?.name || "Sem Squad", leader: { name: "" } }
+      })));
     } catch (error) {
       console.error("Erro ao buscar clientes:", error);
     } finally {
