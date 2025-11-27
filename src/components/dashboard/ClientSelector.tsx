@@ -48,15 +48,11 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
         return;
       }
 
-      console.log("Usuário autenticado:", user.id);
-
       const { data: profile } = await supabase
         .from("profiles")
         .select("squad_id")
         .eq("id", user.id)
         .single();
-
-      console.log("Perfil do usuário:", profile);
 
       // Verificar se o usuário é supervisor
       const { data: roles } = await supabase
@@ -64,11 +60,7 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
         .select("role")
         .eq("user_id", user.id);
 
-      console.log("Roles do usuário:", roles);
-
       const isSupervisor = roles?.some(r => r.role === "supervisor");
-
-      console.log("É supervisor?", isSupervisor);
 
       // Buscar clientes
       let query = supabase
@@ -104,12 +96,17 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
         throw error;
       }
 
-      console.log("Clientes encontrados:", data);
-
       const clientsData = (data || []) as any[];
       
+      // Filtrar apenas clientes com meta completa (goal_type, goal_value e period)
+      const clientsWithGoals = clientsData.filter(client => {
+        if (!client.goals || client.goals.length === 0) return false;
+        const goal = client.goals[0];
+        return goal.goal_type && goal.goal_value && goal.period;
+      });
+      
       // Agrupar por squad
-      const grouped = clientsData.reduce((acc, client) => {
+      const grouped = clientsWithGoals.reduce((acc, client) => {
         const squadName = client.squads?.name || "Sem Squad";
         if (!acc[squadName]) {
           acc[squadName] = [];
@@ -122,7 +119,7 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
       }, {} as Record<string, Client[]>);
 
       setSquads(grouped);
-      setClients(clientsData.map(c => ({ 
+      setClients(clientsWithGoals.map(c => ({ 
         ...c, 
         squad: { name: c.squads?.name || "Sem Squad", leader: { name: "" } }
       })));
@@ -141,7 +138,7 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
   };
 
   return (
-    <Select value={value} onValueChange={handleChange}>
+    <Select value={value || undefined} onValueChange={handleChange}>
       <SelectTrigger className="w-full">
         <SelectValue placeholder={isLoading ? "Carregando clientes..." : placeholder} />
       </SelectTrigger>
@@ -151,8 +148,9 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
             <Loader2 className="h-5 w-5 animate-spin text-primary" />
           </div>
         ) : Object.keys(squads).length === 0 ? (
-          <div className="p-4 text-center text-muted-foreground">
-            Nenhum cliente ativo encontrado
+          <div className="p-4 text-center text-muted-foreground space-y-2">
+            <p className="font-semibold">Nenhum cliente disponível para check-in</p>
+            <p className="text-sm">Os clientes precisam ter meta, tipo e período definidos para fazer check-in.</p>
           </div>
         ) : (
           Object.entries(squads).map(([squadName, squadClients]) => (

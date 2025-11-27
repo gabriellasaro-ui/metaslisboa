@@ -29,6 +29,19 @@ export const WeeklyCheckInForm = ({
   const [callLink, setCallLink] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Resetar form quando fechar o modal
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      setSelectedClient(null);
+      setProgress(0);
+      setStatus("on_track");
+      setComment("");
+      setCallSummary("");
+      setCallLink("");
+    }
+    onOpenChange(newOpen);
+  };
+
   const handleClientSelect = (clientId: string, clientData: any) => {
     setSelectedClient(clientData);
     // Se o cliente tem meta, pegar o progresso atual
@@ -100,7 +113,7 @@ export const WeeklyCheckInForm = ({
       setProgress(0);
       setStatus("on_track");
       setSelectedClient(null);
-      onOpenChange(false);
+      handleOpenChange(false);
       
       // Callback de sucesso para atualizar timeline
       if (onSuccess) {
@@ -117,7 +130,7 @@ export const WeeklyCheckInForm = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[550px] max-h-[90vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">
           <div className="flex items-center gap-3">
@@ -141,7 +154,7 @@ export const WeeklyCheckInForm = ({
               Selecionar Cliente *
             </Label>
             <ClientSelector
-              value={selectedClient?.id}
+              value={selectedClient?.id || undefined}
               onValueChange={handleClientSelect}
               placeholder="Escolha o cliente para o check-in"
             />
@@ -379,7 +392,7 @@ export const WeeklyCheckInForm = ({
         </div>
 
         <div className="flex gap-3 pt-3 border-t flex-shrink-0">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
+          <Button variant="outline" onClick={() => handleOpenChange(false)} className="flex-1">
             Cancelar
           </Button>
           <Button
