@@ -82,17 +82,23 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
 
       if (profileError) throw profileError;
 
-      // Atualizar role - UPDATE primeiro, INSERT apenas se não existir
-      const { error: updateError, count } = await supabase
+      // Atualizar role - verificar se existe primeiro
+      const { data: existingRole } = await supabase
         .from("user_roles")
-        .update({ role })
+        .select("id, role")
         .eq("user_id", user.id)
-        .select();
+        .maybeSingle();
 
-      if (updateError) throw updateError;
+      if (existingRole) {
+        // Se existe, fazer UPDATE
+        const { error: updateError } = await supabase
+          .from("user_roles")
+          .update({ role })
+          .eq("user_id", user.id);
 
-      // Se não atualizou nenhum registro, fazer INSERT
-      if (!count || count === 0) {
+        if (updateError) throw updateError;
+      } else {
+        // Se não existe, fazer INSERT
         const { error: insertError } = await supabase
           .from("user_roles")
           .insert({ user_id: user.id, role });
