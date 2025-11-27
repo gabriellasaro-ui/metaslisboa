@@ -56,12 +56,6 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
     
     try {
       const validatedData = clientSchema.parse(formData);
-      
-      // Se não tem meta, limpa os campos relacionados
-      if (validatedData.hasGoal === "NAO") {
-        validatedData.goalType = undefined;
-        validatedData.goalValue = undefined;
-      }
 
       setLoading(true);
 
@@ -73,6 +67,27 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
         .single();
 
       if (clientError) throw clientError;
+      
+      // Se não tem meta, limpa os campos relacionados e deleta a meta do banco
+      if (validatedData.hasGoal === "NAO") {
+        validatedData.goalType = undefined;
+        validatedData.goalValue = undefined;
+        
+        // Deletar meta do banco se existir
+        const { data: existingGoal } = await supabase
+          .from("goals")
+          .select("id")
+          .eq("client_id", clientData.id)
+          .maybeSingle();
+
+        if (existingGoal) {
+          console.log("🗑️ Deletando meta do cliente:", clientData.id);
+          await supabase
+            .from("goals")
+            .delete()
+            .eq("id", existingGoal.id);
+        }
+      }
 
       // Atualizar o cliente no Supabase (só nome se não for investidor)
       if (!isInvestidor) {
