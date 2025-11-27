@@ -228,7 +228,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
                           </Button>
                         </div>
                       </div>
-                      <p className="text-sm text-muted-foreground">{client.smartGoal?.goalValue || client.goalValue || 'Meta não especificada'}</p>
+                      <p className="text-sm text-muted-foreground">{client.goalValue || 'Meta não especificada'}</p>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="w-48 bg-muted rounded-full h-3 overflow-hidden">

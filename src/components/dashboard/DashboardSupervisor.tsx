@@ -6,7 +6,6 @@ import { Client, Squad } from "@/types";
 import { MetricsCard } from "@/components/dashboard/MetricsCard";
 import { SquadOverview } from "@/components/dashboard/SquadOverview";
 import { EditClientDialog } from "@/components/dashboard/EditClientDialog";
-import { SmartGoalDialog } from "@/components/dashboard/SmartGoalDialog";
 import { CheckInsTimeline } from "@/components/dashboard/CheckInsTimeline";
 import { SquadsComparisonChart } from "@/components/dashboard/charts/SquadsComparisonChart";
 import { HealthStatusDistributionChart } from "@/components/dashboard/charts/HealthStatusDistributionChart";
@@ -27,7 +26,6 @@ interface DashboardSupervisorProps {
 
 export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSupervisorProps) => {
   const [editingClient, setEditingClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
-  const [smartGoalClient, setSmartGoalClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
   const [checkInClient, setCheckInClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
   const [viewingProgress, setViewingProgress] = useState<Client | null>(null);
 
@@ -51,10 +49,6 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
     setEditingClient({ client, squadId, index });
   };
 
-  const handleDefineSmartGoal = (squadId: string) => (client: Client, index: number) => {
-    setSmartGoalClient({ client, squadId, index });
-  };
-
   const handleViewProgress = (client: Client) => {
     setViewingProgress(client);
   };
@@ -65,11 +59,6 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
       setEditingClient(null);
       toast.success("Cliente atualizado!");
     }
-  };
-
-  const handleSmartGoalSave = () => {
-    setSmartGoalClient(null);
-    toast.success("Meta SMART definida!");
   };
 
   return (
@@ -152,7 +141,6 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
               <ClientsTable
                 clients={squad.clients}
                 onEditClient={handleEditClient(squad.id)}
-                onDefineSmartGoal={handleDefineSmartGoal(squad.id)}
                 onViewProgress={handleViewProgress}
               />
             </CardContent>
@@ -235,7 +223,6 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
       </TabsContent>
 
       <EditClientDialog client={editingClient?.client || null} open={!!editingClient} onOpenChange={(open) => !open && setEditingClient(null)} onSave={handleUpdateClient} />
-      <SmartGoalDialog client={smartGoalClient?.client || null} open={!!smartGoalClient} onOpenChange={(open) => !open && setSmartGoalClient(null)} onSave={handleSmartGoalSave} />
       
       <Dialog open={!!viewingProgress} onOpenChange={() => setViewingProgress(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
