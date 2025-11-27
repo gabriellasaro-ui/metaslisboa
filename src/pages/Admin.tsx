@@ -15,7 +15,7 @@ import { AdminUsersList } from "@/components/admin/AdminUsersList";
 import { AdminStats } from "@/components/admin/AdminStats";
 import { AddClientDialog } from "@/components/admin/AddClientDialog";
 import { AddSquadDialog } from "@/components/admin/AddSquadDialog";
-import { SeedUsersButton } from "@/components/admin/SeedUsersButton";
+import { AddUserDialog } from "@/components/admin/AddUserDialog";
 
 const Admin = () => {
   const { isCoordenador, isSupervisor, isLoading: authLoading } = useAuth();
@@ -158,12 +158,9 @@ const Admin = () => {
                 Gerencie clientes, squads e visualize métricas do sistema
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              {isSupervisor && <SeedUsersButton />}
-              <Badge variant="outline" className="text-sm px-4 py-2">
-                {isSupervisor ? "Supervisor" : "Coordenador"}
-              </Badge>
-            </div>
+            <Badge variant="outline" className="text-sm px-4 py-2">
+              {isSupervisor ? "Supervisor" : "Coordenador"}
+            </Badge>
           </div>
         </div>
 
@@ -245,6 +242,7 @@ const Admin = () => {
                       Administre todos os usuários, edite cargos e atribua squads
                     </CardDescription>
                   </div>
+                  {isSupervisor && <AddUserDialog onSuccess={fetchStats} />}
                 </div>
               </CardHeader>
               <CardContent>
