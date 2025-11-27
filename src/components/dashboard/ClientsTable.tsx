@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Client, GoalStatus, GoalType } from "@/types";
-import { Target, TrendingUp, Users, AlertCircle, Pencil, Sparkles, ClipboardCheck, History } from "lucide-react";
+import { Target, TrendingUp, Users, AlertCircle, Pencil, Sparkles, History } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { HealthStatusBadge } from "./HealthStatusBadge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,7 +13,6 @@ interface ClientsTableProps {
   filterGoalType?: "all" | GoalType;
   onEditClient?: (client: Client, index: number) => void;
   onDefineSmartGoal?: (client: Client, index: number) => void;
-  onCheckIn?: (client: Client, index: number) => void;
   onViewProgress?: (client: Client) => void;
   showActions?: boolean;
 }
@@ -95,7 +94,6 @@ export const ClientsTable = ({
   filterGoalType = "all",
   onEditClient,
   onDefineSmartGoal,
-  onCheckIn,
   onViewProgress,
   showActions = true 
 }: ClientsTableProps) => {
@@ -136,7 +134,6 @@ export const ClientsTable = ({
             filteredClients.map((client, index) => {
               // Encontra o índice original do cliente na lista não filtrada
               const originalIndex = clients.findIndex(c => c.name === client.name);
-              const hasCheckIns = client.checkIns && client.checkIns.length > 0;
               
               return (
                 <TableRow key={index}>
@@ -178,29 +175,16 @@ export const ClientsTable = ({
                     <TableCell>
                       <div className="flex items-center gap-1">
                         {client.hasGoal === "SIM" && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => onCheckIn?.(client, originalIndex)}
-                              className="h-8 px-2 hover:bg-blue-500/10 hover:text-blue-600 hover:border hover:border-blue-500/20"
-                              title="Registrar Check-in"
-                            >
-                              <ClipboardCheck className="h-4 w-4 mr-1" />
-                              Check-in
-                            </Button>
-                            {hasCheckIns && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => onViewProgress?.(client)}
-                                className="h-8 w-8 p-0 hover:bg-purple-500/10 hover:text-purple-600 hover:border hover:border-purple-500/20"
-                                title="Ver Timeline"
-                              >
-                                <History className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onViewProgress?.(client)}
+                            className="h-8 px-2 hover:bg-purple-500/10 hover:text-purple-600 hover:border hover:border-purple-500/20"
+                            title="Ver histórico de check-ins"
+                          >
+                            <History className="h-4 w-4 mr-1" />
+                            Check-ins
+                          </Button>
                         )}
                         {(client.hasGoal === "NAO_DEFINIDO" || client.hasGoal === "NAO") && (
                           <Button
