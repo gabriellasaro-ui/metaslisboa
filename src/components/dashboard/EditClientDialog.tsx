@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +37,17 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
   );
   const [goalPeriod, setGoalPeriod] = useState<"mensal" | "trimestral" | "semestral" | "anual">("mensal");
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Atualizar form quando cliente mudar
+  useEffect(() => {
+    if (client) {
+      setFormData(client);
+      // Pegar o período da meta se existir
+      if (client.smartGoal?.period) {
+        setGoalPeriod(client.smartGoal.period as "mensal" | "trimestral" | "semestral" | "anual");
+      }
+    }
+  }, [client]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

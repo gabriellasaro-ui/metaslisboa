@@ -99,8 +99,8 @@ export const ClientsTable = ({
   onViewProgress,
   showActions = true 
 }: ClientsTableProps) => {
-  const { isCoordenador, isSupervisor } = useAuth();
-  const canEdit = isCoordenador || isSupervisor;
+  const { isCoordenador, isSupervisor, isInvestidor } = useAuth();
+  const canEdit = isCoordenador || isSupervisor || isInvestidor;
 
   const filteredClients = clients.filter(client => {
     const statusMatch = filterStatus === "all" || client.hasGoal === filterStatus;

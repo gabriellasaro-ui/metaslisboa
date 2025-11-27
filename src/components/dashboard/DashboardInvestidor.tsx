@@ -13,6 +13,7 @@ import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
 import { WeeklyCheckInForm } from "@/components/dashboard/WeeklyCheckInForm";
 import { ReportsSectionInvestidor } from "@/components/dashboard/ReportsSectionInvestidor";
 import { EditGoalDialog } from "@/components/dashboard/EditGoalDialog";
+import { EditClientDialog } from "@/components/dashboard/EditClientDialog";
 import { GoalHistoryDialog } from "@/components/dashboard/GoalHistoryDialog";
 import { GoalsDistributionChart } from "@/components/dashboard/charts/GoalsDistributionChart";
 import { HealthStatusDistributionChart } from "@/components/dashboard/charts/HealthStatusDistributionChart";
@@ -32,6 +33,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
   const [viewingProgress, setViewingProgress] = useState<Client | null>(null);
   const [showCheckInForm, setShowCheckInForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Client | null>(null);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [viewingHistory, setViewingHistory] = useState<Client | null>(null);
   const queryClient = useQueryClient();
 
@@ -50,6 +52,10 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
 
   const handleCheckIn = (squadId: string) => (client: Client, index: number) => {
     setCheckInClient({ client, squadId, index });
+  };
+
+  const handleEditClient = (client: Client) => {
+    setEditingClient(client);
   };
 
   const handleViewProgress = (client: Client) => {
@@ -175,7 +181,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
               clients={clients}
               onCheckIn={handleCheckIn(squadId || '')}
               onViewProgress={handleViewProgress}
-              showActions={false}
+              onEditClient={handleEditClient}
             />
           </CardContent>
         </Card>
@@ -279,7 +285,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
               clients={clients}
               onCheckIn={handleCheckIn(squadId || '')}
               onViewProgress={handleViewProgress}
-              showActions={false}
+              onEditClient={handleEditClient}
             />
           </CardContent>
         </Card>
@@ -317,6 +323,16 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
         client={editingGoal}
         open={!!editingGoal}
         onOpenChange={(open) => !open && setEditingGoal(null)}
+      />
+
+      <EditClientDialog
+        client={editingClient}
+        open={!!editingClient}
+        onOpenChange={(open) => !open && setEditingClient(null)}
+        onSave={() => {
+          queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] });
+          setEditingClient(null);
+        }}
       />
 
       <GoalHistoryDialog
