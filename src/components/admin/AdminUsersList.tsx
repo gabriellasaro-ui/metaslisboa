@@ -107,7 +107,7 @@ export const AdminUsersList = ({ onUpdate }: AdminUsersListProps) => {
       console.log('📊 Profiles:', profiles);
       console.log('👥 Roles:', roles);
 
-      // Mapear roles por user_id
+      // Mapear roles por user_id (pegar a primeira role encontrada)
       const rolesMap = new Map(roles?.map(r => [r.user_id, r.role]) || []);
 
       // Combinar dados

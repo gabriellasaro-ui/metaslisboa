@@ -95,9 +95,6 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
       toast.success("Usuário atualizado com sucesso!");
       onSuccess();
       onOpenChange(false);
-      
-      // Forçar atualização visual imediata
-      window.location.reload();
     } catch (error: any) {
       console.error("Error updating user:", error);
       const errorMessage = error.message || error.details || "Erro ao atualizar usuário";
