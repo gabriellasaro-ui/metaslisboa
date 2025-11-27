@@ -143,66 +143,54 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
       <SelectTrigger className="w-full h-11 bg-background border-border hover:bg-accent/50 transition-colors">
         <SelectValue placeholder={isLoading ? "Carregando clientes..." : placeholder} />
       </SelectTrigger>
-      <SelectContent className="max-h-[400px] w-[480px] bg-background border-border shadow-lg z-50 overflow-hidden">
+      <SelectContent className="w-[420px] max-h-[440px] bg-background border-border shadow-xl z-[100]">
         {isLoading ? (
-          <div className="flex items-center justify-center p-6">
+          <div className="flex items-center justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : Object.keys(squads).length === 0 ? (
-          <div className="p-6 text-center space-y-3">
-            <div className="flex justify-center">
-              <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                <AlertCircle className="h-6 w-6 text-muted-foreground" />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <p className="font-semibold text-foreground">Nenhum cliente disponível</p>
-              <p className="text-sm text-muted-foreground">Os clientes precisam ter meta, tipo e período definidos para fazer check-in.</p>
-            </div>
+          <div className="p-6 text-center space-y-2">
+            <AlertCircle className="h-10 w-10 mx-auto text-muted-foreground" />
+            <p className="font-medium text-sm">Nenhum cliente disponível</p>
+            <p className="text-xs text-muted-foreground">Clientes precisam ter meta definida</p>
           </div>
         ) : (
-          <div className="p-2">
+          <div className="py-1">
             {Object.entries(squads).map(([squadName, squadClients]) => (
-              <SelectGroup key={squadName} className="mb-3">
-                <SelectLabel className="flex items-center gap-2 px-2 py-1.5 text-xs font-semibold text-primary bg-primary/5 rounded-md mb-1.5 sticky top-0 z-10">
-                  <Building2 className="h-3.5 w-3.5 flex-shrink-0" />
-                  <span className="flex-1 truncate">{squadName}</span>
-                  <Badge variant="secondary" className="text-xs h-5 px-1.5 flex-shrink-0">
+              <SelectGroup key={squadName}>
+                <SelectLabel className="flex items-center gap-2 px-3 py-2 text-xs font-semibold bg-muted/50 sticky top-0 z-10">
+                  <Building2 className="h-3.5 w-3.5" />
+                  <span>{squadName}</span>
+                  <Badge variant="outline" className="ml-auto text-[10px] h-4 px-1.5">
                     {squadClients.length}
                   </Badge>
                 </SelectLabel>
                 {squadClients.map((client) => (
                   <SelectItem 
                     key={client.id} 
-                    value={client.id} 
-                    className="cursor-pointer hover:bg-accent/80 focus:bg-accent data-[state=checked]:bg-accent/50 rounded-md mb-1 overflow-hidden"
+                    value={client.id}
+                    className="cursor-pointer px-3 py-2.5 focus:bg-accent/80 data-[state=checked]:bg-accent"
                   >
-                    <div className="flex items-center gap-2.5 w-full min-w-0 py-1">
-                      <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Users className="h-3.5 w-3.5 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0 space-y-1">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <span className="font-medium text-sm text-foreground truncate">{client.name}</span>
+                    <div className="flex items-center gap-2.5 w-full">
+                      <Users className="h-4 w-4 text-primary flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span className="font-medium text-sm truncate">{client.name}</span>
                           {client.status === "aviso_previo" && (
-                            <Badge variant="secondary" className="text-[10px] h-4 px-1.5 bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border-yellow-500/30 flex-shrink-0 whitespace-nowrap">
+                            <Badge className="text-[9px] h-4 px-1 bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border-yellow-500/30">
                               Aviso
                             </Badge>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground min-w-0">
-                          {client.goals && client.goals.length > 0 && (
-                            <>
-                              <div className="flex items-center gap-1 min-w-0 truncate">
-                                <Target className="h-3 w-3 flex-shrink-0" />
-                                <span className="truncate">{client.goals[0].goal_type} - {client.goals[0].period}</span>
-                              </div>
-                              <Badge variant="default" className="text-[10px] h-4 px-1.5 flex-shrink-0 whitespace-nowrap">
-                                {client.goals.length} {client.goals.length === 1 ? "meta" : "metas"}
-                              </Badge>
-                            </>
-                          )}
-                        </div>
+                        {client.goals && client.goals.length > 0 && (
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <Target className="h-3 w-3" />
+                            <span className="truncate">{client.goals[0].goal_type} - {client.goals[0].period}</span>
+                            <Badge variant="secondary" className="ml-auto text-[9px] h-4 px-1">
+                              {client.goals.length}
+                            </Badge>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </SelectItem>
