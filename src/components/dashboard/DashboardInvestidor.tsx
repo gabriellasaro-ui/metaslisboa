@@ -13,6 +13,7 @@ import { ReportsSectionInvestidor } from "@/components/dashboard/ReportsSectionI
 import { EditGoalDialog } from "@/components/dashboard/EditGoalDialog";
 import { EditClientDialog } from "@/components/dashboard/EditClientDialog";
 import { GoalHistoryDialog } from "@/components/dashboard/GoalHistoryDialog";
+import { GoalFinalReport } from "@/components/dashboard/goals/GoalFinalReport";
 import { GoalsDistributionChart } from "@/components/dashboard/charts/GoalsDistributionChart";
 import { HealthStatusDistributionChart } from "@/components/dashboard/charts/HealthStatusDistributionChart";
 import { WeeklyProgressChart } from "@/components/dashboard/WeeklyProgressChart";
@@ -32,6 +33,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
   const [editingGoal, setEditingGoal] = useState<Client | null>(null);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [viewingHistory, setViewingHistory] = useState<Client | null>(null);
+  const [viewingReport, setViewingReport] = useState<Client | null>(null);
   const queryClient = useQueryClient();
 
   // Filtrar apenas o squad do investidor
@@ -58,6 +60,10 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
   const handleCheckInSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] });
     setShowCheckInForm(false);
+  };
+
+  const handleGoalStarted = () => {
+    queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] });
   };
 
   return (
@@ -167,6 +173,8 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
               clients={clients}
               onViewProgress={handleViewProgress}
               onEditClient={handleEditClient}
+              onViewReport={(client) => setViewingReport(client)}
+              onGoalStarted={handleGoalStarted}
             />
           </CardContent>
         </Card>
@@ -322,6 +330,28 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
         open={!!viewingHistory}
         onOpenChange={(open) => !open && setViewingHistory(null)}
       />
+
+      {viewingReport?.smartGoal && (
+        <GoalFinalReport
+          open={!!viewingReport}
+          onOpenChange={(open) => !open && setViewingReport(null)}
+          goal={{
+            id: viewingReport.smartGoal.id || "",
+            goal_value: viewingReport.smartGoal.goalValue,
+            goal_type: viewingReport.smartGoal.goalType,
+            period: viewingReport.smartGoal.period || "",
+            progress: viewingReport.smartGoal.progress || 0,
+            status: viewingReport.smartGoal.status || "",
+            started_at: viewingReport.smartGoal.started_at,
+            completed_date: viewingReport.smartGoal.completed_date,
+            target_date: viewingReport.smartGoal.targetDate,
+            ai_analysis: viewingReport.smartGoal.ai_analysis,
+            final_report: viewingReport.smartGoal.final_report,
+          }}
+          checkIns={viewingReport.checkIns || []}
+          clientName={viewingReport.name}
+        />
+      )}
     </NavigationTabs>
   );
 };
