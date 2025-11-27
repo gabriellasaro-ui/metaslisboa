@@ -40,15 +40,39 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
   const fetchClients = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      // Buscar perfil do usuário logado
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error("Usuário não autenticado");
+        setIsLoading(false);
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("squad_id")
+        .eq("id", user.id)
+        .single();
+
+      // Verificar se o usuário é supervisor
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
+
+      const isSupervisor = roles?.some(r => r.role === "supervisor");
+
+      // Buscar clientes
+      let query = supabase
         .from("clients")
         .select(`
           id,
           name,
           status,
+          squad_id,
           squad:squads(
             name,
-            leader:leaders(name)
+            leader:profiles(name)
           ),
           goals(
             id,
@@ -60,6 +84,13 @@ export const ClientSelector = ({ value, onValueChange, placeholder = "Selecione 
         `)
         .in("status", ["ativo", "aviso_previo"])
         .order("name");
+
+      // Se não for supervisor, filtrar apenas pelo squad do usuário
+      if (!isSupervisor && profile?.squad_id) {
+        query = query.eq("squad_id", profile.squad_id);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
