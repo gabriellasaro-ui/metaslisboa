@@ -2,7 +2,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Trophy, Shield, Award, Target } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Trophy, Shield, Award, Target, Info } from "lucide-react";
 import { Squad, Leader } from "@/types";
 
 interface SquadRankingCardProps {
@@ -79,9 +80,15 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
         <CardDescription>Performance comparativa por cobertura de metas</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {squadStats.map((squad, index) => (
-          <Card key={squad.id} className={`${getCardClass(index)} transition-all hover:shadow-md`}>
-            <CardContent className="p-4 space-y-4">
+        <TooltipProvider>
+          {squadStats.map((squad, index) => (
+            <Tooltip key={squad.id}>
+              <TooltipTrigger asChild>
+                <Card 
+                  className={`${getCardClass(index)} transition-all hover:shadow-md animate-fade-in cursor-help`}
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <CardContent className="p-4 space-y-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className={`flex-shrink-0 h-14 w-14 rounded-xl flex items-center justify-center ${
@@ -151,7 +158,7 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
                   </div>
                 </div>
                 <div className="text-center space-y-1">
-                  <div className="text-xl font-bold text-destructive">
+                  <div className="text-xl font-bold text-muted-foreground">
                     {squad.withoutGoals}
                   </div>
                   <div className="text-[10px] text-muted-foreground uppercase font-medium tracking-wide">
@@ -161,7 +168,45 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
               </div>
             </CardContent>
           </Card>
-        ))}
+        </TooltipTrigger>
+        <TooltipContent side="left" className="max-w-xs p-4">
+          <div className="space-y-3">
+            <div className="font-semibold text-base border-b pb-2">{squad.name}</div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Total de Clientes:</span>
+                <span className="font-medium">{squad.total}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Taxa de Cobertura:</span>
+                <span className="font-medium">{Math.round(squad.coverageRate)}%</span>
+              </div>
+              <div className="pt-2 border-t space-y-1">
+                <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
+                  <span>Com Meta (+3 pts cada):</span>
+                  <span className="font-semibold">{squad.withGoals} = +{squad.withGoals * 3} pts</span>
+                </div>
+                <div className="flex justify-between text-amber-600 dark:text-amber-400">
+                  <span>A Definir (0 pts):</span>
+                  <span className="font-semibold">{squad.pending} = 0 pts</span>
+                </div>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Sem Meta (-3 pts cada):</span>
+                  <span className="font-semibold">{squad.withoutGoals} = {squad.withoutGoals * -3} pts</span>
+                </div>
+              </div>
+              <div className="pt-2 border-t">
+                <div className="flex justify-between items-center font-bold text-base">
+                  <span>Pontuação Total:</span>
+                  <span className="text-primary">{squad.points} pts</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </TooltipContent>
+      </Tooltip>
+          ))}
+        </TooltipProvider>
       </CardContent>
     </Card>
   );
