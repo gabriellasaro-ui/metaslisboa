@@ -133,7 +133,7 @@ export const WeeklyCheckInForm = ({
       if (goalId) {
         const goalUpdate = {
           progress: progress,
-          status: (progress === 100 ? "concluida" : "em_andamento") as "concluida" | "em_andamento" | "nao_definida" | "cancelada",
+          status: (progress === 100 ? "concluida" : "em_andamento") as "concluida" | "em_andamento" | "nao_definida" | "cancelada" | "nao_batida",
           completed_date: progress === 100 ? new Date().toISOString() : null,
         };
 
@@ -151,6 +151,25 @@ export const WeeklyCheckInForm = ({
         }
 
         console.log("✅ Meta atualizada com sucesso:", goalResult);
+
+        // 3. Se progresso = 100%, disparar geração de relatório com IA
+        if (progress === 100) {
+          console.log("🎉 Meta batida! Gerando relatório com IA...");
+          
+          const { error: analysisError } = await supabase.functions.invoke("analyze-goal", {
+            body: { goalId },
+          });
+
+          if (analysisError) {
+            console.error("❌ Erro ao gerar análise:", analysisError);
+            // Não bloquear o check-in se a análise falhar
+            toast.error("Aviso: Relatório de IA não pôde ser gerado", {
+              description: "O check-in foi registrado com sucesso",
+            });
+          } else {
+            console.log("✅ Análise gerada com sucesso!");
+          }
+        }
       }
 
       toast.success("Check-in registrado!", {

@@ -168,10 +168,12 @@ export type Database = {
       goals: {
         Row: {
           achievable: string | null
+          ai_analysis: string | null
           client_id: string
           completed_date: string | null
           created_at: string
           description: string | null
+          final_report: string | null
           goal_type: Database["public"]["Enums"]["goal_type"]
           goal_value: string
           id: string
@@ -181,6 +183,8 @@ export type Database = {
           relevant: string | null
           specific: string | null
           start_date: string | null
+          started_at: string | null
+          started_by: string | null
           status: Database["public"]["Enums"]["goal_status"]
           target_date: string | null
           time_bound: string | null
@@ -188,10 +192,12 @@ export type Database = {
         }
         Insert: {
           achievable?: string | null
+          ai_analysis?: string | null
           client_id: string
           completed_date?: string | null
           created_at?: string
           description?: string | null
+          final_report?: string | null
           goal_type: Database["public"]["Enums"]["goal_type"]
           goal_value: string
           id?: string
@@ -201,6 +207,8 @@ export type Database = {
           relevant?: string | null
           specific?: string | null
           start_date?: string | null
+          started_at?: string | null
+          started_by?: string | null
           status?: Database["public"]["Enums"]["goal_status"]
           target_date?: string | null
           time_bound?: string | null
@@ -208,10 +216,12 @@ export type Database = {
         }
         Update: {
           achievable?: string | null
+          ai_analysis?: string | null
           client_id?: string
           completed_date?: string | null
           created_at?: string
           description?: string | null
+          final_report?: string | null
           goal_type?: Database["public"]["Enums"]["goal_type"]
           goal_value?: string
           id?: string
@@ -221,6 +231,8 @@ export type Database = {
           relevant?: string | null
           specific?: string | null
           start_date?: string | null
+          started_at?: string | null
+          started_by?: string | null
           status?: Database["public"]["Enums"]["goal_status"]
           target_date?: string | null
           time_bound?: string | null
@@ -385,7 +397,12 @@ export type Database = {
       checkin_status: "on_track" | "at_risk" | "delayed" | "completed"
       client_status: "ativo" | "aviso_previo" | "churned"
       goal_period: "mensal" | "trimestral" | "semestral" | "anual"
-      goal_status: "nao_definida" | "em_andamento" | "concluida" | "cancelada"
+      goal_status:
+        | "nao_definida"
+        | "em_andamento"
+        | "concluida"
+        | "cancelada"
+        | "nao_batida"
       goal_type: "Faturamento" | "Leads" | "OUTROS"
       health_status: "safe" | "care" | "danger"
     }
@@ -519,7 +536,13 @@ export const Constants = {
       checkin_status: ["on_track", "at_risk", "delayed", "completed"],
       client_status: ["ativo", "aviso_previo", "churned"],
       goal_period: ["mensal", "trimestral", "semestral", "anual"],
-      goal_status: ["nao_definida", "em_andamento", "concluida", "cancelada"],
+      goal_status: [
+        "nao_definida",
+        "em_andamento",
+        "concluida",
+        "cancelada",
+        "nao_batida",
+      ],
       goal_type: ["Faturamento", "Leads", "OUTROS"],
       health_status: ["safe", "care", "danger"],
     },
