@@ -17,8 +17,8 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
     const withoutGoals = squad.clients.filter(c => c.hasGoal === 'NAO').length;
     
     // Novo cálculo de pontos:
-    // +3 para com meta, 0 para a definir, -1 para sem meta
-    const points = (withGoals * 3) + (pending * 0) + (withoutGoals * -1);
+    // +3 para com meta, 0 para a definir, -3 para sem meta
+    const points = (withGoals * 3) + (pending * 0) + (withoutGoals * -3);
     
     const coverageRate = total > 0 ? (withGoals / total) * 100 : 0;
     
