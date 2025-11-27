@@ -82,26 +82,29 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
 
       if (profileError) throw profileError;
 
-      // Atualizar role - deletar antiga e inserir nova devido à constraint única
-      // Primeiro, deletar qualquer role existente do usuário
-      const { error: deleteError } = await supabase
+      // Primeiro verificar se já existe um role para este usuário
+      const { data: existingRole } = await supabase
         .from("user_roles")
-        .delete()
-        .eq("user_id", user.id);
+        .select("role")
+        .eq("user_id", user.id)
+        .single();
 
-      if (deleteError) {
-        console.error('Error deleting old role:', deleteError);
+      if (existingRole) {
+        // Se existir, fazer UPDATE
+        const { error: updateError } = await supabase
+          .from("user_roles")
+          .update({ role })
+          .eq("user_id", user.id);
+
+        if (updateError) throw updateError;
+      } else {
+        // Se não existir, fazer INSERT
+        const { error: insertError } = await supabase
+          .from("user_roles")
+          .insert({ user_id: user.id, role });
+
+        if (insertError) throw insertError;
       }
-
-      // Depois, inserir a nova role
-      const { error: insertError } = await supabase
-        .from("user_roles")
-        .insert({ 
-          user_id: user.id, 
-          role 
-        });
-
-      if (insertError) throw insertError;
 
       toast.success("Usuário atualizado com sucesso!");
       onSuccess();
@@ -111,9 +114,10 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
       setTimeout(() => {
         window.location.reload();
       }, 500);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating user:", error);
-      toast.error("Erro ao atualizar usuário");
+      const errorMessage = error.message || error.details || "Erro ao atualizar usuário";
+      toast.error(`Erro: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
