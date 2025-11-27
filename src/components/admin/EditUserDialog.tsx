@@ -106,6 +106,11 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
       toast.success("Usuário atualizado com sucesso!");
       onSuccess();
       onOpenChange(false);
+      
+      // Forçar reload da página após 500ms para garantir que mudanças apareçam
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error) {
       console.error("Error updating user:", error);
       toast.error("Erro ao atualizar usuário");
