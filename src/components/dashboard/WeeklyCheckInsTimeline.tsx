@@ -200,21 +200,68 @@ export const WeeklyCheckInsTimeline = ({
     console.log("🗑️ Tentando excluir check-in:", id);
     
     try {
-      const { data, error } = await supabase
+      // 1. Buscar o check-in a ser deletado para pegar o goal_id
+      const { data: checkInToDelete, error: fetchError } = await supabase
+        .from("check_ins")
+        .select("goal_id, progress")
+        .eq("id", id)
+        .single();
+
+      console.log("📋 Check-in a deletar:", checkInToDelete);
+
+      if (fetchError) throw fetchError;
+
+      // 2. Deletar o check-in
+      const { error: deleteError } = await supabase
         .from("check_ins")
         .delete()
-        .eq("id", id)
-        .select();
+        .eq("id", id);
 
-      console.log("📤 Resultado da exclusão:", { data, error });
+      if (deleteError) {
+        console.error("❌ Erro ao deletar:", deleteError);
+        throw deleteError;
+      }
 
-      if (error) {
-        console.error("❌ Erro RLS ou de permissão:", error);
-        throw error;
+      console.log("✅ Check-in deletado com sucesso");
+
+      // 3. Se tinha uma meta associada, recalcular o progresso baseado no check-in anterior
+      if (checkInToDelete.goal_id) {
+        console.log("🔄 Recalculando progresso da meta:", checkInToDelete.goal_id);
+        
+        // Buscar o check-in mais recente desta meta
+        const { data: latestCheckIn, error: latestError } = await supabase
+          .from("check_ins")
+          .select("progress")
+          .eq("goal_id", checkInToDelete.goal_id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (latestError) {
+          console.error("❌ Erro ao buscar último check-in:", latestError);
+        }
+
+        // Atualizar progresso da meta
+        const newProgress = latestCheckIn?.progress || 0;
+        console.log("📊 Novo progresso da meta:", newProgress);
+
+        const { error: updateError } = await supabase
+          .from("goals")
+          .update({ 
+            progress: newProgress,
+            status: newProgress === 100 ? "concluida" : "em_andamento" as "concluida" | "em_andamento",
+          })
+          .eq("id", checkInToDelete.goal_id);
+
+        if (updateError) {
+          console.error("❌ Erro ao atualizar progresso:", updateError);
+        } else {
+          console.log("✅ Progresso da meta atualizado");
+        }
       }
 
       toast.success("Check-in excluído!", {
-        description: "O registro foi removido com sucesso.",
+        description: "O registro foi removido e o progresso foi recalculado.",
       });
 
       // Atualizar lista
