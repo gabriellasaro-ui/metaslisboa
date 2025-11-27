@@ -74,18 +74,29 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
         validatedData.goalValue = undefined;
         
         // Deletar meta do banco se existir
-        const { data: existingGoal } = await supabase
+        const { data: existingGoal, error: goalFetchError } = await supabase
           .from("goals")
           .select("id")
           .eq("client_id", clientData.id)
           .maybeSingle();
 
+        if (goalFetchError) {
+          console.error("❌ Erro ao buscar meta existente:", goalFetchError);
+          throw new Error("Não foi possível buscar a meta existente");
+        }
+
         if (existingGoal) {
           console.log("🗑️ Deletando meta do cliente:", clientData.id);
-          await supabase
+          const { error: deleteError } = await supabase
             .from("goals")
             .delete()
             .eq("id", existingGoal.id);
+
+          if (deleteError) {
+            console.error("❌ Erro ao deletar meta:", deleteError);
+            throw new Error("Não foi possível remover a meta do cliente");
+          }
+          console.log("✅ Meta deletada com sucesso");
         }
       }
 
@@ -105,15 +116,21 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
       if (validatedData.hasGoal === "SIM" || validatedData.hasGoal === "NAO_DEFINIDO") {
         const goalStatus = validatedData.hasGoal === "SIM" ? "em_andamento" : "nao_definida";
         
-        const { data: existingGoal } = await supabase
+        const { data: existingGoal, error: goalFetchError } = await supabase
           .from("goals")
           .select("id")
           .eq("client_id", clientData.id)
           .maybeSingle();
 
+        if (goalFetchError) {
+          console.error("❌ Erro ao buscar meta existente:", goalFetchError);
+          throw new Error("Não foi possível buscar a meta existente");
+        }
+
         if (existingGoal) {
           // Atualizar meta existente
-          await supabase
+          console.log("📝 Atualizando meta existente:", existingGoal.id);
+          const { error: updateError } = await supabase
             .from("goals")
             .update({
               goal_type: validatedData.goalType || "OUTROS",
@@ -122,9 +139,16 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
               period: goalPeriod,
             })
             .eq("id", existingGoal.id);
+
+          if (updateError) {
+            console.error("❌ Erro ao atualizar meta:", updateError);
+            throw new Error("Não foi possível atualizar a meta");
+          }
+          console.log("✅ Meta atualizada com sucesso");
         } else {
           // Criar nova meta
-          await supabase
+          console.log("➕ Criando nova meta para cliente:", clientData.id);
+          const { error: insertError } = await supabase
             .from("goals")
             .insert({
               client_id: clientData.id,
@@ -134,6 +158,12 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
               progress: 0,
               period: goalPeriod,
             });
+
+          if (insertError) {
+            console.error("❌ Erro ao criar meta:", insertError);
+            throw new Error("Não foi possível criar a meta");
+          }
+          console.log("✅ Meta criada com sucesso");
         }
       }
 
