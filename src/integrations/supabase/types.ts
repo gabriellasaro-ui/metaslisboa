@@ -75,6 +75,7 @@ export type Database = {
         Row: {
           archived: boolean
           aviso_previo_date: string | null
+          categoria_problema: string | null
           churned_date: string | null
           created_at: string
           health_status: Database["public"]["Enums"]["health_status"] | null
@@ -89,6 +90,7 @@ export type Database = {
         Insert: {
           archived?: boolean
           aviso_previo_date?: string | null
+          categoria_problema?: string | null
           churned_date?: string | null
           created_at?: string
           health_status?: Database["public"]["Enums"]["health_status"] | null
@@ -103,6 +105,7 @@ export type Database = {
         Update: {
           archived?: boolean
           aviso_previo_date?: string | null
+          categoria_problema?: string | null
           churned_date?: string | null
           created_at?: string
           health_status?: Database["public"]["Enums"]["health_status"] | null

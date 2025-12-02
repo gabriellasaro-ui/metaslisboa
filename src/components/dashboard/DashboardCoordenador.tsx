@@ -171,7 +171,7 @@ export const DashboardCoordenador = ({ squadsData, squadId, updateClient }: Dash
       <TabsContent value="health-score" className="space-y-6">
         <HealthScoreDashboard 
           squadsData={mySquad ? [mySquad] : []} 
-          canEdit={false}
+          canEdit={true}
         />
       </TabsContent>
 

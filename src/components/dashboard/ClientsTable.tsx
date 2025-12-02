@@ -112,19 +112,19 @@ export const ClientsTable = ({
             <TableHead className="w-[200px]">Cliente</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Saúde</TableHead>
+            <TableHead>Problema</TableHead>
             <TableHead>Meta</TableHead>
             <TableHead>Tipo</TableHead>
             <TableHead>Período</TableHead>
             <TableHead>Valor</TableHead>
             <TableHead>Progresso</TableHead>
-            <TableHead>Observações</TableHead>
-            {showActions && <TableHead className="w-[180px]">Ações</TableHead>}
+            {showActions && <TableHead className="w-[120px]">Ações</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
           {filteredClients.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={showActions ? 9 : 8} className="text-center text-muted-foreground py-8">
+              <TableCell colSpan={showActions ? 10 : 9} className="text-center text-muted-foreground py-8">
                 Nenhum cliente encontrado com os filtros selecionados
               </TableCell>
             </TableRow>
@@ -139,6 +139,15 @@ export const ClientsTable = ({
                   <TableCell>{getClientStatusBadge(client.status)}</TableCell>
                   <TableCell>
                     <HealthStatusBadge status={client.healthStatus || 'safe'} />
+                  </TableCell>
+                  <TableCell className="max-w-[150px]">
+                    {client.problema_central ? (
+                      <span className="text-xs text-muted-foreground line-clamp-2" title={client.problema_central}>
+                        {client.problema_central}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground text-xs">-</span>
+                    )}
                   </TableCell>
                   <TableCell>{getGoalStatusBadge(client.hasGoal)}</TableCell>
                   <TableCell>{getGoalTypeBadge(client.goalType)}</TableCell>
@@ -161,14 +170,6 @@ export const ClientsTable = ({
                       </div>
                     )}
                   </TableCell>
-                  <TableCell>
-                    {client.notes && (
-                      <div className="flex items-start gap-2">
-                        <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm text-muted-foreground">{client.notes}</span>
-                      </div>
-                    )}
-                  </TableCell>
                   {showActions && (
                     <TableCell>
                       <div className="flex items-center gap-1">
@@ -177,23 +178,10 @@ export const ClientsTable = ({
                             variant="ghost"
                             size="sm"
                             onClick={() => onViewProgress?.(client)}
-                            className="h-8 px-2 hover:bg-purple-500/10 hover:text-purple-600 hover:border hover:border-purple-500/20"
+                            className="h-8 w-8 p-0 hover:bg-purple-500/10 hover:text-purple-600"
                             title="Ver histórico de check-ins"
                           >
-                            <History className="h-4 w-4 mr-1" />
-                            Check-ins
-                          </Button>
-                        )}
-                        {(isCoordenador || isSupervisor) && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onEditClient?.(client, originalIndex)}
-                            className="h-8 px-2 hover:bg-primary/10 hover:text-primary"
-                            title="Editar cliente"
-                          >
-                            <Pencil className="h-4 w-4 mr-1" />
-                            Editar
+                            <History className="h-4 w-4" />
                           </Button>
                         )}
                         {canEdit && (
@@ -201,10 +189,10 @@ export const ClientsTable = ({
                             variant="ghost"
                             size="sm"
                             onClick={() => onEditClient?.(client, originalIndex)}
-                            className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary hover:border hover:border-primary/20"
+                            className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                            title="Editar cliente"
                           >
                             <Pencil className="h-4 w-4" />
-                            <span className="sr-only">Editar cliente</span>
                           </Button>
                         )}
                       </div>

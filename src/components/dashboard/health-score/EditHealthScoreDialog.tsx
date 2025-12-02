@@ -15,6 +15,7 @@ interface Client {
   name: string;
   health_status: ExtendedHealthStatus | null;
   problema_central: string | null;
+  categoria_problema?: string | null;
   squadName?: string;
 }
 
@@ -25,9 +26,20 @@ interface EditHealthScoreDialogProps {
   onSuccess?: () => void;
 }
 
+const PROBLEM_CATEGORIES = [
+  "Visão do projeto",
+  "Comercial",
+  "Financeiro",
+  "Resultado do Cliente",
+  "Qualidade Geral",
+  "Dados concretos",
+  "Outro",
+];
+
 export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }: EditHealthScoreDialogProps) => {
   const [healthStatus, setHealthStatus] = useState<ExtendedHealthStatus>('safe');
   const [problemaCentral, setProblemaCentral] = useState('');
+  const [categoriaProblema, setCategoriaProblema] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
 
@@ -35,6 +47,7 @@ export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }:
     if (client) {
       setHealthStatus(client.health_status || 'safe');
       setProblemaCentral(client.problema_central || '');
+      setCategoriaProblema(client.categoria_problema || '');
     }
   }, [client]);
 
@@ -48,6 +61,7 @@ export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }:
         .update({
           health_status: healthStatus,
           problema_central: problemaCentral || null,
+          categoria_problema: categoriaProblema || null,
         })
         .eq('id', client.id);
 
@@ -67,7 +81,7 @@ export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }:
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Editar Health Score</DialogTitle>
         </DialogHeader>
@@ -91,6 +105,23 @@ export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }:
                 {Object.entries(healthStatusLabels).map(([value, label]) => (
                   <SelectItem key={value} value={value}>
                     {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="categoria-problema">Categoria do Problema</Label>
+            <Select value={categoriaProblema} onValueChange={setCategoriaProblema}>
+              <SelectTrigger id="categoria-problema">
+                <SelectValue placeholder="Selecione a categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Nenhuma</SelectItem>
+                {PROBLEM_CATEGORIES.map(category => (
+                  <SelectItem key={category} value={category}>
+                    {category}
                   </SelectItem>
                 ))}
               </SelectContent>
