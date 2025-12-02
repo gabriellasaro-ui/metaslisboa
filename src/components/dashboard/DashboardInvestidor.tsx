@@ -17,6 +17,7 @@ import { GoalsDistributionChart } from "@/components/dashboard/charts/GoalsDistr
 import { HealthStatusDistributionChart } from "@/components/dashboard/charts/HealthStatusDistributionChart";
 import { WeeklyProgressChart } from "@/components/dashboard/WeeklyProgressChart";
 import { HealthScoreDashboard } from "@/components/dashboard/health-score/HealthScoreDashboard";
+import { ClientAlertsCard } from "@/components/dashboard/ClientAlertsCard";
 import { Target, Users, TrendingUp, Calendar, Plus, MessageSquare, Pencil, History } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
@@ -69,6 +70,9 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
     >
       {/* Visão Geral */}
       <TabsContent value="visao-geral" className="space-y-6">
+        {/* Alertas de Clientes */}
+        <ClientAlertsCard squadsData={squadsData} squadId={squadId} />
+
         {/* Card de Check-in */}
         <Card className="relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-background hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 group">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 group-hover:bg-primary/10 transition-all duration-700" />
