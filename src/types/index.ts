@@ -54,6 +54,7 @@ export interface Client {
   notes?: string;
   healthStatus?: HealthStatus;
   problema_central?: string;
+  categoria_problema?: string;
   status?: ClientStatus;
   avisosPrevioDate?: string;
   churnedDate?: string;

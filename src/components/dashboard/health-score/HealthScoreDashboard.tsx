@@ -3,8 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Squad } from "@/types";
 import { HealthScoreTable } from "./HealthScoreTable";
 import { HealthScoreBadge, ExtendedHealthStatus, getHealthScoreColor, healthStatusLabels } from "./HealthScoreBadge";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
-import { Shield, AlertTriangle, AlertCircle, Zap, UserPlus, Briefcase, Clock, XCircle } from "lucide-react";
+import { ProblemaCategoryCharts } from "./ProblemaCategoryCharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis } from "recharts";
+import { Shield, AlertTriangle, AlertCircle, Zap, UserPlus, Briefcase, Clock, XCircle, TrendingDown } from "lucide-react";
 
 interface HealthScoreDashboardProps {
   squadsData: Squad[];
@@ -35,6 +36,7 @@ export const HealthScoreDashboard = ({ squadsData, canEdit = false, onRefresh }:
         name: client.name,
         health_status: (client.healthStatus as ExtendedHealthStatus) || 'safe',
         problema_central: client.problema_central || null,
+        categoria_problema: client.categoria_problema || null,
         squadName: squad.name,
       }))
     );
@@ -78,16 +80,37 @@ export const HealthScoreDashboard = ({ squadsData, canEdit = false, onRefresh }:
     );
   }, [clients]);
 
+  // Bar chart data by squad
+  const squadHealthData = useMemo(() => {
+    return squadsData.map(squad => {
+      const counts = { safe: 0, care: 0, danger: 0, other: 0 };
+      squad.clients.forEach(client => {
+        const status = client.healthStatus || 'safe';
+        if (status === 'safe') counts.safe++;
+        else if (status === 'care') counts.care++;
+        else if (status === 'danger' || status === 'danger_critico') counts.danger++;
+        else counts.other++;
+      });
+      return {
+        name: squad.name,
+        Safe: counts.safe,
+        Care: counts.care,
+        Danger: counts.danger,
+        Outros: counts.other,
+      };
+    });
+  }, [squadsData]);
+
   return (
     <div className="space-y-6">
-      {/* Metric Cards */}
+      {/* Header Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
         {statusOrder.map(status => {
           const Icon = statusIcons[status];
           const count = statusCounts[status];
           
           return (
-            <Card key={status} className="relative overflow-hidden">
+            <Card key={status} className="relative overflow-hidden hover:shadow-lg transition-shadow">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-2">
                   <Icon className="h-5 w-5 text-muted-foreground" />
@@ -106,9 +129,9 @@ export const HealthScoreDashboard = ({ squadsData, canEdit = false, onRefresh }:
         })}
       </div>
 
-      {/* Charts and Risk Section */}
+      {/* Charts Row 1 - Distribution */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Pie Chart */}
+        {/* Pie Chart - Health Status Distribution */}
         <Card>
           <CardHeader>
             <CardTitle>Distribuição por Status</CardTitle>
@@ -126,8 +149,8 @@ export const HealthScoreDashboard = ({ squadsData, canEdit = false, onRefresh }:
                     outerRadius={100}
                     paddingAngle={2}
                     dataKey="value"
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    labelLine={true}
                   >
                     {chartData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
@@ -148,47 +171,87 @@ export const HealthScoreDashboard = ({ squadsData, canEdit = false, onRefresh }:
           </CardContent>
         </Card>
 
-        {/* At Risk Clients */}
-        <Card className="border-red-500/20">
+        {/* Bar Chart - Health by Squad */}
+        <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
-              <AlertCircle className="h-5 w-5" />
-              Clientes em Risco
-            </CardTitle>
-            <CardDescription>
-              {atRiskClients.length} clientes em Danger ou Danger Crítico
-            </CardDescription>
+            <CardTitle>Health Status por Squad</CardTitle>
+            <CardDescription>Comparativo entre squads</CardDescription>
           </CardHeader>
           <CardContent>
-            {atRiskClients.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Shield className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Nenhum cliente em risco crítico</p>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-[250px] overflow-y-auto">
-                {atRiskClients.slice(0, 10).map(client => (
-                  <div 
-                    key={client.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-red-500/5 border border-red-500/10"
-                  >
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={squadHealthData} layout="vertical">
+                  <XAxis type="number" />
+                  <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 12 }} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <Legend />
+                  <Bar dataKey="Safe" stackId="a" fill="hsl(152, 69%, 35%)" />
+                  <Bar dataKey="Care" stackId="a" fill="hsl(45, 93%, 47%)" />
+                  <Bar dataKey="Danger" stackId="a" fill="hsl(0, 84%, 60%)" />
+                  <Bar dataKey="Outros" stackId="a" fill="hsl(0, 0%, 60%)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Charts Row 2 - Problem Categories */}
+      <ProblemaCategoryCharts clients={clients} />
+
+      {/* At Risk Clients Section */}
+      <Card className="border-red-500/20 bg-gradient-to-br from-red-500/5 to-transparent">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+            <TrendingDown className="h-5 w-5" />
+            Clientes em Risco
+          </CardTitle>
+          <CardDescription>
+            {atRiskClients.length} clientes em Danger ou Danger Crítico precisam de atenção
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {atRiskClients.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Shield className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Nenhum cliente em risco crítico</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {atRiskClients.map(client => (
+                <div 
+                  key={client.id}
+                  className="p-4 rounded-lg bg-card border border-red-500/20 hover:border-red-500/40 transition-colors"
+                >
+                  <div className="flex items-start justify-between mb-2">
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{client.name}</p>
+                      <p className="font-semibold truncate">{client.name}</p>
                       <p className="text-xs text-muted-foreground">{client.squadName}</p>
                     </div>
                     <HealthScoreBadge status={client.health_status} size="sm" />
                   </div>
-                ))}
-                {atRiskClients.length > 10 && (
-                  <p className="text-sm text-muted-foreground text-center">
-                    +{atRiskClients.length - 10} mais clientes
-                  </p>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                  {client.problema_central && (
+                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                      {client.problema_central}
+                    </p>
+                  )}
+                  {client.categoria_problema && (
+                    <span className="inline-block mt-2 text-xs px-2 py-1 rounded bg-muted">
+                      {client.categoria_problema}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* All Clients Table */}
       <Card>
