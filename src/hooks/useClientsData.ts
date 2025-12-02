@@ -55,6 +55,7 @@ export const useClientsData = () => {
           name,
           status,
           health_status,
+          problema_central,
           notes,
           squad_id,
           archived,
@@ -103,10 +104,12 @@ export const useClientsData = () => {
             // O health_status agora é gerenciado manualmente pelos usuários
 
             return {
+              id: client.id,
               name: client.name,
               hasGoal: hasGoalStatus,
               status: client.status,
               healthStatus: autoHealthStatus,
+              problema_central: client.problema_central || undefined,
               goalType: activeGoal?.goal_type || undefined,
               goalValue: activeGoal?.goal_value || undefined,
               currentProgress: activeGoal?.progress || 0,

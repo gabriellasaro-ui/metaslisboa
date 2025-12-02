@@ -34,7 +34,7 @@ export const HealthScoreDashboard = ({ squadsData, canEdit = false, onRefresh }:
         id: client.id || '',
         name: client.name,
         health_status: (client.healthStatus as ExtendedHealthStatus) || 'safe',
-        problema_central: (client as any).problema_central || null,
+        problema_central: client.problema_central || null,
         squadName: squad.name,
       }))
     );
