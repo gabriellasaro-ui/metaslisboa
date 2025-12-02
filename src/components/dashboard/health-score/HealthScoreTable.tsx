@@ -6,7 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { HealthScoreBadge, ExtendedHealthStatus, healthStatusLabels } from "./HealthScoreBadge";
 import { EditHealthScoreDialog } from "./EditHealthScoreDialog";
 import { Search, Edit2, AlertCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 interface Client {
   id: string;
@@ -30,8 +29,7 @@ export const HealthScoreTable = ({ clients, canEdit = false, onRefresh }: Health
 
   const filteredClients = clients.filter(client => {
     const matchesSearch = client.name.toLowerCase().includes(search.toLowerCase()) ||
-      (client.problema_central?.toLowerCase().includes(search.toLowerCase())) ||
-      (client.categoria_problema?.toLowerCase().includes(search.toLowerCase()));
+      (client.problema_central?.toLowerCase().includes(search.toLowerCase()));
     
     const matchesStatus = statusFilter === "all" || client.health_status === statusFilter;
     
@@ -44,7 +42,7 @@ export const HealthScoreTable = ({ clients, canEdit = false, onRefresh }: Health
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar cliente, problema ou categoria..."
+            placeholder="Buscar cliente ou problema..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -72,7 +70,6 @@ export const HealthScoreTable = ({ clients, canEdit = false, onRefresh }: Health
               <TableHead>Cliente</TableHead>
               <TableHead>Squad</TableHead>
               <TableHead>Health Status</TableHead>
-              <TableHead>Categoria</TableHead>
               <TableHead className="min-w-[250px]">Problema Central</TableHead>
               {canEdit && <TableHead className="w-[80px]">Ações</TableHead>}
             </TableRow>
@@ -80,7 +77,7 @@ export const HealthScoreTable = ({ clients, canEdit = false, onRefresh }: Health
           <TableBody>
             {filteredClients.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={canEdit ? 6 : 5} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={canEdit ? 5 : 4} className="text-center py-8 text-muted-foreground">
                   Nenhum cliente encontrado
                 </TableCell>
               </TableRow>
@@ -93,15 +90,6 @@ export const HealthScoreTable = ({ clients, canEdit = false, onRefresh }: Health
                   </TableCell>
                   <TableCell>
                     <HealthScoreBadge status={client.health_status || 'safe'} />
-                  </TableCell>
-                  <TableCell>
-                    {client.categoria_problema ? (
-                      <Badge variant="outline" className="text-xs">
-                        {client.categoria_problema}
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">-</span>
-                    )}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {client.problema_central ? (
