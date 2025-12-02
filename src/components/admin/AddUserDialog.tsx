@@ -22,9 +22,11 @@ const userSchema = z.object({
 
 interface AddUserDialogProps {
   onSuccess: () => void;
+  coordenadorMode?: boolean;
+  squadId?: string | null;
 }
 
-export const AddUserDialog = ({ onSuccess }: AddUserDialogProps) => {
+export const AddUserDialog = ({ onSuccess, coordenadorMode = false, squadId: fixedSquadId }: AddUserDialogProps) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -39,8 +41,13 @@ export const AddUserDialog = ({ onSuccess }: AddUserDialogProps) => {
   useEffect(() => {
     if (open) {
       fetchSquads();
+      // Se for modo coordenador, já define o squad fixo
+      if (coordenadorMode && fixedSquadId) {
+        setSquadId(fixedSquadId);
+        setRole("investidor"); // Coordenadores só podem criar investidores
+      }
     }
-  }, [open]);
+  }, [open, coordenadorMode, fixedSquadId]);
 
   const fetchSquads = async () => {
     try {
@@ -79,6 +86,9 @@ export const AddUserDialog = ({ onSuccess }: AddUserDialogProps) => {
       }
     }
 
+    // Coordenador deve ter squad definido
+    const finalSquadId = coordenadorMode && fixedSquadId ? fixedSquadId : squadId;
+
     setLoading(true);
     try {
       // Criar usuário via Supabase Auth
@@ -88,8 +98,8 @@ export const AddUserDialog = ({ onSuccess }: AddUserDialogProps) => {
         options: {
           data: {
             name: name.trim(),
-            role,
-            squad_id: squadId || null,
+            role: coordenadorMode ? "investidor" : role,
+            squad_id: finalSquadId || null,
           },
         },
       });
@@ -119,12 +129,14 @@ export const AddUserDialog = ({ onSuccess }: AddUserDialogProps) => {
       <DialogTrigger asChild>
         <Button>
           <UserPlus className="h-4 w-4 mr-2" />
-          Adicionar Usuário
+          {coordenadorMode ? "Adicionar Investidor" : "Adicionar Usuário"}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Adicionar Novo Usuário</DialogTitle>
+          <DialogTitle>
+            {coordenadorMode ? "Adicionar Investidor ao Squad" : "Adicionar Novo Usuário"}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -165,44 +177,54 @@ export const AddUserDialog = ({ onSuccess }: AddUserDialogProps) => {
             {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="squad">Squad</Label>
-            <Select value={squadId || "none"} onValueChange={(value) => setSquadId(value === "none" ? "" : value)}>
-              <SelectTrigger id="squad">
-                <SelectValue placeholder="Selecione um squad" />
-              </SelectTrigger>
-              <SelectContent>
-                {loadingSquads ? (
-                  <div className="flex items-center justify-center py-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  </div>
-                ) : (
-                  <>
-                    <SelectItem value="none">Nenhum</SelectItem>
-                    {squads.map((squad) => (
-                      <SelectItem key={squad.id} value={squad.id}>
-                        {squad.name}
-                      </SelectItem>
-                    ))}
-                  </>
-                )}
-              </SelectContent>
-            </Select>
-          </div>
+          {!coordenadorMode && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="squad">Squad</Label>
+                <Select value={squadId || "none"} onValueChange={(value) => setSquadId(value === "none" ? "" : value)}>
+                  <SelectTrigger id="squad">
+                    <SelectValue placeholder="Selecione um squad" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {loadingSquads ? (
+                      <div className="flex items-center justify-center py-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      </div>
+                    ) : (
+                      <>
+                        <SelectItem value="none">Nenhum</SelectItem>
+                        {squads.map((squad) => (
+                          <SelectItem key={squad.id} value={squad.id}>
+                            {squad.name}
+                          </SelectItem>
+                        ))}
+                      </>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="role">Cargo *</Label>
-            <Select value={role} onValueChange={(value) => setRole(value as "investidor" | "coordenador" | "supervisor")}>
-              <SelectTrigger id="role">
-                <SelectValue placeholder="Selecione um cargo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="investidor">Investidor</SelectItem>
-                <SelectItem value="coordenador">Coordenador</SelectItem>
-                <SelectItem value="supervisor">Supervisor</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="role">Cargo *</Label>
+                <Select value={role} onValueChange={(value) => setRole(value as "investidor" | "coordenador" | "supervisor")}>
+                  <SelectTrigger id="role">
+                    <SelectValue placeholder="Selecione um cargo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="investidor">Investidor</SelectItem>
+                    <SelectItem value="coordenador">Coordenador</SelectItem>
+                    <SelectItem value="supervisor">Supervisor</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          )}
+
+          {coordenadorMode && (
+            <p className="text-sm text-muted-foreground">
+              O usuário será criado como <strong>Investidor</strong> no seu squad.
+            </p>
+          )}
 
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>

@@ -29,8 +29,19 @@ interface AdminClientsListProps {
   onUpdate: () => void;
 }
 
+const healthStatusConfig: Record<string, { className: string; label: string }> = {
+  safe: { className: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300", label: "Safe" },
+  care: { className: "bg-amber-500/20 text-amber-700 dark:text-amber-300", label: "Care" },
+  danger: { className: "bg-red-500/20 text-red-700 dark:text-red-300", label: "Danger" },
+  danger_critico: { className: "bg-red-700/20 text-red-800 dark:text-red-200", label: "Danger Crítico" },
+  onboarding: { className: "bg-violet-500/20 text-violet-700 dark:text-violet-300", label: "Onboarding" },
+  e_e: { className: "bg-orange-500/20 text-orange-700 dark:text-orange-300", label: "E.E." },
+  aviso_previo: { className: "bg-slate-500/20 text-slate-700 dark:text-slate-300", label: "Aviso Prévio" },
+  churn: { className: "bg-zinc-600/20 text-zinc-700 dark:text-zinc-300", label: "Churn" },
+};
+
 export const AdminClientsList = ({ onUpdate }: AdminClientsListProps) => {
-  const { isSupervisor } = useAuth();
+  const { isSupervisor, squadId: userSquadId } = useAuth();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
@@ -41,17 +52,24 @@ export const AdminClientsList = ({ onUpdate }: AdminClientsListProps) => {
 
   useEffect(() => {
     fetchClients();
-  }, []);
+  }, [userSquadId]);
 
   const fetchClients = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from("clients")
         .select(`
           *,
           squads(name)
         `)
         .order("name");
+
+      // Coordenadores veem apenas clientes do seu squad
+      if (!isSupervisor && userSquadId) {
+        query = query.eq("squad_id", userSquadId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setClients(data || []);
@@ -83,13 +101,8 @@ export const AdminClientsList = ({ onUpdate }: AdminClientsListProps) => {
   };
 
   const getHealthBadge = (health: string | null) => {
-    if (!health) return null;
-    const variants: Record<string, { className: string; label: string }> = {
-      safe: { className: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300", label: "Saudável" },
-      care: { className: "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300", label: "Atenção" },
-      danger: { className: "bg-red-500/20 text-red-700 dark:text-red-300", label: "Perigo" },
-    };
-    const config = variants[health] || variants.safe;
+    if (!health) return <span className="text-muted-foreground text-sm">-</span>;
+    const config = healthStatusConfig[health] || healthStatusConfig.safe;
     return <Badge className={config.className}>{config.label}</Badge>;
   };
 
