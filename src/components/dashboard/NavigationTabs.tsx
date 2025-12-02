@@ -4,7 +4,8 @@ import {
   BarChart3, 
   ClipboardList, 
   Search, 
-  FileText 
+  FileText,
+  HeartPulse
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -52,6 +53,12 @@ export const NavigationTabs = ({
       label: "Relatórios",
       icon: FileText,
       description: "Exportar dados"
+    },
+    {
+      value: "health-score",
+      label: "Health Score",
+      icon: HeartPulse,
+      description: "Saúde dos clientes"
     }
   ];
 
@@ -61,7 +68,7 @@ export const NavigationTabs = ({
         {/* Background decoration */}
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 rounded-xl -z-10" />
         
-        <TabsList className="w-full h-auto p-2 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl shadow-lg grid grid-cols-5 gap-2">
+        <TabsList className="w-full h-auto p-2 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl shadow-lg grid grid-cols-6 gap-2">
           {tabs.map((tab) => (
             <TabsTrigger
               key={tab.value}

@@ -1,12 +1,22 @@
 import { Badge } from "@/components/ui/badge";
 import { Shield, AlertTriangle, AlertCircle, Zap, UserPlus, Briefcase, Clock, XCircle } from "lucide-react";
-import { HealthStatus } from "@/types";
 
-interface HealthStatusBadgeProps {
-  status: HealthStatus;
+export type ExtendedHealthStatus = 
+  | 'safe' 
+  | 'care' 
+  | 'danger' 
+  | 'danger_critico' 
+  | 'onboarding' 
+  | 'e_e' 
+  | 'aviso_previo' 
+  | 'churn';
+
+interface HealthScoreBadgeProps {
+  status: ExtendedHealthStatus;
+  size?: 'sm' | 'md' | 'lg';
 }
 
-const configs: Record<HealthStatus, { label: string; icon: typeof Shield; className: string }> = {
+const configs: Record<ExtendedHealthStatus, { label: string; icon: typeof Shield; className: string }> = {
   safe: {
     label: "Safe",
     icon: Shield,
@@ -49,14 +59,45 @@ const configs: Record<HealthStatus, { label: string; icon: typeof Shield; classN
   },
 };
 
-export const HealthStatusBadge = ({ status }: HealthStatusBadgeProps) => {
+export const HealthScoreBadge = ({ status, size = 'md' }: HealthScoreBadgeProps) => {
   const config = configs[status] || configs.safe;
   const Icon = config.icon;
 
+  const sizeClasses = {
+    sm: "h-3 w-3",
+    md: "h-4 w-4",
+    lg: "h-5 w-5",
+  };
+
   return (
-    <Badge variant="outline" className={config.className}>
-      <Icon className="h-3 w-3 mr-1" />
+    <Badge variant="outline" className={`${config.className} ${size === 'lg' ? 'px-3 py-1' : ''}`}>
+      <Icon className={`${sizeClasses[size]} mr-1`} />
       {config.label}
     </Badge>
   );
+};
+
+export const getHealthScoreColor = (status: ExtendedHealthStatus): string => {
+  const colors: Record<ExtendedHealthStatus, string> = {
+    safe: "hsl(152, 69%, 35%)",
+    care: "hsl(45, 93%, 47%)",
+    danger: "hsl(0, 84%, 60%)",
+    danger_critico: "hsl(0, 72%, 40%)",
+    onboarding: "hsl(263, 70%, 50%)",
+    e_e: "hsl(25, 95%, 53%)",
+    aviso_previo: "hsl(215, 16%, 47%)",
+    churn: "hsl(240, 5%, 34%)",
+  };
+  return colors[status] || colors.safe;
+};
+
+export const healthStatusLabels: Record<ExtendedHealthStatus, string> = {
+  safe: "Safe",
+  care: "Care",
+  danger: "Danger",
+  danger_critico: "Danger Crítico",
+  onboarding: "Onboarding",
+  e_e: "E.E.",
+  aviso_previo: "Aviso Prévio",
+  churn: "Churn",
 };

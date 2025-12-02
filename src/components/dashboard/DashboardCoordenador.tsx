@@ -11,6 +11,7 @@ import { GoalsDistributionChart } from "@/components/dashboard/charts/GoalsDistr
 import { ReportsSection } from "@/components/dashboard/ReportsSection";
 import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
 import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
+import { HealthScoreDashboard } from "@/components/dashboard/health-score/HealthScoreDashboard";
 import { toast } from "sonner";
 
 interface DashboardCoordenadorProps {
@@ -164,6 +165,14 @@ export const DashboardCoordenador = ({ squadsData, squadId, updateClient }: Dash
       {/* Relatórios */}
       <TabsContent value="relatorios" className="space-y-6">
         <ReportsSection squadsData={mySquad ? [mySquad] : []} />
+      </TabsContent>
+
+      {/* Health Score */}
+      <TabsContent value="health-score" className="space-y-6">
+        <HealthScoreDashboard 
+          squadsData={mySquad ? [mySquad] : []} 
+          canEdit={false}
+        />
       </TabsContent>
 
       {/* Dialogs */}
