@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Loader2, ArrowLeft, Users, Building2, UserPlus, PlusCircle } from "lucide-react";
+import { ArrowLeft, Users, Building2, UserPlus, PlusCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { AdminClientsList } from "@/components/admin/AdminClientsList";
@@ -18,7 +18,7 @@ import { AddSquadDialog } from "@/components/admin/AddSquadDialog";
 import { AddUserDialog } from "@/components/admin/AddUserDialog";
 
 const Admin = () => {
-  const { isCoordenador, isSupervisor, isLoading: authLoading } = useAuth();
+  const { isCoordenador, isSupervisor, squadId, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -27,9 +27,20 @@ const Admin = () => {
     activeClients: 0,
     avisoClients: 0,
     churnedClients: 0,
+    healthStats: {
+      safe: 0,
+      care: 0,
+      danger: 0,
+      danger_critico: 0,
+      onboarding: 0,
+      e_e: 0,
+      aviso_previo: 0,
+      churn: 0,
+    }
   });
   const [showAddClient, setShowAddClient] = useState(false);
   const [showAddSquad, setShowAddSquad] = useState(false);
+  const [showAddUser, setShowAddUser] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !isCoordenador && !isSupervisor) {
@@ -43,28 +54,50 @@ const Admin = () => {
     if (!authLoading) {
       fetchStats();
     }
-  }, [authLoading, isCoordenador, isSupervisor, navigate]);
+  }, [authLoading, isCoordenador, isSupervisor, navigate, squadId]);
 
   const fetchStats = async () => {
     try {
+      // Query base para clientes
+      let clientsQuery = supabase.from("clients").select("status, health_status", { count: "exact" }).eq("archived", false);
+      
+      // Coordenadores veem apenas clientes do seu squad
+      if (!isSupervisor && squadId) {
+        clientsQuery = clientsQuery.eq("squad_id", squadId);
+      }
+
       const [clientsRes, squadsRes] = await Promise.all([
-        supabase.from("clients").select("status", { count: "exact" }).eq("archived", false),
+        clientsQuery,
         supabase.from("squads").select("*", { count: "exact" }),
       ]);
 
       if (clientsRes.error) throw clientsRes.error;
       if (squadsRes.error) throw squadsRes.error;
 
-      const activeClients = clientsRes.data?.filter((c) => c.status === "ativo").length || 0;
-      const avisoClients = clientsRes.data?.filter((c) => c.status === "aviso_previo").length || 0;
-      const churnedClients = clientsRes.data?.filter((c) => c.status === "churned").length || 0;
+      const clients = clientsRes.data || [];
+      const activeClients = clients.filter((c) => c.status === "ativo").length;
+      const avisoClients = clients.filter((c) => c.status === "aviso_previo").length;
+      const churnedClients = clients.filter((c) => c.status === "churned").length;
+
+      // Health stats
+      const healthStats = {
+        safe: clients.filter(c => c.health_status === 'safe').length,
+        care: clients.filter(c => c.health_status === 'care').length,
+        danger: clients.filter(c => c.health_status === 'danger').length,
+        danger_critico: clients.filter(c => c.health_status === 'danger_critico').length,
+        onboarding: clients.filter(c => c.health_status === 'onboarding').length,
+        e_e: clients.filter(c => c.health_status === 'e_e').length,
+        aviso_previo: clients.filter(c => c.health_status === 'aviso_previo').length,
+        churn: clients.filter(c => c.health_status === 'churn').length,
+      };
 
       setStats({
         totalClients: clientsRes.count || 0,
-        totalSquads: squadsRes.count || 0,
+        totalSquads: isSupervisor ? (squadsRes.count || 0) : 1,
         activeClients,
         avisoClients,
         churnedClients,
+        healthStats,
       });
     } catch (error) {
       console.error("Error fetching stats:", error);
@@ -239,10 +272,19 @@ const Admin = () => {
                   <div>
                     <CardTitle>Gerenciar Usuários</CardTitle>
                     <CardDescription>
-                      Administre todos os usuários, edite cargos e atribua squads
+                      {isSupervisor 
+                        ? "Administre todos os usuários, edite cargos e atribua squads"
+                        : "Gerencie os investidores do seu squad"
+                      }
                     </CardDescription>
                   </div>
-                  {isSupervisor && <AddUserDialog onSuccess={fetchStats} />}
+                  {(isSupervisor || isCoordenador) && (
+                    <AddUserDialog 
+                      onSuccess={fetchStats} 
+                      coordenadorMode={isCoordenador && !isSupervisor}
+                      squadId={squadId || undefined}
+                    />
+                  )}
                 </div>
               </CardHeader>
               <CardContent>

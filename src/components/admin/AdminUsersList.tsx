@@ -33,7 +33,7 @@ interface AdminUsersListProps {
 }
 
 export const AdminUsersList = ({ onUpdate }: AdminUsersListProps) => {
-  const { isSupervisor } = useAuth();
+  const { isSupervisor, squadId: userSquadId } = useAuth();
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
@@ -53,10 +53,7 @@ export const AdminUsersList = ({ onUpdate }: AdminUsersListProps) => {
           schema: 'public',
           table: 'profiles'
         },
-        (payload) => {
-          console.log('✅ Profile changed:', payload);
-          fetchUsers();
-        }
+        () => fetchUsers()
       )
       .on(
         'postgres_changes',
@@ -65,26 +62,19 @@ export const AdminUsersList = ({ onUpdate }: AdminUsersListProps) => {
           schema: 'public',
           table: 'user_roles'
         },
-        (payload) => {
-          console.log('✅ User role changed:', payload);
-          fetchUsers();
-        }
+        () => fetchUsers()
       )
-      .subscribe((status) => {
-        console.log('📡 Realtime subscription status:', status);
-      });
+      .subscribe();
 
     return () => {
-      console.log('🔌 Disconnecting realtime channel');
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [userSquadId]);
 
   const fetchUsers = async () => {
     try {
-      console.log('🔄 Fetching users...');
       // Buscar todos os perfis com suas roles e squads
-      const { data: profiles, error: profilesError } = await supabase
+      let query = supabase
         .from("profiles")
         .select(`
           id,
@@ -95,6 +85,13 @@ export const AdminUsersList = ({ onUpdate }: AdminUsersListProps) => {
         `)
         .order("name");
 
+      // Coordenadores veem apenas usuários do seu squad
+      if (!isSupervisor && userSquadId) {
+        query = query.eq("squad_id", userSquadId);
+      }
+
+      const { data: profiles, error: profilesError } = await query;
+
       if (profilesError) throw profilesError;
 
       // Buscar roles de cada usuário
@@ -103,9 +100,6 @@ export const AdminUsersList = ({ onUpdate }: AdminUsersListProps) => {
         .select("user_id, role");
 
       if (rolesError) throw rolesError;
-
-      console.log('📊 Profiles:', profiles);
-      console.log('👥 Roles:', roles);
 
       // Mapear roles por user_id (pegar a primeira role encontrada)
       const rolesMap = new Map(roles?.map(r => [r.user_id, r.role]) || []);
@@ -120,10 +114,9 @@ export const AdminUsersList = ({ onUpdate }: AdminUsersListProps) => {
         role: rolesMap.get(profile.id) || "investidor",
       })) || [];
 
-      console.log('✅ Users data loaded:', usersData);
       setUsers(usersData);
     } catch (error) {
-      console.error("❌ Error fetching users:", error);
+      console.error("Error fetching users:", error);
       toast.error("Erro ao carregar usuários");
     } finally {
       setLoading(false);
