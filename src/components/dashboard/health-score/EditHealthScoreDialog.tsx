@@ -113,12 +113,12 @@ export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }:
 
           <div className="space-y-2">
             <Label htmlFor="categoria-problema">Categoria do Problema</Label>
-            <Select value={categoriaProblema} onValueChange={setCategoriaProblema}>
+            <Select value={categoriaProblema || "none"} onValueChange={(v) => setCategoriaProblema(v === "none" ? "" : v)}>
               <SelectTrigger id="categoria-problema">
                 <SelectValue placeholder="Selecione a categoria" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Nenhuma</SelectItem>
+                <SelectItem value="none">Nenhuma</SelectItem>
                 {PROBLEM_CATEGORIES.map(category => (
                   <SelectItem key={category} value={category}>
                     {category}
