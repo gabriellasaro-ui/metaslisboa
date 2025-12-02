@@ -53,6 +53,7 @@ export interface Client {
   currentProgress?: number;
   notes?: string;
   healthStatus?: HealthStatus;
+  problema_central?: string;
   status?: ClientStatus;
   avisosPrevioDate?: string;
   churnedDate?: string;
