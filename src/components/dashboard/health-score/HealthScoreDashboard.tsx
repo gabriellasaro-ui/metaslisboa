@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Squad } from "@/types";
 import { HealthScoreTable } from "./HealthScoreTable";
 import { HealthScoreBadge, ExtendedHealthStatus, getHealthScoreColor, healthStatusLabels } from "./HealthScoreBadge";
-import { ProblemaCategoryCharts } from "./ProblemaCategoryCharts";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis } from "recharts";
 import { Shield, AlertTriangle, AlertCircle, Zap, UserPlus, Briefcase, Clock, XCircle, TrendingDown } from "lucide-react";
 
@@ -202,9 +201,6 @@ export const HealthScoreDashboard = ({ squadsData, canEdit = false, onRefresh }:
         </Card>
       </div>
 
-      {/* Charts Row 2 - Problem Categories */}
-      <ProblemaCategoryCharts clients={clients} />
-
       {/* At Risk Clients Section */}
       <Card className="border-red-500/20 bg-gradient-to-br from-red-500/5 to-transparent">
         <CardHeader>
@@ -240,11 +236,6 @@ export const HealthScoreDashboard = ({ squadsData, canEdit = false, onRefresh }:
                     <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
                       {client.problema_central}
                     </p>
-                  )}
-                  {client.categoria_problema && (
-                    <span className="inline-block mt-2 text-xs px-2 py-1 rounded bg-muted">
-                      {client.categoria_problema}
-                    </span>
                   )}
                 </div>
               ))}

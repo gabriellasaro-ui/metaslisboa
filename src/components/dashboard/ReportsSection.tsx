@@ -1,9 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileSpreadsheet, FileText, Download, TrendingUp, Target, Award, Shield } from "lucide-react";
+import { FileSpreadsheet, FileText, Download, TrendingUp, Target, Award, Shield, Heart } from "lucide-react";
 import { Squad } from "@/types";
 import { exportToExcel, exportToPDF } from "@/utils/exportUtils";
+import { generateHealthScorePDF } from "@/utils/healthScorePdfExport";
 import { useToast } from "@/hooks/use-toast";
 
 interface ReportsSectionProps {
@@ -45,11 +46,26 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
     }
   };
 
+  const handleExportHealthScorePDF = async () => {
+    try {
+      await generateHealthScorePDF(squadsData);
+      toast({
+        title: "Exportado com sucesso!",
+        description: "O relatório de Health Score foi baixado.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao exportar",
+        description: "Não foi possível gerar o relatório de Health Score.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Calcular insights
   const totalClients = squadsData.reduce((sum, squad) => sum + squad.clients.length, 0);
   const withGoals = squadsData.reduce((sum, squad) => 
     sum + squad.clients.filter(c => c.hasGoal === 'SIM').length, 0);
-  const coverageRate = totalClients > 0 ? ((withGoals / totalClients) * 100).toFixed(1) : '0';
   
   const bestSquad = squadsData.length > 0 
     ? squadsData.reduce((best, squad) => {
@@ -64,6 +80,18 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
         return squadRate > bestRate ? squad : best;
       })
     : null;
+
+  // Health status counts for all 8 statuses
+  const healthStatusCounts = {
+    safe: squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'safe').length, 0),
+    care: squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'care').length, 0),
+    danger: squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'danger').length, 0),
+    danger_critico: squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'danger_critico').length, 0),
+    onboarding: squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'onboarding').length, 0),
+    e_e: squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'e_e').length, 0),
+    aviso_previo: squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'aviso_previo').length, 0),
+    churn: squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'churn').length, 0),
+  };
 
   return (
     <div className="space-y-6">
@@ -97,6 +125,86 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
               <FileText className="mr-2 h-5 w-5" />
               Exportar PDF
             </Button>
+            <Button
+              onClick={handleExportHealthScorePDF}
+              variant="outline"
+              className="flex-1"
+              size="lg"
+            >
+              <Heart className="mr-2 h-5 w-5" />
+              Exportar Health Score
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Status dos Clientes - Todos os 8 status */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-primary" />
+            Status dos Clientes (Health Score)
+          </CardTitle>
+          <CardDescription>Distribuição completa por health status</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-emerald-500/5">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-emerald-500"></div>
+                <span className="font-medium text-sm">Safe</span>
+              </div>
+              <span className="text-xl font-bold text-emerald-600">{healthStatusCounts.safe}</span>
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-amber-500/5">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-amber-500"></div>
+                <span className="font-medium text-sm">Care</span>
+              </div>
+              <span className="text-xl font-bold text-amber-600">{healthStatusCounts.care}</span>
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-red-500/5">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-red-500"></div>
+                <span className="font-medium text-sm">Danger</span>
+              </div>
+              <span className="text-xl font-bold text-red-600">{healthStatusCounts.danger}</span>
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-red-700/5">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-red-700"></div>
+                <span className="font-medium text-sm">Danger Crítico</span>
+              </div>
+              <span className="text-xl font-bold text-red-700">{healthStatusCounts.danger_critico}</span>
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-violet-500/5">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-violet-500"></div>
+                <span className="font-medium text-sm">Onboarding</span>
+              </div>
+              <span className="text-xl font-bold text-violet-600">{healthStatusCounts.onboarding}</span>
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-orange-500/5">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-orange-500"></div>
+                <span className="font-medium text-sm">E.E.</span>
+              </div>
+              <span className="text-xl font-bold text-orange-600">{healthStatusCounts.e_e}</span>
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-slate-500/5">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-slate-500"></div>
+                <span className="font-medium text-sm">Aviso Prévio</span>
+              </div>
+              <span className="text-xl font-bold text-slate-600">{healthStatusCounts.aviso_previo}</span>
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-zinc-500/5">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-zinc-600"></div>
+                <span className="font-medium text-sm">Churn</span>
+              </div>
+              <span className="text-xl font-bold text-zinc-600">{healthStatusCounts.churn}</span>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -172,7 +280,9 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
               const pendingCount = squad.clients.filter(c => c.hasGoal === 'NAO_DEFINIDO').length;
               const safeCount = squad.clients.filter(c => c.healthStatus === 'safe').length;
               const careCount = squad.clients.filter(c => c.healthStatus === 'care').length;
-              const dangerCount = squad.clients.filter(c => c.healthStatus === 'danger').length;
+              const dangerCount = squad.clients.filter(c => c.healthStatus === 'danger' || c.healthStatus === 'danger_critico').length;
+              const churnCount = squad.clients.filter(c => c.healthStatus === 'churn').length;
+              const avisoCount = squad.clients.filter(c => c.healthStatus === 'aviso_previo').length;
               const rate = total > 0 ? ((withGoalsCount / total) * 100).toFixed(1) : '0';
 
               return (
@@ -217,7 +327,7 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
 
                     <div>
                       <p className="text-xs text-muted-foreground mb-2">Health Status</p>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <div className="flex items-center gap-1">
                           <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
                           <span className="text-sm font-medium">{safeCount}</span>
@@ -230,6 +340,18 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
                           <div className="w-3 h-3 rounded-full bg-red-500"></div>
                           <span className="text-sm font-medium">{dangerCount}</span>
                         </div>
+                        {avisoCount > 0 && (
+                          <div className="flex items-center gap-1">
+                            <div className="w-3 h-3 rounded-full bg-slate-500"></div>
+                            <span className="text-sm font-medium">{avisoCount}</span>
+                          </div>
+                        )}
+                        {churnCount > 0 && (
+                          <div className="flex items-center gap-1">
+                            <div className="w-3 h-3 rounded-full bg-zinc-600"></div>
+                            <span className="text-sm font-medium">{churnCount}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

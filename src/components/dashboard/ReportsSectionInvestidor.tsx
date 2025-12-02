@@ -1,9 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileSpreadsheet, FileText, Download, Shield, Users, Target } from "lucide-react";
+import { FileSpreadsheet, FileText, Download, Shield, Users, Target, Heart } from "lucide-react";
 import { Squad } from "@/types";
 import { exportToExcel, exportToPDF } from "@/utils/exportUtils";
+import { generateHealthScorePDF } from "@/utils/healthScorePdfExport";
 import { useToast } from "@/hooks/use-toast";
 
 interface ReportsSectionInvestidorProps {
@@ -47,6 +48,23 @@ export const ReportsSectionInvestidor = ({ squad }: ReportsSectionInvestidorProp
     }
   };
 
+  const handleExportHealthScorePDF = async () => {
+    try {
+      if (!squad) return;
+      await generateHealthScorePDF([squad]);
+      toast({
+        title: "Exportado com sucesso!",
+        description: "O relatório de Health Score foi baixado.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao exportar",
+        description: "Não foi possível gerar o relatório de Health Score.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (!squad) {
     return (
       <div className="text-center py-12">
@@ -57,14 +75,19 @@ export const ReportsSectionInvestidor = ({ squad }: ReportsSectionInvestidorProp
 
   const clients = squad.clients || [];
   const totalClients = clients.length;
-  const safeClients = clients.filter(c => c.healthStatus === 'safe').length;
-  const careClients = clients.filter(c => c.healthStatus === 'care').length;
-  const dangerClients = clients.filter(c => c.healthStatus === 'danger').length;
   const withGoals = clients.filter(c => c.hasGoal === 'SIM').length;
 
-  const safeRate = totalClients > 0 ? ((safeClients / totalClients) * 100).toFixed(1) : '0';
-  const careRate = totalClients > 0 ? ((careClients / totalClients) * 100).toFixed(1) : '0';
-  const dangerRate = totalClients > 0 ? ((dangerClients / totalClients) * 100).toFixed(1) : '0';
+  // Health status counts for all 8 statuses
+  const healthCounts = {
+    safe: clients.filter(c => c.healthStatus === 'safe').length,
+    care: clients.filter(c => c.healthStatus === 'care').length,
+    danger: clients.filter(c => c.healthStatus === 'danger').length,
+    danger_critico: clients.filter(c => c.healthStatus === 'danger_critico').length,
+    onboarding: clients.filter(c => c.healthStatus === 'onboarding').length,
+    e_e: clients.filter(c => c.healthStatus === 'e_e').length,
+    aviso_previo: clients.filter(c => c.healthStatus === 'aviso_previo').length,
+    churn: clients.filter(c => c.healthStatus === 'churn').length,
+  };
 
   return (
     <div className="space-y-6">
@@ -115,63 +138,89 @@ export const ReportsSectionInvestidor = ({ squad }: ReportsSectionInvestidorProp
               <FileText className="mr-2 h-5 w-5" />
               Exportar PDF
             </Button>
+            <Button
+              onClick={handleExportHealthScorePDF}
+              variant="outline"
+              className="flex-1"
+              size="lg"
+            >
+              <Heart className="mr-2 h-5 w-5" />
+              Exportar Health Score
+            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Taxas de Health Status */}
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card className="border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-background">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-emerald-500"></div>
-              <CardTitle className="text-lg">Taxa de Health Safe</CardTitle>
+      {/* Health Status Completo - Todos os 8 status */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-primary" />
+            Status dos Clientes (Health Score)
+          </CardTitle>
+          <CardDescription>Distribuição completa por health status</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-emerald-500/5">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-emerald-500"></div>
+                <span className="font-medium text-sm">Safe</span>
+              </div>
+              <span className="text-xl font-bold text-emerald-600">{healthCounts.safe}</span>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-5xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">
-              {safeRate}%
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-amber-500/5">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-amber-500"></div>
+                <span className="font-medium text-sm">Care</span>
+              </div>
+              <span className="text-xl font-bold text-amber-600">{healthCounts.care}</span>
             </div>
-            <p className="text-sm text-muted-foreground">
-              {safeClients} de {totalClients} clientes
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-2 border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-background">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-amber-500"></div>
-              <CardTitle className="text-lg">Taxa de Health Care</CardTitle>
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-red-500/5">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-red-500"></div>
+                <span className="font-medium text-sm">Danger</span>
+              </div>
+              <span className="text-xl font-bold text-red-600">{healthCounts.danger}</span>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-5xl font-bold text-amber-600 dark:text-amber-400 mb-2">
-              {careRate}%
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-red-700/5">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-red-700"></div>
+                <span className="font-medium text-sm">Danger Crítico</span>
+              </div>
+              <span className="text-xl font-bold text-red-700">{healthCounts.danger_critico}</span>
             </div>
-            <p className="text-sm text-muted-foreground">
-              {careClients} de {totalClients} clientes
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-2 border-red-500/20 bg-gradient-to-br from-red-500/5 to-background">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-red-500"></div>
-              <CardTitle className="text-lg">Taxa de Health Danger</CardTitle>
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-violet-500/5">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-violet-500"></div>
+                <span className="font-medium text-sm">Onboarding</span>
+              </div>
+              <span className="text-xl font-bold text-violet-600">{healthCounts.onboarding}</span>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-5xl font-bold text-red-600 dark:text-red-400 mb-2">
-              {dangerRate}%
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-orange-500/5">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-orange-500"></div>
+                <span className="font-medium text-sm">E.E.</span>
+              </div>
+              <span className="text-xl font-bold text-orange-600">{healthCounts.e_e}</span>
             </div>
-            <p className="text-sm text-muted-foreground">
-              {dangerClients} de {totalClients} clientes
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-slate-500/5">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-slate-500"></div>
+                <span className="font-medium text-sm">Aviso Prévio</span>
+              </div>
+              <span className="text-xl font-bold text-slate-600">{healthCounts.aviso_previo}</span>
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-zinc-500/5">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-zinc-600"></div>
+                <span className="font-medium text-sm">Churn</span>
+              </div>
+              <span className="text-xl font-bold text-zinc-600">{healthCounts.churn}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Tipos de Metas */}
       <Card>
@@ -232,11 +281,11 @@ export const ReportsSectionInvestidor = ({ squad }: ReportsSectionInvestidorProp
         </CardContent>
       </Card>
 
-      {/* Resumo por Status */}
+      {/* Status de Atividade */}
       <Card>
         <CardHeader>
-          <CardTitle>Status dos Clientes</CardTitle>
-          <CardDescription>Distribuição por status de atividade</CardDescription>
+          <CardTitle>Status de Atividade</CardTitle>
+          <CardDescription>Distribuição por status de atividade do cliente</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
