@@ -2,7 +2,7 @@
 
 export type GoalStatus = "SIM" | "NAO" | "NAO_DEFINIDO";
 export type GoalType = "Faturamento" | "Leads" | "OUTROS";
-export type HealthStatus = "safe" | "care" | "danger";
+export type HealthStatus = "safe" | "care" | "danger" | "danger_critico" | "onboarding" | "e_e" | "aviso_previo" | "churn";
 export type ClientStatus = "ativo" | "aviso_previo" | "churned";
 export type ProgressStatus = "on_track" | "at_risk" | "delayed" | "completed";
 

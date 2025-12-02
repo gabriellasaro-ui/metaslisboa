@@ -18,6 +18,7 @@ import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
 import { Separator } from "@/components/ui/separator";
+import { HealthScoreDashboard } from "@/components/dashboard/health-score/HealthScoreDashboard";
 
 interface DashboardSupervisorProps {
   squadsData: Squad[];
@@ -220,6 +221,13 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
         </div>
 
         <ReportsSection squadsData={squadsData} />
+      </TabsContent>
+
+      <TabsContent value="health-score" className="space-y-6">
+        <HealthScoreDashboard 
+          squadsData={squadsData} 
+          canEdit={true}
+        />
       </TabsContent>
 
       <EditClientDialog client={editingClient?.client || null} open={!!editingClient} onOpenChange={(open) => !open && setEditingClient(null)} onSave={handleUpdateClient} />

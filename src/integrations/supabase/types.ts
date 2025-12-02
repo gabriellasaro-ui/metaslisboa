@@ -81,6 +81,7 @@ export type Database = {
           id: string
           name: string
           notes: string | null
+          problema_central: string | null
           squad_id: string
           status: Database["public"]["Enums"]["client_status"]
           updated_at: string
@@ -94,6 +95,7 @@ export type Database = {
           id?: string
           name: string
           notes?: string | null
+          problema_central?: string | null
           squad_id: string
           status?: Database["public"]["Enums"]["client_status"]
           updated_at?: string
@@ -107,6 +109,7 @@ export type Database = {
           id?: string
           name?: string
           notes?: string | null
+          problema_central?: string | null
           squad_id?: string
           status?: Database["public"]["Enums"]["client_status"]
           updated_at?: string
@@ -404,7 +407,15 @@ export type Database = {
         | "cancelada"
         | "nao_batida"
       goal_type: "Faturamento" | "Leads" | "OUTROS"
-      health_status: "safe" | "care" | "danger"
+      health_status:
+        | "safe"
+        | "care"
+        | "danger"
+        | "danger_critico"
+        | "onboarding"
+        | "e_e"
+        | "churn"
+        | "aviso_previo"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -544,7 +555,16 @@ export const Constants = {
         "nao_batida",
       ],
       goal_type: ["Faturamento", "Leads", "OUTROS"],
-      health_status: ["safe", "care", "danger"],
+      health_status: [
+        "safe",
+        "care",
+        "danger",
+        "danger_critico",
+        "onboarding",
+        "e_e",
+        "churn",
+        "aviso_previo",
+      ],
     },
   },
 } as const
