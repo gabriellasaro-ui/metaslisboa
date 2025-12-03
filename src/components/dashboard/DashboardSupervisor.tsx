@@ -20,6 +20,7 @@ import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
 import { Separator } from "@/components/ui/separator";
 import { HealthScoreDashboard } from "@/components/dashboard/health-score/HealthScoreDashboard";
 import { useSquadStats, useAllSquadsStats } from "@/hooks/useSquadStats";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface DashboardSupervisorProps {
   squadsData: Squad[];
@@ -29,6 +30,7 @@ interface DashboardSupervisorProps {
 export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSupervisorProps) => {
   const [editingClient, setEditingClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
   const [viewingProgress, setViewingProgress] = useState<Client | null>(null);
+  const queryClient = useQueryClient();
 
   // Usar hook centralizado para estatísticas globais
   const stats = useSquadStats(squadsData);
@@ -198,6 +200,7 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
         <HealthScoreDashboard 
           squadsData={squadsData} 
           canEdit={true}
+          onRefresh={() => queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] })}
         />
       </TabsContent>
 

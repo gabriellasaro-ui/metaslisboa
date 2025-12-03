@@ -15,6 +15,7 @@ interface Client {
   problema_central: string | null;
   categoria_problema?: string | null;
   squadName?: string;
+  status?: string;
 }
 
 interface HealthScoreTableProps {

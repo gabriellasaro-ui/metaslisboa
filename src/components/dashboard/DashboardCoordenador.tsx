@@ -19,6 +19,7 @@ import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
 import { HealthScoreDashboard } from "@/components/dashboard/health-score/HealthScoreDashboard";
 import { useSquadStats } from "@/hooks/useSquadStats";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface DashboardCoordenadorProps {
   squadsData: Squad[];
@@ -29,6 +30,7 @@ interface DashboardCoordenadorProps {
 export const DashboardCoordenador = ({ squadsData, squadId, updateClient }: DashboardCoordenadorProps) => {
   const [editingClient, setEditingClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
   const [viewingProgress, setViewingProgress] = useState<Client | null>(null);
+  const queryClient = useQueryClient();
 
   // Filtrar apenas o squad do coordenador
   const mySquad = squadsData.find(s => s.id === squadId);
@@ -159,6 +161,7 @@ export const DashboardCoordenador = ({ squadsData, squadId, updateClient }: Dash
         <HealthScoreDashboard 
           squadsData={mySquad ? [mySquad] : []} 
           canEdit={true}
+          onRefresh={() => queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] })}
         />
       </TabsContent>
 
