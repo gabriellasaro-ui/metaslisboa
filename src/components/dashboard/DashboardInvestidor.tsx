@@ -18,7 +18,7 @@ import { HealthStatusDistributionChart } from "@/components/dashboard/charts/Hea
 import { WeeklyProgressChart } from "@/components/dashboard/WeeklyProgressChart";
 import { HealthScoreDashboard } from "@/components/dashboard/health-score/HealthScoreDashboard";
 import { ClientAlertsCard } from "@/components/dashboard/ClientAlertsCard";
-import { SquadGoalsCard } from "@/components/dashboard/squad-goals";
+import { SquadGoalsInvestorCard } from "@/components/dashboard/squad-goals";
 import { Target, Users, TrendingUp, Calendar, Plus, MessageSquare, Pencil, History, EyeOff, Eye } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
@@ -181,9 +181,9 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
           />
         </div>
 
-        {/* Metas Coletivas */}
+        {/* Metas Coletivas - Para investidores marcarem se completaram */}
         {squadId && (
-          <SquadGoalsCard squadId={squadId} canManage={false} />
+          <SquadGoalsInvestorCard squadId={squadId} />
         )}
 
         <Card>

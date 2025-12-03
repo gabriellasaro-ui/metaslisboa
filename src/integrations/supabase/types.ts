@@ -528,6 +528,44 @@ export type Database = {
           },
         ]
       }
+      squad_goal_completions: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          id: string
+          squad_goal_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          squad_goal_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          squad_goal_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "squad_goal_completions_squad_goal_id_fkey"
+            columns: ["squad_goal_id"]
+            isOneToOne: false
+            referencedRelation: "squad_goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       squad_goals: {
         Row: {
           created_at: string

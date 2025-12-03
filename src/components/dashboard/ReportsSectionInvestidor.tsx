@@ -123,6 +123,7 @@ export const ReportsSectionInvestidor = ({ squad }: ReportsSectionInvestidorProp
           <div className="flex flex-col sm:flex-row gap-4">
             <Button
               onClick={handleExportExcel}
+              variant="destructive"
               className="flex-1"
               size="lg"
             >
@@ -131,7 +132,7 @@ export const ReportsSectionInvestidor = ({ squad }: ReportsSectionInvestidorProp
             </Button>
             <Button
               onClick={handleExportPDF}
-              variant="secondary"
+              variant="destructive"
               className="flex-1"
               size="lg"
             >
@@ -140,7 +141,7 @@ export const ReportsSectionInvestidor = ({ squad }: ReportsSectionInvestidorProp
             </Button>
             <Button
               onClick={handleExportHealthScorePDF}
-              variant="outline"
+              variant="destructive"
               className="flex-1"
               size="lg"
             >

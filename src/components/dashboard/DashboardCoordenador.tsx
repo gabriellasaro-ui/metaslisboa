@@ -13,7 +13,7 @@ import { GoalTypesChart } from "@/components/dashboard/charts/GoalTypesChart";
 import { PerformanceAnalysisChart } from "@/components/dashboard/charts/PerformanceAnalysisChart";
 import { ReportsSection } from "@/components/dashboard/ReportsSection";
 import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
-import { SquadGoalsCard } from "@/components/dashboard/squad-goals";
+import { SquadGoalsCard, SquadGoalsEngagementCard } from "@/components/dashboard/squad-goals";
 import { ActivityTimelineCard } from "@/components/dashboard/ActivityTimelineCard";
 import { SquadProfileCard } from "@/components/dashboard/squad";
 import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
@@ -100,7 +100,10 @@ export const DashboardCoordenador = ({ squadsData, squadId, updateClient }: Dash
 
         {/* Metas Coletivas */}
         {squadId && (
-          <SquadGoalsCard squadId={squadId} canManage={true} />
+          <div className="grid gap-6 md:grid-cols-2">
+            <SquadGoalsCard squadId={squadId} canManage={true} />
+            <SquadGoalsEngagementCard squadId={squadId} />
+          </div>
         )}
 
         {/* Timeline de Atividades */}
