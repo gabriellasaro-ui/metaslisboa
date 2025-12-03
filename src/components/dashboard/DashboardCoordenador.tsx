@@ -8,6 +8,9 @@ import { ClientsTable } from "@/components/dashboard/ClientsTable";
 import { EditClientDialog } from "@/components/dashboard/EditClientDialog";
 import { CheckInsTimeline } from "@/components/dashboard/CheckInsTimeline";
 import { GoalsDistributionChart } from "@/components/dashboard/charts/GoalsDistributionChart";
+import { HealthStatusDistributionChart } from "@/components/dashboard/charts/HealthStatusDistributionChart";
+import { GoalTypesChart } from "@/components/dashboard/charts/GoalTypesChart";
+import { PerformanceAnalysisChart } from "@/components/dashboard/charts/PerformanceAnalysisChart";
 import { ReportsSection } from "@/components/dashboard/ReportsSection";
 import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
 import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
@@ -109,33 +112,12 @@ export const DashboardCoordenador = ({ squadsData, squadId, updateClient }: Dash
       {/* Análises */}
       <TabsContent value="analises" className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Tipos de Metas</CardTitle>
-              <CardDescription>Distribuição por categoria</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-sm">
-                {clients.filter(c => c.goalType === "Faturamento").length} Faturamento | {" "}
-                {clients.filter(c => c.goalType === "Leads").length} Leads | {" "}
-                {clients.filter(c => c.goalType === "OUTROS").length} Outros
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Health Status</CardTitle>
-              <CardDescription>Saúde dos clientes</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-sm">
-                {clients.filter(c => c.healthStatus === "safe").length} Safe | {" "}
-                {clients.filter(c => c.healthStatus === "care").length} Care | {" "}
-                {clients.filter(c => c.healthStatus === "danger").length} Danger
-              </p>
-            </CardContent>
-          </Card>
+          <GoalsDistributionChart />
+          <HealthStatusDistributionChart squadsData={mySquad ? [mySquad] : []} />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <GoalTypesChart />
+          <PerformanceAnalysisChart squadsData={mySquad ? [mySquad] : []} />
         </div>
       </TabsContent>
 
