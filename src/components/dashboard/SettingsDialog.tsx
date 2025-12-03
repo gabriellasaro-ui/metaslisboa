@@ -20,6 +20,7 @@ import {
   Save
 } from "lucide-react";
 import { toast } from "sonner";
+import { NotificationPreferencesCard } from "@/components/settings/NotificationPreferencesCard";
 
 interface SettingsDialogProps {
   open: boolean;
@@ -27,7 +28,6 @@ interface SettingsDialogProps {
 }
 
 export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
-  const [notifications, setNotifications] = useState(true);
   const [autoSave, setAutoSave] = useState(true);
   const [compactView, setCompactView] = useState(false);
 
@@ -91,25 +91,17 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
 
           {/* Tab: Geral */}
           <TabsContent value="general" className="space-y-4 mt-4 max-h-[450px] overflow-y-auto pr-2">
+            <NotificationPreferencesCard />
+            
             <Card>
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Bell className="h-4 w-4 text-primary" />
-                  Notificações
+                  <Settings className="h-4 w-4 text-primary" />
+                  Preferências Gerais
                 </CardTitle>
-                <CardDescription>Configure alertas e avisos do sistema</CardDescription>
+                <CardDescription>Configure o comportamento do sistema</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="font-semibold">Notificações Push</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receba alertas sobre check-ins e metas
-                    </p>
-                  </div>
-                  <Switch checked={notifications} onCheckedChange={setNotifications} />
-                </div>
-                <Separator />
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label className="font-semibold">Auto-salvar</Label>
