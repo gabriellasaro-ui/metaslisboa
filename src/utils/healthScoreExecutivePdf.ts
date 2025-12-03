@@ -41,11 +41,24 @@ const healthStatusLabels: Record<string, string> = {
   safe: "Safe",
   care: "Care",
   danger: "Danger",
-  danger_critico: "Danger Crítico",
+  danger_critico: "Danger Critico",
   onboarding: "Onboarding",
   e_e: "E.E.",
-  aviso_previo: "Aviso Prévio",
+  aviso_previo: "Aviso Previo",
   churn: "Churn",
+};
+
+// Helper to normalize text for PDF (remove accents for font compatibility)
+const normalizeText = (str: string): string => {
+  if (!str) return str;
+  return str
+    .replace(/[áàâãä]/gi, (match) => match === match.toUpperCase() ? 'A' : 'a')
+    .replace(/[éèêë]/gi, (match) => match === match.toUpperCase() ? 'E' : 'e')
+    .replace(/[íìîï]/gi, (match) => match === match.toUpperCase() ? 'I' : 'i')
+    .replace(/[óòôõö]/gi, (match) => match === match.toUpperCase() ? 'O' : 'o')
+    .replace(/[úùûü]/gi, (match) => match === match.toUpperCase() ? 'U' : 'u')
+    .replace(/[ç]/gi, (match) => match === match.toUpperCase() ? 'C' : 'c')
+    .replace(/[ñ]/gi, (match) => match === match.toUpperCase() ? 'N' : 'n');
 };
 
 export const generateExecutiveHealthScorePDF = async (
@@ -111,7 +124,7 @@ export const generateExecutiveHealthScorePDF = async (
   doc.setFontSize(7);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(100, 116, 139);
-  doc.text("Total", statsStartX + statsBoxWidth / 2, statsY + 18, { align: "center" });
+  doc.text("Total Mov.", statsStartX + statsBoxWidth / 2, statsY + 18, { align: "center" });
 
   // Improvements
   doc.setFillColor(220, 252, 231);
@@ -191,14 +204,14 @@ export const generateExecutiveHealthScorePDF = async (
     doc.text(`Pontuacao: ${squad.avgScore}`, margin + 80, y + 10);
 
     // Client count
-    doc.setTextColor(100, 116, 139);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.text(`${squad.totalClients} clientes`, margin + 125, y + 10);
+  doc.setTextColor(100, 116, 139);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text(`${squad.totalClients} cli.`, margin + 125, y + 10);
 
     // Status summary
     doc.setFontSize(7);
-    doc.text(`Safe: ${squad.safeCount} | Care: ${squad.careCount} | Danger: ${squad.dangerCount} | Critico: ${squad.criticalCount}`, pageWidth - margin - 5, y + 10, { align: "right" });
+    doc.text(`S:${squad.safeCount} | C:${squad.careCount} | D:${squad.dangerCount} | Cr:${squad.criticalCount}`, pageWidth - margin - 5, y + 10, { align: "right" });
 
     y += 20;
   });
@@ -326,7 +339,7 @@ export const generateExecutiveHealthScorePDF = async (
       doc.text(`${oldLabel} para ${newLabel}`, margin + 108, y + 4);
       
       doc.setTextColor(100, 116, 139);
-      doc.text((m.new_categoria_problema || "Nao informada").substring(0, 22), margin + 155, y + 4);
+      doc.text(normalizeText((m.new_categoria_problema || "Nao informada").substring(0, 22)), margin + 155, y + 4);
       
       y += 9;
     });
@@ -377,7 +390,7 @@ export const generateExecutiveHealthScorePDF = async (
       doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(30, 41, 59);
-      doc.text(`${index + 1}. ${category}`, margin, y + 4);
+      doc.text(`${index + 1}. ${normalizeText(category)}`, margin, y + 4);
       
       // Bar
       doc.setFillColor(241, 245, 249);
@@ -390,7 +403,7 @@ export const generateExecutiveHealthScorePDF = async (
       // Count
       doc.setFontSize(9);
       doc.setFont("helvetica", "bold");
-      doc.text(`${count} ocorrencias`, margin + 160, y + 4);
+      doc.text(`${count} ocorrencias`, margin + 162, y + 4);
       
       y += 12;
     });
