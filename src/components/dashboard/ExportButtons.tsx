@@ -115,9 +115,8 @@ export const ExportButtons = ({ squadsData, filteredClients, mode = "full" }: Ex
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button 
-          variant="premium" 
           size="lg"
-          className="gap-2 font-bold"
+          className="gap-2 font-bold bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white border-0 shadow-lg"
         >
           <Download className="h-5 w-5" />
           Exportar Dados
