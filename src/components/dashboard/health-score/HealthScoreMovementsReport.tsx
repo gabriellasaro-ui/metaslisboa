@@ -2,18 +2,19 @@ import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { format, subDays, startOfDay, differenceInDays } from "date-fns";
+import { format, subDays, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { FileSpreadsheet, FileText, TrendingUp, TrendingDown, ArrowRight, Loader2, Search, Filter, X } from "lucide-react";
+import { FileSpreadsheet, FileText, TrendingUp, TrendingDown, ArrowRight, Loader2, Search, Filter, X, AlertTriangle, CheckCircle, AlertCircle } from "lucide-react";
 import { HealthScoreBadge, ExtendedHealthStatus, healthStatusLabels, getHealthScoreColor } from "./HealthScoreBadge";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from "recharts";
+import { analyzeMovement, getHealthScoreValue } from "./HealthScoreTrendsChart";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import { toast } from "sonner";
-import html2canvas from "html2canvas";
 
 interface HealthScoreMovementsReportProps {
   squadsData: { id: string; name: string }[];
@@ -34,14 +35,17 @@ interface MovementEntry {
   changed_at: string;
   changed_by_name: string | null;
   notes: string | null;
+  analysis: ReturnType<typeof analyzeMovement>;
 }
 
 type PeriodFilter = "7d" | "15d" | "30d" | "90d" | "all";
+type MovementFilter = "all" | "improvement" | "deterioration" | "critical_alert";
 
 export const HealthScoreMovementsReport = ({ squadsData }: HealthScoreMovementsReportProps) => {
   const [period, setPeriod] = useState<PeriodFilter>("30d");
   const [selectedSquad, setSelectedSquad] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  const [movementType, setMovementType] = useState<MovementFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
   const periodDays: Record<PeriodFilter, number | null> = {
@@ -101,35 +105,38 @@ export const HealthScoreMovementsReport = ({ squadsData }: HealthScoreMovementsR
         }, {});
       }
 
-      return (data || []).map((m: any) => ({
-        id: m.id,
-        client_id: m.client_id,
-        client_name: m.clients?.name || "Cliente",
-        squad_id: m.clients?.squad_id || "",
-        squad_name: m.clients?.squads?.name || "Squad",
-        old_status: m.old_status as ExtendedHealthStatus | null,
-        new_status: m.new_status as ExtendedHealthStatus | null,
-        old_categoria_problema: m.old_categoria_problema,
-        new_categoria_problema: m.new_categoria_problema,
-        old_problema_central: m.old_problema_central,
-        new_problema_central: m.new_problema_central,
-        changed_at: m.changed_at,
-        changed_by_name: m.changed_by ? userNames[m.changed_by] || "Usuário" : null,
-        notes: m.notes,
-      })) as MovementEntry[];
+      return (data || []).map((m: any) => {
+        const oldStatus = m.old_status as ExtendedHealthStatus | null;
+        const newStatus = m.new_status as ExtendedHealthStatus | null;
+        
+        return {
+          id: m.id,
+          client_id: m.client_id,
+          client_name: m.clients?.name || "Cliente",
+          squad_id: m.clients?.squad_id || "",
+          squad_name: m.clients?.squads?.name || "Squad",
+          old_status: oldStatus,
+          new_status: newStatus,
+          old_categoria_problema: m.old_categoria_problema,
+          new_categoria_problema: m.new_categoria_problema,
+          old_problema_central: m.old_problema_central,
+          new_problema_central: m.new_problema_central,
+          changed_at: m.changed_at,
+          changed_by_name: m.changed_by ? userNames[m.changed_by] || "Usuário" : null,
+          notes: m.notes,
+          analysis: analyzeMovement(oldStatus, newStatus),
+        };
+      }) as MovementEntry[];
     },
   });
 
   // Apply filters
   const filteredMovements = useMemo(() => {
     return movements.filter(m => {
-      // Squad filter
       if (selectedSquad !== "all" && m.squad_id !== selectedSquad) return false;
-      
-      // Status filter
       if (selectedStatus !== "all" && m.new_status !== selectedStatus) return false;
+      if (movementType !== "all" && m.analysis.type !== movementType) return false;
       
-      // Search filter
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const matchesClient = m.client_name.toLowerCase().includes(query);
@@ -140,25 +147,28 @@ export const HealthScoreMovementsReport = ({ squadsData }: HealthScoreMovementsR
       
       return true;
     });
-  }, [movements, selectedSquad, selectedStatus, searchQuery]);
+  }, [movements, selectedSquad, selectedStatus, movementType, searchQuery]);
 
   // Statistics based on filtered data
   const stats = useMemo(() => {
     const statusChanges: Record<string, number> = {};
     const categoryReasons: Record<string, number> = {};
-    const order = ['churn', 'aviso_previo', 'danger_critico', 'danger', 'care', 'e_e', 'onboarding', 'safe'];
     
-    const improvements = filteredMovements.filter(m => {
-      if (!m.old_status || !m.new_status) return false;
-      return order.indexOf(m.new_status) > order.indexOf(m.old_status);
-    }).length;
-    
-    const deteriorations = filteredMovements.filter(m => {
-      if (!m.old_status || !m.new_status) return false;
-      return order.indexOf(m.new_status) < order.indexOf(m.old_status);
-    }).length;
+    let improvements = 0;
+    let deteriorations = 0;
+    let criticalAlerts = 0;
+    let needsAttention = 0;
 
     filteredMovements.forEach(m => {
+      if (m.analysis.type === 'improvement') improvements++;
+      else if (m.analysis.type === 'deterioration') deteriorations++;
+      else if (m.analysis.type === 'critical_alert') criticalAlerts++;
+
+      // Count those that improved but still need attention
+      if (m.analysis.type === 'improvement' && m.analysis.label.includes('parcial')) {
+        needsAttention++;
+      }
+
       if (m.new_status) {
         statusChanges[m.new_status] = (statusChanges[m.new_status] || 0) + 1;
       }
@@ -167,7 +177,15 @@ export const HealthScoreMovementsReport = ({ squadsData }: HealthScoreMovementsR
       }
     });
 
-    return { total: filteredMovements.length, improvements, deteriorations, statusChanges, categoryReasons };
+    return { 
+      total: filteredMovements.length, 
+      improvements, 
+      deteriorations, 
+      criticalAlerts,
+      needsAttention,
+      statusChanges, 
+      categoryReasons 
+    };
   }, [filteredMovements]);
 
   const statusChartData = useMemo(() => {
@@ -194,10 +212,36 @@ export const HealthScoreMovementsReport = ({ squadsData }: HealthScoreMovementsR
   const clearFilters = () => {
     setSelectedSquad("all");
     setSelectedStatus("all");
+    setMovementType("all");
     setSearchQuery("");
   };
 
-  const hasActiveFilters = selectedSquad !== "all" || selectedStatus !== "all" || searchQuery !== "";
+  const hasActiveFilters = selectedSquad !== "all" || selectedStatus !== "all" || movementType !== "all" || searchQuery !== "";
+
+  const getMovementIcon = (type: string) => {
+    switch (type) {
+      case 'improvement': return <TrendingUp className="h-3 w-3 text-green-600" />;
+      case 'deterioration': return <TrendingDown className="h-3 w-3 text-orange-500" />;
+      case 'critical_alert': return <AlertTriangle className="h-3 w-3 text-red-600" />;
+      default: return <AlertCircle className="h-3 w-3 text-muted-foreground" />;
+    }
+  };
+
+  const getMovementBadge = (analysis: ReturnType<typeof analyzeMovement>) => {
+    const variants: Record<string, string> = {
+      improvement: "bg-green-500/10 text-green-700 border-green-500/20",
+      deterioration: "bg-orange-500/10 text-orange-700 border-orange-500/20",
+      critical_alert: "bg-red-500/10 text-red-700 border-red-500/20",
+      neutral: "bg-muted text-muted-foreground",
+    };
+
+    return (
+      <Badge variant="outline" className={`text-xs ${variants[analysis.type]}`}>
+        {getMovementIcon(analysis.type)}
+        <span className="ml-1">{analysis.label}</span>
+      </Badge>
+    );
+  };
 
   const handleExportExcel = () => {
     try {
@@ -206,10 +250,10 @@ export const HealthScoreMovementsReport = ({ squadsData }: HealthScoreMovementsR
         "Squad": m.squad_name,
         "Status Anterior": m.old_status ? healthStatusLabels[m.old_status] : "-",
         "Novo Status": m.new_status ? healthStatusLabels[m.new_status] : "-",
-        "Categoria Anterior": m.old_categoria_problema || "-",
-        "Nova Categoria": m.new_categoria_problema || "-",
-        "Problema Anterior": m.old_problema_central || "-",
-        "Novo Problema": m.new_problema_central || "-",
+        "Tipo de Movimento": m.analysis.label,
+        "Análise": m.analysis.description,
+        "Categoria": m.new_categoria_problema || "-",
+        "Problema": m.new_problema_central || "-",
         "Alterado por": m.changed_by_name || "-",
         "Data": format(new Date(m.changed_at), "dd/MM/yyyy HH:mm", { locale: ptBR }),
         "Observações": m.notes || "-",
@@ -223,6 +267,8 @@ export const HealthScoreMovementsReport = ({ squadsData }: HealthScoreMovementsR
         { "Métrica": "Total de Movimentações", "Valor": stats.total },
         { "Métrica": "Melhorias", "Valor": stats.improvements },
         { "Métrica": "Pioras", "Valor": stats.deteriorations },
+        { "Métrica": "Alertas Críticos", "Valor": stats.criticalAlerts },
+        { "Métrica": "Requer Atenção", "Valor": stats.needsAttention },
       ];
       const summaryWs = XLSX.utils.json_to_sheet(summaryData);
       XLSX.utils.book_append_sheet(wb, summaryWs, "Resumo");
@@ -241,7 +287,7 @@ export const HealthScoreMovementsReport = ({ squadsData }: HealthScoreMovementsR
       const pageHeight = doc.internal.pageSize.getHeight();
       let y = 20;
 
-      // Header with gradient effect
+      // Header
       doc.setFillColor(220, 38, 38);
       doc.rect(0, 0, pageWidth, 40, "F");
       
@@ -253,150 +299,97 @@ export const HealthScoreMovementsReport = ({ squadsData }: HealthScoreMovementsR
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
       const periodLabel = period === "all" ? "Todos os dados" : `Últimos ${periodDays[period]} dias`;
-      doc.text(`${periodLabel} | Gerado em: ${format(new Date(), "dd/MM/yyyy HH:mm", { locale: ptBR })}`, pageWidth / 2, 30, { align: "center" });
+      doc.text(`${periodLabel} | ${format(new Date(), "dd/MM/yyyy HH:mm", { locale: ptBR })}`, pageWidth / 2, 30, { align: "center" });
       
       y = 55;
       doc.setTextColor(30, 41, 59);
 
-      // Executive Summary Box
+      // Executive Summary
       doc.setFillColor(241, 245, 249);
-      doc.roundedRect(15, y - 5, pageWidth - 30, 45, 3, 3, "F");
+      doc.roundedRect(15, y - 5, pageWidth - 30, 50, 3, 3, "F");
       
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
       doc.text("Resumo Executivo", 20, y + 5);
       
-      y += 15;
-      doc.setFontSize(11);
-      doc.setFont("helvetica", "normal");
+      y += 18;
+      doc.setFontSize(10);
       
-      // Stats in columns
-      doc.setFont("helvetica", "bold");
-      doc.text(stats.total.toString(), 35, y + 5);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.text("Total", 35, y + 12);
-      
-      doc.setTextColor(34, 197, 94);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.text(stats.improvements.toString(), 75, y + 5);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.text("Melhorias", 75, y + 12);
-      
-      doc.setTextColor(239, 68, 68);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.text(stats.deteriorations.toString(), 115, y + 5);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.text("Pioras", 115, y + 12);
-      
-      doc.setTextColor(100, 116, 139);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.text(Object.keys(stats.categoryReasons).length.toString(), 155, y + 5);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.text("Motivos", 155, y + 12);
+      // Stats in grid
+      const statsData = [
+        { label: "Total", value: stats.total, color: [30, 41, 59] },
+        { label: "Melhorias", value: stats.improvements, color: [34, 197, 94] },
+        { label: "Pioras", value: stats.deteriorations, color: [249, 115, 22] },
+        { label: "Críticos", value: stats.criticalAlerts, color: [220, 38, 38] },
+      ];
 
-      y += 40;
+      statsData.forEach((stat, i) => {
+        const x = 25 + (i * 45);
+        doc.setTextColor(stat.color[0], stat.color[1], stat.color[2]);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(16);
+        doc.text(stat.value.toString(), x, y);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(100, 116, 139);
+        doc.text(stat.label, x, y + 6);
+      });
+
+      y += 35;
       doc.setTextColor(30, 41, 59);
 
-      // Status Distribution
+      // Movements by type
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
-      doc.text("Distribuição por Status", 20, y);
-      y += 8;
+      doc.text("Análise de Movimentações", 20, y);
+      y += 10;
 
-      statusChartData.forEach((item, index) => {
-        const color = item.color;
-        const rgb = hexToRgb(color) || { r: 100, g: 100, b: 100 };
-        doc.setFillColor(rgb.r, rgb.g, rgb.b);
-        doc.roundedRect(20, y, 8, 8, 1, 1, "F");
-        
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(30, 41, 59);
-        doc.text(`${item.name}: ${item.value} (${((item.value / stats.total) * 100).toFixed(1)}%)`, 32, y + 6);
-        y += 12;
-        
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+
+      // Group by analysis type
+      const movementsByType = filteredMovements.reduce((acc, m) => {
+        const key = m.analysis.type;
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(m);
+        return acc;
+      }, {} as Record<string, MovementEntry[]>);
+
+      const typeLabels: Record<string, string> = {
+        improvement: "✅ Melhorias",
+        deterioration: "⚠️ Pioras",
+        critical_alert: "🚨 Alertas Críticos",
+        neutral: "➖ Neutros",
+      };
+
+      Object.entries(movementsByType).forEach(([type, entries]) => {
         if (y > pageHeight - 40) {
           doc.addPage();
           y = 20;
         }
-      });
 
-      y += 10;
-
-      // Top Categories
-      if (categoryChartData.length > 0) {
-        doc.setFontSize(12);
         doc.setFont("helvetica", "bold");
-        doc.text("Principais Motivos", 20, y);
-        y += 8;
+        doc.text(`${typeLabels[type]} (${entries.length})`, 20, y);
+        y += 6;
 
-        categoryChartData.slice(0, 8).forEach((cat, index) => {
-          doc.setFontSize(9);
-          doc.setFont("helvetica", "normal");
-          doc.text(`${index + 1}. ${cat.fullName}: ${cat.value} ocorrências`, 25, y);
-          y += 6;
+        doc.setFont("helvetica", "normal");
+        entries.slice(0, 5).forEach(m => {
+          if (y > pageHeight - 15) {
+            doc.addPage();
+            y = 20;
+          }
+          const date = format(new Date(m.changed_at), "dd/MM", { locale: ptBR });
+          doc.text(`  ${date} - ${m.client_name}: ${m.analysis.description}`, 20, y);
+          y += 5;
         });
-      }
-
-      // Recent Movements
-      doc.addPage();
-      y = 20;
-      
-      doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.text("Últimas Movimentações", 20, y);
-      y += 10;
-
-      // Table header
-      doc.setFillColor(241, 245, 249);
-      doc.rect(15, y - 4, pageWidth - 30, 10, "F");
-      
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "bold");
-      doc.text("Data", 18, y + 2);
-      doc.text("Cliente", 45, y + 2);
-      doc.text("Squad", 90, y + 2);
-      doc.text("De", 130, y + 2);
-      doc.text("Para", 160, y + 2);
-      y += 10;
-
-      doc.setFont("helvetica", "normal");
-      filteredMovements.slice(0, 40).forEach((m, index) => {
-        if (y > pageHeight - 15) {
-          doc.addPage();
-          y = 20;
-          // Repeat header
-          doc.setFillColor(241, 245, 249);
-          doc.rect(15, y - 4, pageWidth - 30, 10, "F");
-          doc.setFont("helvetica", "bold");
-          doc.text("Data", 18, y + 2);
-          doc.text("Cliente", 45, y + 2);
-          doc.text("Squad", 90, y + 2);
-          doc.text("De", 130, y + 2);
-          doc.text("Para", 160, y + 2);
-          y += 10;
-          doc.setFont("helvetica", "normal");
+        
+        if (entries.length > 5) {
+          doc.setTextColor(100, 116, 139);
+          doc.text(`  ... e mais ${entries.length - 5} movimentações`, 20, y);
+          doc.setTextColor(30, 41, 59);
+          y += 5;
         }
-
-        if (index % 2 === 0) {
-          doc.setFillColor(249, 250, 251);
-          doc.rect(15, y - 4, pageWidth - 30, 8, "F");
-        }
-
-        doc.setTextColor(30, 41, 59);
-        doc.text(format(new Date(m.changed_at), "dd/MM HH:mm"), 18, y + 1);
-        doc.text(m.client_name.substring(0, 20), 45, y + 1);
-        doc.text(m.squad_name.substring(0, 15), 90, y + 1);
-        doc.text(m.old_status ? healthStatusLabels[m.old_status].substring(0, 12) : "-", 130, y + 1);
-        doc.text(m.new_status ? healthStatusLabels[m.new_status].substring(0, 12) : "-", 160, y + 1);
-        y += 8;
+        y += 5;
       });
 
       // Footer
@@ -424,7 +417,7 @@ export const HealthScoreMovementsReport = ({ squadsData }: HealthScoreMovementsR
             <div>
               <CardTitle>Movimentações de Health Score</CardTitle>
               <CardDescription>
-                Histórico de mudanças de status e motivos principais
+                Histórico com análise inteligente das mudanças
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
@@ -451,10 +444,10 @@ export const HealthScoreMovementsReport = ({ squadsData }: HealthScoreMovementsR
           <div className="flex flex-wrap items-center gap-3 p-3 rounded-lg bg-muted/30">
             <Filter className="h-4 w-4 text-muted-foreground" />
             
-            <div className="relative flex-1 min-w-[180px] max-w-[250px]">
+            <div className="relative flex-1 min-w-[150px] max-w-[200px]">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar cliente, squad..."
+                placeholder="Buscar..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-8 h-9"
@@ -462,39 +455,39 @@ export const HealthScoreMovementsReport = ({ squadsData }: HealthScoreMovementsR
             </div>
             
             <Select value={period} onValueChange={(v) => setPeriod(v as PeriodFilter)}>
-              <SelectTrigger className="w-[140px] h-9">
+              <SelectTrigger className="w-[130px] h-9">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="7d">Últimos 7 dias</SelectItem>
-                <SelectItem value="15d">Últimos 15 dias</SelectItem>
-                <SelectItem value="30d">Últimos 30 dias</SelectItem>
-                <SelectItem value="90d">Últimos 90 dias</SelectItem>
+                <SelectItem value="7d">7 dias</SelectItem>
+                <SelectItem value="15d">15 dias</SelectItem>
+                <SelectItem value="30d">30 dias</SelectItem>
+                <SelectItem value="90d">90 dias</SelectItem>
                 <SelectItem value="all">Todos</SelectItem>
               </SelectContent>
             </Select>
             
             <Select value={selectedSquad} onValueChange={setSelectedSquad}>
-              <SelectTrigger className="w-[150px] h-9">
+              <SelectTrigger className="w-[140px] h-9">
                 <SelectValue placeholder="Squad" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os squads</SelectItem>
+                <SelectItem value="all">Todos squads</SelectItem>
                 {squadsData.map(squad => (
                   <SelectItem key={squad.id} value={squad.id}>{squad.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+
+            <Select value={movementType} onValueChange={(v) => setMovementType(v as MovementFilter)}>
               <SelectTrigger className="w-[140px] h-9">
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder="Tipo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos status</SelectItem>
-                {Object.entries(healthStatusLabels).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>{label}</SelectItem>
-                ))}
+                <SelectItem value="all">Todos tipos</SelectItem>
+                <SelectItem value="improvement">Melhorias</SelectItem>
+                <SelectItem value="deterioration">Pioras</SelectItem>
+                <SelectItem value="critical_alert">Críticos</SelectItem>
               </SelectContent>
             </Select>
             
@@ -515,41 +508,51 @@ export const HealthScoreMovementsReport = ({ squadsData }: HealthScoreMovementsR
         ) : (
           <>
             {/* Summary Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-4 rounded-lg bg-muted/50 text-center">
-                <p className="text-3xl font-bold">{stats.total}</p>
-                <p className="text-sm text-muted-foreground">Total de Mudanças</p>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="p-3 rounded-lg bg-muted/50 text-center">
+                <p className="text-2xl font-bold">{stats.total}</p>
+                <p className="text-xs text-muted-foreground">Total</p>
               </div>
-              <div className="p-4 rounded-lg bg-green-500/10 text-center">
+              <div className="p-3 rounded-lg bg-green-500/10 text-center">
                 <div className="flex items-center justify-center gap-1">
-                  <TrendingUp className="h-5 w-5 text-green-600" />
-                  <p className="text-3xl font-bold text-green-600">{stats.improvements}</p>
+                  <TrendingUp className="h-4 w-4 text-green-600" />
+                  <p className="text-2xl font-bold text-green-600">{stats.improvements}</p>
                 </div>
-                <p className="text-sm text-muted-foreground">Melhorias</p>
+                <p className="text-xs text-muted-foreground">Melhorias</p>
               </div>
-              <div className="p-4 rounded-lg bg-red-500/10 text-center">
+              <div className="p-3 rounded-lg bg-orange-500/10 text-center">
                 <div className="flex items-center justify-center gap-1">
-                  <TrendingDown className="h-5 w-5 text-red-600" />
-                  <p className="text-3xl font-bold text-red-600">{stats.deteriorations}</p>
+                  <TrendingDown className="h-4 w-4 text-orange-500" />
+                  <p className="text-2xl font-bold text-orange-500">{stats.deteriorations}</p>
                 </div>
-                <p className="text-sm text-muted-foreground">Pioras</p>
+                <p className="text-xs text-muted-foreground">Pioras</p>
               </div>
-              <div className="p-4 rounded-lg bg-muted/50 text-center">
-                <p className="text-3xl font-bold">{Object.keys(stats.categoryReasons).length}</p>
-                <p className="text-sm text-muted-foreground">Motivos Diferentes</p>
+              <div className="p-3 rounded-lg bg-red-500/10 text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <AlertTriangle className="h-4 w-4 text-red-600" />
+                  <p className="text-2xl font-bold text-red-600">{stats.criticalAlerts}</p>
+                </div>
+                <p className="text-xs text-muted-foreground">Críticos</p>
+              </div>
+              <div className="p-3 rounded-lg bg-yellow-500/10 text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <AlertCircle className="h-4 w-4 text-yellow-600" />
+                  <p className="text-2xl font-bold text-yellow-600">{stats.needsAttention}</p>
+                </div>
+                <p className="text-xs text-muted-foreground">Requer Atenção</p>
               </div>
             </div>
 
             {/* Charts */}
             {stats.total > 0 && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" id="charts-container">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
                   <h4 className="font-semibold mb-3">Mudanças por Status</h4>
-                  <div className="h-[200px]">
+                  <div className="h-[180px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={statusChartData} layout="vertical">
                         <XAxis type="number" />
-                        <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 11 }} />
+                        <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 10 }} />
                         <Tooltip 
                           contentStyle={{ 
                             backgroundColor: 'hsl(var(--card))',
@@ -569,11 +572,11 @@ export const HealthScoreMovementsReport = ({ squadsData }: HealthScoreMovementsR
 
                 <div>
                   <h4 className="font-semibold mb-3">Principais Motivos</h4>
-                  <div className="h-[200px]">
+                  <div className="h-[180px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={categoryChartData} layout="vertical">
                         <XAxis type="number" />
-                        <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 10 }} />
+                        <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 9 }} />
                         <Tooltip 
                           formatter={(value, name, props) => [value, props.payload.fullName]}
                           contentStyle={{ 
@@ -593,39 +596,36 @@ export const HealthScoreMovementsReport = ({ squadsData }: HealthScoreMovementsR
             {/* Movements List */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <h4 className="font-semibold">Últimas Movimentações</h4>
-                <span className="text-sm text-muted-foreground">
-                  {filteredMovements.length} resultados
-                </span>
+                <h4 className="font-semibold">Movimentações</h4>
+                <span className="text-sm text-muted-foreground">{filteredMovements.length} resultados</span>
               </div>
               {filteredMovements.length === 0 ? (
                 <p className="text-muted-foreground text-center py-4">
-                  Nenhuma movimentação encontrada com os filtros selecionados
+                  Nenhuma movimentação encontrada
                 </p>
               ) : (
                 <div className="space-y-2 max-h-[350px] overflow-y-auto">
                   {filteredMovements.slice(0, 100).map((m) => (
                     <div 
                       key={m.id} 
-                      className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                      className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
                     >
-                      <div className="text-xs text-muted-foreground w-20 flex-shrink-0">
+                      <div className="text-xs text-muted-foreground w-16 flex-shrink-0 pt-0.5">
                         {format(new Date(m.changed_at), "dd/MM HH:mm", { locale: ptBR })}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate">{m.client_name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{m.squad_name}</p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-medium text-sm truncate">{m.client_name}</p>
+                          {getMovementBadge(m.analysis)}
+                        </div>
+                        <p className="text-xs text-muted-foreground">{m.squad_name}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{m.analysis.description}</p>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         {m.old_status && <HealthScoreBadge status={m.old_status} size="sm" />}
                         <ArrowRight className="h-3 w-3 text-muted-foreground" />
                         {m.new_status && <HealthScoreBadge status={m.new_status} size="sm" />}
                       </div>
-                      {m.new_categoria_problema && (
-                        <span className="text-xs text-muted-foreground max-w-[150px] truncate hidden md:block">
-                          {m.new_categoria_problema}
-                        </span>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -637,21 +637,3 @@ export const HealthScoreMovementsReport = ({ squadsData }: HealthScoreMovementsR
     </Card>
   );
 };
-
-// Helper function to convert hex to RGB
-function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
-  // Handle hsl format
-  if (hex.startsWith('hsl')) {
-    // Return a default color for hsl values
-    return { r: 100, g: 100, b: 100 };
-  }
-  
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
-    : null;
-}

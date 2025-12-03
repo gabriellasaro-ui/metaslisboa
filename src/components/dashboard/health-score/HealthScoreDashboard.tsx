@@ -4,6 +4,7 @@ import { Squad } from "@/types";
 import { HealthScoreTable } from "./HealthScoreTable";
 import { HealthScoreBadge, ExtendedHealthStatus, getHealthScoreColor, healthStatusLabels } from "./HealthScoreBadge";
 import { HealthScoreMovementsReport } from "./HealthScoreMovementsReport";
+import { HealthScoreTrendsChart } from "./HealthScoreTrendsChart";
 import { CriticalClientsAlert } from "./CriticalClientsAlert";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis } from "recharts";
 import { Shield, AlertTriangle, AlertCircle, Zap, UserPlus, Briefcase, Clock, XCircle, TrendingDown } from "lucide-react";
@@ -246,6 +247,9 @@ export const HealthScoreDashboard = ({ squadsData, canEdit = false, onRefresh }:
           )}
         </CardContent>
       </Card>
+
+      {/* Trends Chart */}
+      <HealthScoreTrendsChart squadsData={squadsData.map(s => ({ id: s.id, name: s.name }))} />
 
       {/* Critical Clients Without Movement Alert */}
       <CriticalClientsAlert />
