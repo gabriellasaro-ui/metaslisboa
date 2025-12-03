@@ -299,6 +299,8 @@ const Admin = () => {
           open={showAddClient} 
           onOpenChange={setShowAddClient}
           onSuccess={fetchStats}
+          coordenadorMode={isCoordenador && !isSupervisor}
+          squadId={squadId || undefined}
         />
         {isSupervisor && (
           <AddSquadDialog 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +23,19 @@ interface Client {
   squad_id: string;
 }
 
+type HealthStatus = "safe" | "care" | "danger" | "danger_critico" | "onboarding" | "e_e" | "aviso_previo" | "churn";
+
+const healthStatusOptions: { value: HealthStatus; label: string }[] = [
+  { value: "safe", label: "🟢 Saudável" },
+  { value: "care", label: "🟡 Atenção" },
+  { value: "danger", label: "🔴 Perigo" },
+  { value: "danger_critico", label: "🔴⚠️ Perigo Crítico" },
+  { value: "onboarding", label: "🟣 Onboarding" },
+  { value: "e_e", label: "🟤 E&E" },
+  { value: "aviso_previo", label: "⚫ Aviso Prévio" },
+  { value: "churn", label: "⬛ Churn" },
+];
+
 interface EditClientAdminDialogProps {
   client: Client | null;
   open: boolean;
@@ -35,7 +48,7 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
   const [name, setName] = useState("");
   const [squadId, setSquadId] = useState("");
   const [status, setStatus] = useState<"ativo" | "aviso_previo" | "churned">("ativo");
-  const [healthStatus, setHealthStatus] = useState<"safe" | "care" | "danger">("safe");
+  const [healthStatus, setHealthStatus] = useState<HealthStatus>("safe");
   const [squads, setSquads] = useState<Squad[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingSquads, setLoadingSquads] = useState(true);
@@ -44,8 +57,8 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
     if (open && client) {
       setName(client.name);
       setSquadId(client.squad_id);
-      setStatus(client.status as any);
-      setHealthStatus((client.health_status || "safe") as any);
+      setStatus(client.status as "ativo" | "aviso_previo" | "churned");
+      setHealthStatus((client.health_status || "safe") as HealthStatus);
       fetchSquads();
     }
   }, [open, client]);
@@ -53,9 +66,9 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
   // Atualiza automaticamente o health_status quando o status mudar
   useEffect(() => {
     if (status === "aviso_previo") {
-      setHealthStatus("care");
+      setHealthStatus("aviso_previo");
     } else if (status === "churned") {
-      setHealthStatus("danger");
+      setHealthStatus("churn");
     }
   }, [status]);
 
@@ -98,7 +111,7 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
       if (error) throw error;
 
       // Invalida cache para atualizar todas as telas
-      queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] });
+      await queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] });
       
       toast.success("Cliente atualizado com sucesso!");
       onSuccess();
@@ -118,6 +131,9 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Editar Cliente</DialogTitle>
+          <DialogDescription>
+            Atualize as informações do cliente.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -154,7 +170,7 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
 
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
-            <Select value={status} onValueChange={(v: any) => setStatus(v)}>
+            <Select value={status} onValueChange={(v: "ativo" | "aviso_previo" | "churned") => setStatus(v)}>
               <SelectTrigger id="status">
                 <SelectValue />
               </SelectTrigger>
@@ -167,24 +183,26 @@ export const EditClientAdminDialog = ({ client, open, onOpenChange, onSuccess }:
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="health">Health</Label>
+            <Label htmlFor="health">Health Score</Label>
             <Select 
               value={healthStatus} 
-              onValueChange={(v: any) => setHealthStatus(v)}
+              onValueChange={(v: HealthStatus) => setHealthStatus(v)}
               disabled={status !== "ativo"}
             >
               <SelectTrigger id="health" className={status !== "ativo" ? "opacity-60" : ""}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="safe">Saudável</SelectItem>
-                <SelectItem value="care">Atenção</SelectItem>
-                <SelectItem value="danger">Perigo</SelectItem>
+                {healthStatusOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             {status !== "ativo" && (
               <p className="text-xs text-muted-foreground">
-                Health Status é definido automaticamente para clientes em {status === "aviso_previo" ? "Aviso Prévio" : "Churn"}
+                Health Score é definido automaticamente para clientes em {status === "aviso_previo" ? "Aviso Prévio" : "Churn"}
               </p>
             )}
           </div>
