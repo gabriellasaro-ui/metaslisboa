@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Client, GoalStatus, GoalType } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
@@ -17,7 +18,19 @@ const clientSchema = z.object({
   hasGoal: z.enum(["SIM", "NAO_DEFINIDO", "NAO"] as const),
   goalType: z.enum(["Faturamento", "Leads", "OUTROS"] as const).optional(),
   goalValue: z.string().trim().max(500, "Meta deve ter no máximo 500 caracteres").optional(),
+  categoria_problema: z.string().optional(),
+  problema_central: z.string().optional(),
 });
+
+const PROBLEM_CATEGORIES = [
+  "Visão do projeto",
+  "Comercial",
+  "Financeiro",
+  "Resultado do Cliente",
+  "Qualidade Geral",
+  "Dados concretos",
+  "Outro",
+];
 
 interface EditClientDialogProps {
   client: Client | null;
@@ -38,12 +51,16 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
     }
   );
   const [goalPeriod, setGoalPeriod] = useState<"mensal" | "trimestral" | "semestral" | "anual">("mensal");
+  const [categoriaProblema, setCategoriaProblema] = useState<string>("");
+  const [problemaCentral, setProblemaCentral] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Atualizar form quando cliente mudar
   useEffect(() => {
     if (client) {
       setFormData(client);
+      setCategoriaProblema(client.categoria_problema || "");
+      setProblemaCentral(client.problema_central || "");
       // Pegar o período da meta se existir
       if (client.smartGoal?.period) {
         setGoalPeriod(client.smartGoal.period as "mensal" | "trimestral" | "semestral" | "anual");
@@ -106,6 +123,8 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
           .from("clients")
           .update({
             name: validatedData.name,
+            categoria_problema: categoriaProblema || null,
+            problema_central: problemaCentral || null,
           })
           .eq("id", clientData.id);
 
@@ -337,6 +356,42 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
                     <SelectItem value="anual">🎯 Anual (52 check-ins)</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            </>
+          )}
+
+          {/* Categoria e Problema Central - só para coordenadores e supervisores */}
+          {!isInvestidor && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="categoriaProblema">Categoria do Problema</Label>
+                <Select
+                  value={categoriaProblema || "none"}
+                  onValueChange={(value) => setCategoriaProblema(value === "none" ? "" : value)}
+                >
+                  <SelectTrigger id="categoriaProblema">
+                    <SelectValue placeholder="Selecione a categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Nenhuma</SelectItem>
+                    {PROBLEM_CATEGORIES.map(category => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="problemaCentral">Problema Central</Label>
+                <Textarea
+                  id="problemaCentral"
+                  placeholder="Descreva o problema central do cliente..."
+                  value={problemaCentral}
+                  onChange={(e) => setProblemaCentral(e.target.value)}
+                  rows={3}
+                />
               </div>
             </>
           )}
