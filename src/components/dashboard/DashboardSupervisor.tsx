@@ -200,6 +200,7 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
         <HealthScoreDashboard 
           squadsData={squadsData} 
           canEdit={true}
+          showRanking={true}
           onRefresh={() => queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] })}
         />
       </TabsContent>

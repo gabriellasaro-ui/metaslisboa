@@ -14,6 +14,7 @@ interface HealthScoreDashboardProps {
   squadsData: Squad[];
   canEdit?: boolean;
   onRefresh?: () => void;
+  showRanking?: boolean;
 }
 
 const statusOrder: ExtendedHealthStatus[] = [
@@ -31,7 +32,7 @@ const statusIcons: Record<ExtendedHealthStatus, typeof Shield> = {
   churn: XCircle,
 };
 
-export const HealthScoreDashboard = ({ squadsData, canEdit = false, onRefresh }: HealthScoreDashboardProps) => {
+export const HealthScoreDashboard = ({ squadsData, canEdit = false, onRefresh, showRanking = false }: HealthScoreDashboardProps) => {
   const clients = useMemo(() => {
     return squadsData.flatMap(squad => 
       squad.clients.map(client => ({
@@ -252,8 +253,8 @@ export const HealthScoreDashboard = ({ squadsData, canEdit = false, onRefresh }:
       {/* Trends Chart */}
       <HealthScoreTrendsChart squadsData={squadsData.map(s => ({ id: s.id, name: s.name }))} />
 
-      {/* Squad Health Ranking */}
-      <SquadHealthRanking squadsData={squadsData} />
+      {/* Squad Health Ranking - Only for supervisors */}
+      {showRanking && <SquadHealthRanking squadsData={squadsData} />}
 
       {/* Critical Clients Without Movement Alert */}
       <CriticalClientsAlert />
