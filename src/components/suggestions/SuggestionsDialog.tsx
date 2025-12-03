@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Lightbulb, Bug, Sparkles, MessageSquare, Clock, CheckCircle, XCircle, Trash2 } from "lucide-react";
+import { Loader2, Lightbulb, Bug, Sparkles, MessageSquare, Clock, CheckCircle, XCircle, Trash2, ThumbsUp, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -35,6 +35,7 @@ interface Suggestion {
   status: string;
   admin_response: string | null;
   created_at: string;
+  votes_count: number;
 }
 
 const CATEGORIES = [
@@ -82,11 +83,27 @@ export const SuggestionsDialog = ({ open, onOpenChange }: SuggestionsDialogProps
       const { data, error } = await supabase
         .from("suggestions")
         .select("*")
+        .order("votes_count", { ascending: false })
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Suggestion[];
     },
     enabled: open,
+  });
+
+  // Fetch user votes
+  const { data: userVotes = [] } = useQuery({
+    queryKey: ["user-votes", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from("suggestion_votes")
+        .select("suggestion_id")
+        .eq("user_id", user.id);
+      if (error) throw error;
+      return data.map(v => v.suggestion_id);
+    },
+    enabled: open && !!user?.id,
   });
 
   const handleSubmit = async () => {
@@ -122,6 +139,31 @@ export const SuggestionsDialog = ({ open, onOpenChange }: SuggestionsDialogProps
     }
   };
 
+  const handleVote = async (suggestionId: string) => {
+    if (!user?.id) return;
+    
+    const hasVoted = userVotes.includes(suggestionId);
+    
+    try {
+      if (hasVoted) {
+        await supabase
+          .from("suggestion_votes")
+          .delete()
+          .eq("suggestion_id", suggestionId)
+          .eq("user_id", user.id);
+      } else {
+        await supabase
+          .from("suggestion_votes")
+          .insert({ suggestion_id: suggestionId, user_id: user.id });
+      }
+      
+      queryClient.invalidateQueries({ queryKey: ["suggestions"] });
+      queryClient.invalidateQueries({ queryKey: ["user-votes"] });
+    } catch (error: any) {
+      toast.error("Erro ao votar: " + error.message);
+    }
+  };
+
   const handleDelete = async (suggestionId: string) => {
     try {
       const { error } = await supabase
@@ -138,7 +180,7 @@ export const SuggestionsDialog = ({ open, onOpenChange }: SuggestionsDialogProps
   };
 
   const mySuggestions = suggestions.filter(s => s.user_id === user?.id);
-  const allSuggestions = suggestions;
+  const topSuggestions = [...suggestions].sort((a, b) => b.votes_count - a.votes_count);
 
   const getCategoryIcon = (cat: string) => {
     const found = CATEGORIES.find(c => c.value === cat);
@@ -151,6 +193,82 @@ export const SuggestionsDialog = ({ open, onOpenChange }: SuggestionsDialogProps
     return "Investidor";
   };
 
+  const SuggestionCard = ({ suggestion, showAuthor = false, showDelete = false }: { suggestion: Suggestion; showAuthor?: boolean; showDelete?: boolean }) => {
+    const CategoryIcon = getCategoryIcon(suggestion.category);
+    const statusConfig = STATUS_CONFIG[suggestion.status] || STATUS_CONFIG.pendente;
+    const StatusIcon = statusConfig.icon;
+    const hasVoted = userVotes.includes(suggestion.id);
+    
+    return (
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <CategoryIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              <CardTitle className="text-base truncate">{suggestion.title}</CardTitle>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Button
+                variant={hasVoted ? "default" : "outline"}
+                size="sm"
+                className="h-7 gap-1"
+                onClick={() => handleVote(suggestion.id)}
+              >
+                <ThumbsUp className={`h-3 w-3 ${hasVoted ? 'fill-current' : ''}`} />
+                <span className="text-xs">{suggestion.votes_count || 0}</span>
+              </Button>
+              <Badge variant={statusConfig.variant} className="text-xs">
+                <StatusIcon className="h-3 w-3 mr-1" />
+                {statusConfig.label}
+              </Badge>
+              {showDelete && suggestion.status === "pendente" && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => handleDelete(suggestion.id)}
+                >
+                  <Trash2 className="h-3 w-3 text-destructive" />
+                </Button>
+              )}
+            </div>
+          </div>
+          <CardDescription className="text-xs flex items-center gap-2 flex-wrap">
+            {showAuthor && (
+              <>
+                <Avatar className="h-4 w-4">
+                  <AvatarFallback className="text-[8px]">
+                    {suggestion.user_name.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span>{suggestion.user_name}</span>
+                <span>•</span>
+                <span>{getRoleLabel(suggestion.user_role)}</span>
+                {suggestion.squad_name && (
+                  <>
+                    <span>•</span>
+                    <span>{suggestion.squad_name}</span>
+                  </>
+                )}
+                <span>•</span>
+              </>
+            )}
+            <span>{format(new Date(suggestion.created_at), "dd/MM/yyyy", { locale: ptBR })}</span>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <p className="text-sm text-muted-foreground">{suggestion.description}</p>
+          {suggestion.admin_response && (
+            <div className="mt-3 p-3 rounded-lg bg-primary/5 border-l-2 border-primary">
+              <p className="text-xs font-medium text-primary mb-1">Resposta:</p>
+              <p className="text-sm">{suggestion.admin_response}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh]">
@@ -160,16 +278,53 @@ export const SuggestionsDialog = ({ open, onOpenChange }: SuggestionsDialogProps
             Sugestões e Melhorias
           </DialogTitle>
           <DialogDescription>
-            Compartilhe suas ideias para melhorar a plataforma
+            Compartilhe suas ideias e vote nas melhores sugestões
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="nova" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="nova">Nova Sugestão</TabsTrigger>
+        <Tabs defaultValue="top" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="top" className="gap-1">
+              <TrendingUp className="h-3 w-3" />
+              Top
+            </TabsTrigger>
+            <TabsTrigger value="nova">Nova</TabsTrigger>
             <TabsTrigger value="minhas">Minhas ({mySuggestions.length})</TabsTrigger>
-            <TabsTrigger value="todas">Todas ({allSuggestions.length})</TabsTrigger>
+            <TabsTrigger value="todas">Todas ({suggestions.length})</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="top" className="mt-4">
+            <ScrollArea className="h-[400px] pr-4">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : topSuggestions.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Nenhuma sugestão ainda. Seja o primeiro!
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {topSuggestions.slice(0, 10).map((suggestion, index) => (
+                    <div key={suggestion.id} className="relative">
+                      {index < 3 && (
+                        <div className={`absolute -left-2 top-3 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                          index === 0 ? 'bg-amber-400 text-amber-950' :
+                          index === 1 ? 'bg-slate-300 text-slate-800' :
+                          'bg-orange-300 text-orange-900'
+                        }`}>
+                          {index + 1}
+                        </div>
+                      )}
+                      <div className={index < 3 ? 'ml-6' : ''}>
+                        <SuggestionCard suggestion={suggestion} showAuthor />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+          </TabsContent>
 
           <TabsContent value="nova" className="space-y-4 mt-4">
             <div className="space-y-2">
@@ -230,52 +385,9 @@ export const SuggestionsDialog = ({ open, onOpenChange }: SuggestionsDialogProps
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {mySuggestions.map((suggestion) => {
-                    const CategoryIcon = getCategoryIcon(suggestion.category);
-                    const statusConfig = STATUS_CONFIG[suggestion.status] || STATUS_CONFIG.pendente;
-                    const StatusIcon = statusConfig.icon;
-                    
-                    return (
-                      <Card key={suggestion.id}>
-                        <CardHeader className="pb-2">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-2">
-                              <CategoryIcon className="h-4 w-4 text-muted-foreground" />
-                              <CardTitle className="text-base">{suggestion.title}</CardTitle>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Badge variant={statusConfig.variant} className="text-xs">
-                                <StatusIcon className="h-3 w-3 mr-1" />
-                                {statusConfig.label}
-                              </Badge>
-                              {suggestion.status === "pendente" && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-6 w-6"
-                                  onClick={() => handleDelete(suggestion.id)}
-                                >
-                                  <Trash2 className="h-3 w-3 text-destructive" />
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                          <CardDescription className="text-xs">
-                            {format(new Date(suggestion.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent className="pt-0">
-                          <p className="text-sm text-muted-foreground">{suggestion.description}</p>
-                          {suggestion.admin_response && (
-                            <div className="mt-3 p-3 rounded-lg bg-primary/5 border-l-2 border-primary">
-                              <p className="text-xs font-medium text-primary mb-1">Resposta:</p>
-                              <p className="text-sm">{suggestion.admin_response}</p>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+                  {mySuggestions.map((suggestion) => (
+                    <SuggestionCard key={suggestion.id} suggestion={suggestion} showDelete />
+                  ))}
                 </div>
               )}
             </ScrollArea>
@@ -287,61 +399,15 @@ export const SuggestionsDialog = ({ open, onOpenChange }: SuggestionsDialogProps
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                 </div>
-              ) : allSuggestions.length === 0 ? (
+              ) : suggestions.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   Nenhuma sugestão foi enviada ainda
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {allSuggestions.map((suggestion) => {
-                    const CategoryIcon = getCategoryIcon(suggestion.category);
-                    const statusConfig = STATUS_CONFIG[suggestion.status] || STATUS_CONFIG.pendente;
-                    const StatusIcon = statusConfig.icon;
-                    
-                    return (
-                      <Card key={suggestion.id}>
-                        <CardHeader className="pb-2">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-2">
-                              <CategoryIcon className="h-4 w-4 text-muted-foreground" />
-                              <CardTitle className="text-base">{suggestion.title}</CardTitle>
-                            </div>
-                            <Badge variant={statusConfig.variant} className="text-xs">
-                              <StatusIcon className="h-3 w-3 mr-1" />
-                              {statusConfig.label}
-                            </Badge>
-                          </div>
-                          <CardDescription className="text-xs flex items-center gap-2">
-                            <Avatar className="h-4 w-4">
-                              <AvatarFallback className="text-[8px]">
-                                {suggestion.user_name.substring(0, 2).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span>{suggestion.user_name}</span>
-                            <span>•</span>
-                            <span>{getRoleLabel(suggestion.user_role)}</span>
-                            {suggestion.squad_name && (
-                              <>
-                                <span>•</span>
-                                <span>{suggestion.squad_name}</span>
-                              </>
-                            )}
-                            <span>•</span>
-                            <span>{format(new Date(suggestion.created_at), "dd/MM/yyyy", { locale: ptBR })}</span>
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent className="pt-0">
-                          <p className="text-sm text-muted-foreground">{suggestion.description}</p>
-                          {suggestion.admin_response && (
-                            <div className="mt-3 p-3 rounded-lg bg-primary/5 border-l-2 border-primary">
-                              <p className="text-xs font-medium text-primary mb-1">Resposta:</p>
-                              <p className="text-sm">{suggestion.admin_response}</p>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+                  {suggestions.map((suggestion) => (
+                    <SuggestionCard key={suggestion.id} suggestion={suggestion} showAuthor />
+                  ))}
                 </div>
               )}
             </ScrollArea>
