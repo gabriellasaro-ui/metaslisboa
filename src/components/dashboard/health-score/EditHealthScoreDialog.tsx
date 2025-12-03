@@ -29,20 +29,19 @@ interface EditHealthScoreDialogProps {
 }
 
 const PROBLEM_CATEGORIES = [
-  "Falta de alinhamento estratégico",
+  "Falta de alinhamento estrategico",
   "Expectativa vs Realidade",
-  "Comunicação deficiente",
+  "Comunicacao deficiente",
   "Resultados abaixo do esperado",
   "Problemas financeiros do cliente",
-  "Mudança de gestão/equipe",
+  "Mudanca de gestao/equipe",
   "Falta de engajamento",
   "Escopo mal definido",
   "Prazo inadequado",
   "Qualidade das entregas",
   "Atendimento/Suporte",
-  "Preço/Custo-benefício",
-  "Concorrência",
-  "Reestruturação interna",
+  "Concorrencia",
+  "Reestruturacao interna",
   "Outro",
 ];
 

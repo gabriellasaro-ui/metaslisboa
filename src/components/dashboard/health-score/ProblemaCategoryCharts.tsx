@@ -14,23 +14,37 @@ interface ProblemaCategoryChartsProps {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  "Visão do projeto": "hsl(0, 72%, 51%)",
-  "Comercial": "hsl(0, 0%, 25%)",
-  "Financeiro": "hsl(0, 0%, 50%)",
-  "Resultado do Cliente": "hsl(0, 65%, 60%)",
+  "Falta de alinhamento estrategico": "hsl(0, 72%, 51%)",
+  "Expectativa vs Realidade": "hsl(0, 65%, 45%)",
+  "Comunicacao deficiente": "hsl(0, 0%, 25%)",
+  "Resultados abaixo do esperado": "hsl(0, 60%, 55%)",
+  "Problemas financeiros do cliente": "hsl(0, 0%, 50%)",
+  "Mudanca de gestao/equipe": "hsl(0, 55%, 40%)",
+  "Falta de engajamento": "hsl(0, 50%, 35%)",
+  "Escopo mal definido": "hsl(0, 0%, 35%)",
+  "Prazo inadequado": "hsl(0, 45%, 50%)",
+  "Qualidade das entregas": "hsl(0, 40%, 45%)",
+  "Atendimento/Suporte": "hsl(0, 35%, 55%)",
+  "Concorrencia": "hsl(0, 0%, 40%)",
+  "Reestruturacao interna": "hsl(0, 30%, 50%)",
   "Outro": "hsl(0, 0%, 70%)",
-  "Qualidade Geral": "hsl(0, 60%, 45%)",
-  "Dados concretos": "hsl(0, 0%, 35%)",
 };
 
 const DEFAULT_CATEGORIES = [
-  "Visão do projeto",
-  "Comercial", 
-  "Financeiro",
-  "Resultado do Cliente",
+  "Falta de alinhamento estrategico",
+  "Expectativa vs Realidade",
+  "Comunicacao deficiente",
+  "Resultados abaixo do esperado",
+  "Problemas financeiros do cliente",
+  "Mudanca de gestao/equipe",
+  "Falta de engajamento",
+  "Escopo mal definido",
+  "Prazo inadequado",
+  "Qualidade das entregas",
+  "Atendimento/Suporte",
+  "Concorrencia",
+  "Reestruturacao interna",
   "Outro",
-  "Qualidade Geral",
-  "Dados concretos",
 ];
 
 export const ProblemaCategoryCharts = ({ clients }: ProblemaCategoryChartsProps) => {
