@@ -19,7 +19,7 @@ import { WeeklyProgressChart } from "@/components/dashboard/WeeklyProgressChart"
 import { HealthScoreDashboard } from "@/components/dashboard/health-score/HealthScoreDashboard";
 import { ClientAlertsCard } from "@/components/dashboard/ClientAlertsCard";
 import { SquadGoalsCard } from "@/components/dashboard/squad-goals";
-import { Target, Users, TrendingUp, Calendar, Plus, MessageSquare, Pencil, History } from "lucide-react";
+import { Target, Users, TrendingUp, Calendar, Plus, MessageSquare, Pencil, History, EyeOff, Eye } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSquadStats } from "@/hooks/useSquadStats";
@@ -36,6 +36,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
   const [editingGoal, setEditingGoal] = useState<Client | null>(null);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [viewingHistory, setViewingHistory] = useState<Client | null>(null);
+  const [showAlerts, setShowAlerts] = useState(true);
   const queryClient = useQueryClient();
 
   // Filtrar apenas o squad do investidor
@@ -66,10 +67,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
     >
       {/* Visão Geral */}
       <TabsContent value="visao-geral" className="space-y-6">
-        {/* Alertas de Clientes */}
-        <ClientAlertsCard squadsData={squadsData} squadId={squadId} />
-
-        {/* Card de Check-in */}
+        {/* Card de Check-in - SEMPRE NO TOPO */}
         <Card className="relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-background hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 group">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 group-hover:bg-primary/10 transition-all duration-700" />
           <CardHeader className="relative z-10 pb-4">
@@ -128,6 +126,31 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
             </div>
           </CardContent>
         </Card>
+
+        {/* Alertas de Clientes - Com opção de ocultar */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAlerts(!showAlerts)}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              {showAlerts ? (
+                <>
+                  <EyeOff className="h-3.5 w-3.5 mr-1.5" />
+                  Ocultar alertas
+                </>
+              ) : (
+                <>
+                  <Eye className="h-3.5 w-3.5 mr-1.5" />
+                  Mostrar alertas
+                </>
+              )}
+            </Button>
+          </div>
+          {showAlerts && <ClientAlertsCard squadsData={squadsData} squadId={squadId} />}
+        </div>
 
         <div className="grid gap-4 md:grid-cols-4">
           <MetricsCard
