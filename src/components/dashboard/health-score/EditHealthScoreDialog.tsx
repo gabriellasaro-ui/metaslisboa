@@ -18,6 +18,7 @@ interface Client {
   problema_central: string | null;
   categoria_problema?: string | null;
   squadName?: string;
+  status?: string;
 }
 
 interface EditHealthScoreDialogProps {
@@ -37,6 +38,20 @@ const PROBLEM_CATEGORIES = [
   "Outro",
 ];
 
+// Health status options based on client status
+const getAvailableHealthStatuses = (clientStatus: string): ExtendedHealthStatus[] => {
+  switch (clientStatus) {
+    case 'aviso_previo':
+      return ['aviso_previo'];
+    case 'churned':
+    case 'churn':
+      return ['churn'];
+    case 'ativo':
+    default:
+      return ['safe', 'care', 'danger', 'danger_critico', 'onboarding', 'e_e'];
+  }
+};
+
 export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }: EditHealthScoreDialogProps) => {
   const [healthStatus, setHealthStatus] = useState<ExtendedHealthStatus>('safe');
   const [problemaCentral, setProblemaCentral] = useState('');
@@ -47,7 +62,10 @@ export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }:
 
   useEffect(() => {
     if (client) {
-      setHealthStatus(client.health_status || 'safe');
+      const availableStatuses = getAvailableHealthStatuses(client.status || 'ativo');
+      const currentStatus = client.health_status || 'safe';
+      // Se o status atual não é válido para o status do cliente, usar o primeiro disponível
+      setHealthStatus(availableStatuses.includes(currentStatus) ? currentStatus : availableStatuses[0]);
       setProblemaCentral(client.problema_central || '');
       setCategoriaProblema(client.categoria_problema || '');
       setNotes('');
@@ -118,13 +136,20 @@ export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }:
                 <SelectValue placeholder="Selecione o status" />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(healthStatusLabels).map(([value, label]) => (
+                {getAvailableHealthStatuses(client?.status || 'ativo').map((value) => (
                   <SelectItem key={value} value={value}>
-                    {label}
+                    {healthStatusLabels[value]}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {(client?.status === 'aviso_previo' || client?.status === 'churned') && (
+              <p className="text-xs text-muted-foreground">
+                {client.status === 'aviso_previo' 
+                  ? 'Cliente em aviso prévio - somente status "Aviso Prévio" disponível'
+                  : 'Cliente churned - somente status "Churn" disponível'}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">

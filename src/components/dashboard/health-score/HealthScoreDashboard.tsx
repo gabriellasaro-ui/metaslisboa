@@ -37,6 +37,7 @@ export const HealthScoreDashboard = ({ squadsData, canEdit = false, onRefresh }:
         problema_central: client.problema_central || null,
         categoria_problema: client.categoria_problema || null,
         squadName: squad.name,
+        status: client.status || 'ativo',
       }))
     );
   }, [squadsData]);
