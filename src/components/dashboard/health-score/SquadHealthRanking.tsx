@@ -7,11 +7,9 @@ import { Trophy, Medal, TrendingUp, TrendingDown, Users, Shield, AlertTriangle, 
 import { ExtendedHealthStatus } from "./HealthScoreBadge";
 import { getHealthScoreValue } from "./HealthScoreTrendsChart";
 import { SquadProfileDialog } from "../squad/SquadProfileDialog";
-
 interface SquadHealthRankingProps {
   squadsData: Squad[];
 }
-
 interface SquadMetrics {
   id: string;
   name: string;
@@ -27,11 +25,11 @@ interface SquadMetrics {
   atRiskPercentage: number;
   rank: number;
 }
-
-export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
+export const SquadHealthRanking = ({
+  squadsData
+}: SquadHealthRankingProps) => {
   const [selectedSquad, setSelectedSquad] = useState<Squad | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
-
   const squadMetrics = useMemo(() => {
     const metrics: SquadMetrics[] = squadsData.map(squad => {
       let totalScore = 0;
@@ -39,23 +37,16 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
       let careCount = 0;
       let dangerCount = 0;
       let criticalCount = 0;
-
       squad.clients.forEach(client => {
         const status = (client.healthStatus || 'safe') as ExtendedHealthStatus;
         totalScore += getHealthScoreValue(status);
-
-        if (status === 'safe') safeCount++;
-        else if (status === 'care' || status === 'onboarding' || status === 'e_e') careCount++;
-        else if (status === 'danger') dangerCount++;
-        else criticalCount++; // danger_critico, aviso_previo, churn
+        if (status === 'safe') safeCount++;else if (status === 'care' || status === 'onboarding' || status === 'e_e') careCount++;else if (status === 'danger') dangerCount++;else criticalCount++; // danger_critico, aviso_previo, churn
       });
-
       const totalClients = squad.clients.length;
       const avgScore = totalClients > 0 ? Math.round(totalScore / totalClients) : 0;
-      const safePercentage = totalClients > 0 ? Math.round((safeCount / totalClients) * 100) : 0;
-      const carePercentage = totalClients > 0 ? Math.round((careCount / totalClients) * 100) : 0;
-      const atRiskPercentage = totalClients > 0 ? Math.round(((careCount + dangerCount + criticalCount) / totalClients) * 100) : 0;
-
+      const safePercentage = totalClients > 0 ? Math.round(safeCount / totalClients * 100) : 0;
+      const carePercentage = totalClients > 0 ? Math.round(careCount / totalClients * 100) : 0;
+      const atRiskPercentage = totalClients > 0 ? Math.round((careCount + dangerCount + criticalCount) / totalClients * 100) : 0;
       return {
         id: squad.id,
         name: squad.name,
@@ -69,7 +60,7 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
         safePercentage,
         carePercentage,
         atRiskPercentage,
-        rank: 0,
+        rank: 0
       };
     });
 
@@ -78,24 +69,20 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
     metrics.forEach((m, i) => {
       m.rank = i + 1;
     });
-
     return metrics;
   }, [squadsData]);
-
   const getRankIcon = (rank: number) => {
     if (rank === 1) return <Trophy className="h-6 w-6 text-amber-400 drop-shadow-md" />;
     if (rank === 2) return <Medal className="h-5 w-5 text-slate-400" />;
     if (rank === 3) return <Medal className="h-5 w-5 text-orange-400" />;
     return <span className="text-sm font-bold text-muted-foreground w-5 text-center">{rank}º</span>;
   };
-
   const getScoreColor = (score: number) => {
     if (score >= 80) return "text-green-600";
     if (score >= 60) return "text-yellow-600";
     if (score >= 40) return "text-orange-500";
     return "text-red-600";
   };
-
   const getProgressColor = (score: number) => {
     if (score >= 80) return "bg-green-500";
     if (score >= 60) return "bg-yellow-500";
@@ -111,17 +98,22 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
       care: acc.care + m.careCount,
       danger: acc.danger + m.dangerCount,
       critical: acc.critical + m.criticalCount,
-      scoreSum: acc.scoreSum + (m.avgScore * m.totalClients),
-    }), { clients: 0, safe: 0, care: 0, danger: 0, critical: 0, scoreSum: 0 });
-
+      scoreSum: acc.scoreSum + m.avgScore * m.totalClients
+    }), {
+      clients: 0,
+      safe: 0,
+      care: 0,
+      danger: 0,
+      critical: 0,
+      scoreSum: 0
+    });
     return {
       totalClients: totals.clients,
       avgScore: totals.clients > 0 ? Math.round(totals.scoreSum / totals.clients) : 0,
-      safePercentage: totals.clients > 0 ? Math.round((totals.safe / totals.clients) * 100) : 0,
-      atRiskPercentage: totals.clients > 0 ? Math.round(((totals.care + totals.danger + totals.critical) / totals.clients) * 100) : 0,
+      safePercentage: totals.clients > 0 ? Math.round(totals.safe / totals.clients * 100) : 0,
+      atRiskPercentage: totals.clients > 0 ? Math.round((totals.care + totals.danger + totals.critical) / totals.clients * 100) : 0
     };
   }, [squadMetrics]);
-
   const handleSquadClick = (squadId: string) => {
     const squad = squadsData.find(s => s.id === squadId);
     if (squad) {
@@ -129,18 +121,14 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
       setProfileOpen(true);
     }
   };
-
-  return (
-    <>
+  return <>
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Trophy className="h-5 w-5 text-yellow-500" />
           Ranking de Squads por Health Score
         </CardTitle>
-        <CardDescription>
-          Comparativo de performance entre squads (clique na squad para ver detalhes)
-        </CardDescription>
+        <CardDescription>Comparativo de performance health score entre squads (clique na squad para ver detalhes)</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Overall Summary */}
@@ -176,17 +164,7 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
         <div className="flex items-center justify-between mb-2">
             <h4 className="text-sm font-medium">Ranking por Score</h4>
           </div>
-          {squadMetrics.map((squad, index) => (
-            <div 
-              key={squad.id}
-              onClick={() => handleSquadClick(squad.id)}
-              className={`p-4 rounded-lg border transition-all hover:shadow-md cursor-pointer ${
-                index === 0 ? 'bg-amber-400/10 border-amber-400/40 shadow-amber-400/20' :
-                index === 1 ? 'bg-slate-400/10 border-slate-400/30' :
-                index === 2 ? 'bg-orange-400/10 border-orange-400/30' :
-                'bg-card border-border'
-              }`}
-            >
+          {squadMetrics.map((squad, index) => <div key={squad.id} onClick={() => handleSquadClick(squad.id)} className={`p-4 rounded-lg border transition-all hover:shadow-md cursor-pointer ${index === 0 ? 'bg-amber-400/10 border-amber-400/40 shadow-amber-400/20' : index === 1 ? 'bg-slate-400/10 border-slate-400/30' : index === 2 ? 'bg-orange-400/10 border-orange-400/30' : 'bg-card border-border'}`}>
               <div className="flex items-center gap-4">
                 {/* Rank */}
                 <div className="flex-shrink-0 w-8 flex justify-center">
@@ -214,10 +192,9 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
                       <div className="h-2 rounded-full bg-muted overflow-hidden">
-                        <div 
-                          className={`h-full rounded-full transition-all ${getProgressColor(squad.avgScore)}`}
-                          style={{ width: `${squad.avgScore}%` }}
-                        />
+                        <div className={`h-full rounded-full transition-all ${getProgressColor(squad.avgScore)}`} style={{
+                        width: `${squad.avgScore}%`
+                      }} />
                       </div>
                     </div>
                     <span className={`text-lg font-bold w-12 text-right ${getScoreColor(squad.avgScore)}`}>
@@ -248,44 +225,31 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
 
                 {/* Risk Indicator */}
                 <div className="flex-shrink-0 text-right">
-                  {squad.atRiskPercentage > 30 ? (
-                    <div className="flex items-center gap-1 text-destructive">
+                  {squad.atRiskPercentage > 30 ? <div className="flex items-center gap-1 text-destructive">
                       <AlertTriangle className="h-4 w-4" />
                       <span className="text-sm font-medium">{squad.atRiskPercentage}% atenção</span>
-                    </div>
-                  ) : squad.safePercentage >= 70 ? (
-                    <div className="flex items-center gap-1 text-green-600">
+                    </div> : squad.safePercentage >= 70 ? <div className="flex items-center gap-1 text-green-600">
                       <TrendingUp className="h-4 w-4" />
                       <span className="text-sm font-medium">{squad.safePercentage}% safe</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1 text-yellow-600">
+                    </div> : <div className="flex items-center gap-1 text-yellow-600">
                       <TrendingDown className="h-4 w-4" />
                       <span className="text-sm font-medium">Monitorar</span>
-                    </div>
-                  )}
+                    </div>}
                 </div>
               </div>
-            </div>
-          ))}
+            </div>)}
         </div>
       </CardContent>
     </Card>
 
-    <SquadProfileDialog
-      squad={selectedSquad ? {
-        id: selectedSquad.id,
-        name: selectedSquad.name,
-        slug: selectedSquad.slug || selectedSquad.name.toLowerCase().replace(/\s+/g, '-'),
-        icon: null,
-        logo_url: selectedSquad.logoUrl || null,
-        description: selectedSquad.description || null,
-        leader_id: null
-      } : null}
-      open={profileOpen}
-      onOpenChange={setProfileOpen}
-      canEdit={false}
-    />
-    </>
-  );
+    <SquadProfileDialog squad={selectedSquad ? {
+      id: selectedSquad.id,
+      name: selectedSquad.name,
+      slug: selectedSquad.slug || selectedSquad.name.toLowerCase().replace(/\s+/g, '-'),
+      icon: null,
+      logo_url: selectedSquad.logoUrl || null,
+      description: selectedSquad.description || null,
+      leader_id: null
+    } : null} open={profileOpen} onOpenChange={setProfileOpen} canEdit={false} />
+    </>;
 };
