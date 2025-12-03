@@ -47,7 +47,7 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
       const totalClients = squad.clients.length;
       const avgScore = totalClients > 0 ? Math.round(totalScore / totalClients) : 0;
       const safePercentage = totalClients > 0 ? Math.round((safeCount / totalClients) * 100) : 0;
-      const atRiskPercentage = totalClients > 0 ? Math.round(((dangerCount + criticalCount) / totalClients) * 100) : 0;
+      const atRiskPercentage = totalClients > 0 ? Math.round(((careCount + dangerCount + criticalCount) / totalClients) * 100) : 0;
 
       return {
         id: squad.id,
@@ -109,7 +109,7 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
       totalClients: totals.clients,
       avgScore: totals.clients > 0 ? Math.round(totals.scoreSum / totals.clients) : 0,
       safePercentage: totals.clients > 0 ? Math.round((totals.safe / totals.clients) * 100) : 0,
-      atRiskPercentage: totals.clients > 0 ? Math.round(((totals.danger + totals.critical) / totals.clients) * 100) : 0,
+      atRiskPercentage: totals.clients > 0 ? Math.round(((totals.care + totals.danger + totals.critical) / totals.clients) * 100) : 0,
     };
   }, [squadMetrics]);
 
@@ -146,9 +146,9 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
             </p>
           </div>
           <div className="text-center">
-            <p className="text-3xl font-bold text-red-600">{overallMetrics.atRiskPercentage}%</p>
+            <p className="text-3xl font-bold text-destructive">{overallMetrics.atRiskPercentage}%</p>
             <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-              <AlertCircle className="h-3 w-3" /> Em Risco
+              <AlertCircle className="h-3 w-3" /> Requer Atencao
             </p>
           </div>
         </div>
@@ -218,10 +218,10 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
 
                 {/* Risk Indicator */}
                 <div className="flex-shrink-0 text-right">
-                  {squad.atRiskPercentage > 20 ? (
-                    <div className="flex items-center gap-1 text-red-600">
+                  {squad.atRiskPercentage > 30 ? (
+                    <div className="flex items-center gap-1 text-destructive">
                       <AlertTriangle className="h-4 w-4" />
-                      <span className="text-sm font-medium">{squad.atRiskPercentage}% risco</span>
+                      <span className="text-sm font-medium">{squad.atRiskPercentage}% atencao</span>
                     </div>
                   ) : squad.safePercentage >= 70 ? (
                     <div className="flex items-center gap-1 text-green-600">
@@ -231,7 +231,7 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
                   ) : (
                     <div className="flex items-center gap-1 text-yellow-600">
                       <TrendingDown className="h-4 w-4" />
-                      <span className="text-sm font-medium">Atenção</span>
+                      <span className="text-sm font-medium">Monitorar</span>
                     </div>
                   )}
                 </div>
