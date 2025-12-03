@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Squad } from "@/types";
 import { HealthScoreTable } from "./HealthScoreTable";
 import { HealthScoreBadge, ExtendedHealthStatus, getHealthScoreColor, healthStatusLabels } from "./HealthScoreBadge";
+import { HealthScoreMovementsReport } from "./HealthScoreMovementsReport";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis } from "recharts";
 import { Shield, AlertTriangle, AlertCircle, Zap, UserPlus, Briefcase, Clock, XCircle, TrendingDown } from "lucide-react";
 
@@ -244,6 +245,9 @@ export const HealthScoreDashboard = ({ squadsData, canEdit = false, onRefresh }:
           )}
         </CardContent>
       </Card>
+
+      {/* Movements Report */}
+      <HealthScoreMovementsReport squadsData={squadsData.map(s => ({ id: s.id, name: s.name }))} />
 
       {/* All Clients Table */}
       <Card>
