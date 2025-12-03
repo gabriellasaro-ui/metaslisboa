@@ -5,6 +5,7 @@ import { HealthScoreTable } from "./HealthScoreTable";
 import { HealthScoreBadge, ExtendedHealthStatus, getHealthScoreColor, healthStatusLabels } from "./HealthScoreBadge";
 import { HealthScoreMovementsReport } from "./HealthScoreMovementsReport";
 import { HealthScoreTrendsChart } from "./HealthScoreTrendsChart";
+import { SquadHealthRanking } from "./SquadHealthRanking";
 import { CriticalClientsAlert } from "./CriticalClientsAlert";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis } from "recharts";
 import { Shield, AlertTriangle, AlertCircle, Zap, UserPlus, Briefcase, Clock, XCircle, TrendingDown } from "lucide-react";
@@ -250,6 +251,9 @@ export const HealthScoreDashboard = ({ squadsData, canEdit = false, onRefresh }:
 
       {/* Trends Chart */}
       <HealthScoreTrendsChart squadsData={squadsData.map(s => ({ id: s.id, name: s.name }))} />
+
+      {/* Squad Health Ranking */}
+      <SquadHealthRanking squadsData={squadsData} />
 
       {/* Critical Clients Without Movement Alert */}
       <CriticalClientsAlert />
