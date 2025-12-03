@@ -348,6 +348,48 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          client_at_risk: boolean
+          created_at: string
+          goal_completed: boolean
+          goal_failed: boolean
+          health_score_change: boolean
+          id: string
+          new_check_in: boolean
+          sound_enabled: boolean
+          squad_goal_progress: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_at_risk?: boolean
+          created_at?: string
+          goal_completed?: boolean
+          goal_failed?: boolean
+          health_score_change?: boolean
+          id?: string
+          new_check_in?: boolean
+          sound_enabled?: boolean
+          squad_goal_progress?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_at_risk?: boolean
+          created_at?: string
+          goal_completed?: boolean
+          goal_failed?: boolean
+          health_score_change?: boolean
+          id?: string
+          new_check_in?: boolean
+          sound_enabled?: boolean
+          squad_goal_progress?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           client_id: string | null
