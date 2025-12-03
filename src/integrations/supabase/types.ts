@@ -731,6 +731,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_squad_members_with_roles: {
+        Args: { _squad_id: string }
+        Returns: {
+          avatar_url: string
+          email: string
+          id: string
+          name: string
+          role: string
+        }[]
+      }
       get_user_squad_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
