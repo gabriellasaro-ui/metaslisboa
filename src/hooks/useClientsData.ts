@@ -17,7 +17,9 @@ export const useClientsData = () => {
           id,
           name,
           slug,
-          leader_id
+          leader_id,
+          logo_url,
+          description
         `)
         .order("name");
 
@@ -142,8 +144,11 @@ export const useClientsData = () => {
         return {
           id: squad.id,
           name: squad.name,
+          slug: squad.slug,
           leader: leaderName,
           clients: squadClients,
+          logoUrl: squad.logo_url || undefined,
+          description: squad.description || undefined,
         };
       });
 

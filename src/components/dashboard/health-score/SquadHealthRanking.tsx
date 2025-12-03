@@ -1,11 +1,12 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Squad } from "@/types";
 import { Trophy, Medal, TrendingUp, TrendingDown, Users, Shield, AlertTriangle, AlertCircle } from "lucide-react";
 import { ExtendedHealthStatus } from "./HealthScoreBadge";
 import { getHealthScoreValue } from "./HealthScoreTrendsChart";
+import { SquadProfileDialog } from "../squad/SquadProfileDialog";
 
 interface SquadHealthRankingProps {
   squadsData: Squad[];
@@ -14,6 +15,7 @@ interface SquadHealthRankingProps {
 interface SquadMetrics {
   id: string;
   name: string;
+  logoUrl?: string;
   totalClients: number;
   avgScore: number;
   safeCount: number;
@@ -27,6 +29,9 @@ interface SquadMetrics {
 }
 
 export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
+  const [selectedSquad, setSelectedSquad] = useState<Squad | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+
   const squadMetrics = useMemo(() => {
     const metrics: SquadMetrics[] = squadsData.map(squad => {
       let totalScore = 0;
@@ -54,6 +59,7 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
       return {
         id: squad.id,
         name: squad.name,
+        logoUrl: squad.logoUrl,
         totalClients,
         avgScore,
         safeCount,
@@ -116,7 +122,16 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
     };
   }, [squadMetrics]);
 
+  const handleSquadClick = (squadId: string) => {
+    const squad = squadsData.find(s => s.id === squadId);
+    if (squad) {
+      setSelectedSquad(squad);
+      setProfileOpen(true);
+    }
+  };
+
   return (
+    <>
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -124,7 +139,7 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
           Ranking de Squads por Health Score
         </CardTitle>
         <CardDescription>
-          Comparativo de performance entre squads
+          Comparativo de performance entre squads (clique na squad para ver detalhes)
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -151,7 +166,7 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
           <div className="text-center">
             <p className="text-3xl font-bold text-destructive">{overallMetrics.atRiskPercentage}%</p>
             <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-              <AlertCircle className="h-3 w-3" /> Requer Atencao
+              <AlertCircle className="h-3 w-3" /> Requer Atenção
             </p>
           </div>
         </div>
@@ -160,14 +175,12 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
         <div className="space-y-3">
         <div className="flex items-center justify-between mb-2">
             <h4 className="text-sm font-medium">Ranking por Score</h4>
-            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-              C = Care | D = Danger | Cr = Critico
-            </span>
           </div>
           {squadMetrics.map((squad, index) => (
             <div 
               key={squad.id}
-              className={`p-4 rounded-lg border transition-all hover:shadow-md ${
+              onClick={() => handleSquadClick(squad.id)}
+              className={`p-4 rounded-lg border transition-all hover:shadow-md cursor-pointer ${
                 index === 0 ? 'bg-amber-400/10 border-amber-400/40 shadow-amber-400/20' :
                 index === 1 ? 'bg-slate-400/10 border-slate-400/30' :
                 index === 2 ? 'bg-orange-400/10 border-orange-400/30' :
@@ -179,6 +192,14 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
                 <div className="flex-shrink-0 w-8 flex justify-center">
                   {getRankIcon(squad.rank)}
                 </div>
+
+                {/* Squad Logo */}
+                <Avatar className="h-10 w-10 border-2 border-background shadow">
+                  <AvatarImage src={squad.logoUrl || undefined} alt={squad.name} />
+                  <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary">
+                    {squad.name.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
 
                 {/* Squad Info */}
                 <div className="flex-1 min-w-0">
@@ -207,16 +228,20 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
                   {/* Status Distribution */}
                   <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground flex-wrap">
                     <span className="flex items-center gap-1">
+                      <div className="w-2 h-2 rounded-full bg-green-500" />
+                      Safe: {squad.safeCount}
+                    </span>
+                    <span className="flex items-center gap-1">
                       <div className="w-2 h-2 rounded-full bg-yellow-500" />
-                      C: {squad.careCount} ({squad.carePercentage}%)
+                      Care: {squad.careCount} ({squad.carePercentage}%)
                     </span>
                     <span className="flex items-center gap-1">
                       <div className="w-2 h-2 rounded-full bg-orange-500" />
-                      D: {squad.dangerCount}
+                      Danger: {squad.dangerCount}
                     </span>
                     <span className="flex items-center gap-1">
                       <div className="w-2 h-2 rounded-full bg-red-600" />
-                      Cr: {squad.criticalCount}
+                      Crítico: {squad.criticalCount}
                     </span>
                   </div>
                 </div>
@@ -226,7 +251,7 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
                   {squad.atRiskPercentage > 30 ? (
                     <div className="flex items-center gap-1 text-destructive">
                       <AlertTriangle className="h-4 w-4" />
-                      <span className="text-sm font-medium">{squad.atRiskPercentage}% atencao</span>
+                      <span className="text-sm font-medium">{squad.atRiskPercentage}% atenção</span>
                     </div>
                   ) : squad.safePercentage >= 70 ? (
                     <div className="flex items-center gap-1 text-green-600">
@@ -246,5 +271,21 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
         </div>
       </CardContent>
     </Card>
+
+    <SquadProfileDialog
+      squad={selectedSquad ? {
+        id: selectedSquad.id,
+        name: selectedSquad.name,
+        slug: selectedSquad.slug || selectedSquad.name.toLowerCase().replace(/\s+/g, '-'),
+        icon: null,
+        logo_url: selectedSquad.logoUrl || null,
+        description: selectedSquad.description || null,
+        leader_id: null
+      } : null}
+      open={profileOpen}
+      onOpenChange={setProfileOpen}
+      canEdit={false}
+    />
+    </>
   );
 };

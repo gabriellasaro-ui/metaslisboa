@@ -70,6 +70,8 @@ export interface Squad {
   slug?: string;
   leader?: Leader | string;
   clients: Client[];
+  logoUrl?: string;
+  description?: string;
 }
 
 // Sort fields for filtering
