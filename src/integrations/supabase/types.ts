@@ -631,6 +631,51 @@ export type Database = {
           },
         ]
       }
+      suggestions: {
+        Row: {
+          admin_response: string | null
+          category: string
+          created_at: string
+          description: string
+          id: string
+          squad_name: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          user_name: string
+          user_role: string
+        }
+        Insert: {
+          admin_response?: string | null
+          category?: string
+          created_at?: string
+          description: string
+          id?: string
+          squad_name?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          user_name: string
+          user_role: string
+        }
+        Update: {
+          admin_response?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          squad_name?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          user_name?: string
+          user_role?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
