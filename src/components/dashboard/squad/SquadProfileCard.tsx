@@ -34,7 +34,7 @@ export const SquadProfileCard = ({ squad }: SquadProfileCardProps) => {
                   {squad.name}
                 </CardTitle>
                 <CardDescription>
-                  {squad.description || "Clique em editar para adicionar uma descrição"}
+                  {squad.description || (canEdit ? "Clique em editar para adicionar uma descrição" : "Sem descrição")}
                 </CardDescription>
               </div>
             </div>

@@ -91,13 +91,21 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
                   <CardContent className="p-4 space-y-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className={`flex-shrink-0 h-14 w-14 rounded-xl flex items-center justify-center ${
-                    index === 0 ? 'bg-primary/10 text-primary' : 
-                    index <= 2 ? 'bg-secondary/50 text-secondary-foreground' : 
-                    'bg-muted text-muted-foreground'
+                  {/* Squad Logo */}
+                  <Avatar className={`h-14 w-14 border-2 ${
+                    index === 0 ? 'border-primary' : 
+                    index <= 2 ? 'border-secondary' : 
+                    'border-border'
                   }`}>
-                    {getRankIcon(index)}
-                  </div>
+                    <AvatarImage src={squad.logoUrl || undefined} alt={squad.name} />
+                    <AvatarFallback className={`text-lg font-semibold ${
+                      index === 0 ? 'bg-primary/10 text-primary' : 
+                      index <= 2 ? 'bg-secondary/50 text-secondary-foreground' : 
+                      'bg-muted text-muted-foreground'
+                    }`}>
+                      {squad.name.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       {getRankBadge(index)}

@@ -19,6 +19,7 @@ import { WeeklyProgressChart } from "@/components/dashboard/WeeklyProgressChart"
 import { HealthScoreDashboard } from "@/components/dashboard/health-score/HealthScoreDashboard";
 import { ClientAlertsCard } from "@/components/dashboard/ClientAlertsCard";
 import { SquadGoalsInvestorCard } from "@/components/dashboard/squad-goals";
+import { SquadProfileCard } from "@/components/dashboard/squad/SquadProfileCard";
 import { Target, Users, TrendingUp, Calendar, Plus, MessageSquare, Pencil, History, EyeOff, Eye } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
@@ -64,6 +65,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
       defaultValue="visao-geral" 
       totalClients={stats.total}
       pendingCount={stats.pending}
+      showProfileTab={true}
     >
       {/* Visão Geral */}
       <TabsContent value="visao-geral" className="space-y-6">
@@ -314,6 +316,13 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
           squadsData={mySquad ? [mySquad] : []} 
           canEdit={false}
         />
+      </TabsContent>
+
+      {/* Perfil do Squad */}
+      <TabsContent value="perfil" className="space-y-6">
+        {mySquad && (
+          <SquadProfileCard squad={mySquad} />
+        )}
       </TabsContent>
 
       {/* Dialogs */}
