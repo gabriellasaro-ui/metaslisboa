@@ -15,6 +15,7 @@ import { ReportsSection } from "@/components/dashboard/ReportsSection";
 import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
 import { SquadGoalsCard } from "@/components/dashboard/squad-goals";
 import { ActivityTimelineCard } from "@/components/dashboard/ActivityTimelineCard";
+import { SquadProfileCard } from "@/components/dashboard/squad";
 import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
 import { HealthScoreDashboard } from "@/components/dashboard/health-score/HealthScoreDashboard";
 import { useSquadStats } from "@/hooks/useSquadStats";
@@ -63,6 +64,11 @@ export const DashboardCoordenador = ({ squadsData, squadId, updateClient }: Dash
     >
       {/* Visão Geral */}
       <TabsContent value="visao-geral" className="space-y-6">
+        {/* Squad Profile Card */}
+        {mySquad && (
+          <SquadProfileCard squad={mySquad} />
+        )}
+
         <div className="grid gap-4 md:grid-cols-4">
           <MetricsCard
             title="Total de Clientes"
