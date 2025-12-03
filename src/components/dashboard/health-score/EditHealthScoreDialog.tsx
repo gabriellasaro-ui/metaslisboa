@@ -191,7 +191,7 @@ export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }:
                 <SelectTrigger id="categoria-problema">
                   <SelectValue placeholder="Selecione a categoria" />
                 </SelectTrigger>
-                <SelectContent>
+              <SelectContent position="popper" side="bottom" align="start" className="max-h-60">
                   <SelectItem value="none">Nenhuma</SelectItem>
                   {PROBLEM_CATEGORIES.map(category => (
                     <SelectItem key={category} value={category}>
