@@ -18,9 +18,11 @@ import { HealthStatusDistributionChart } from "@/components/dashboard/charts/Hea
 import { WeeklyProgressChart } from "@/components/dashboard/WeeklyProgressChart";
 import { HealthScoreDashboard } from "@/components/dashboard/health-score/HealthScoreDashboard";
 import { ClientAlertsCard } from "@/components/dashboard/ClientAlertsCard";
+import { SquadGoalsCard } from "@/components/dashboard/squad-goals";
 import { Target, Users, TrendingUp, Calendar, Plus, MessageSquare, Pencil, History } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
+import { useSquadStats } from "@/hooks/useSquadStats";
 
 interface DashboardInvestidorProps {
   squadsData: Squad[];
@@ -40,14 +42,8 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
   const mySquad = squadsData.find(s => s.id === squadId);
   const clients = mySquad?.clients || [];
 
-  // Calcular estatísticas apenas do meu squad
-  const stats = {
-    total: clients.length,
-    withGoals: clients.filter(c => c.hasGoal === "SIM").length,
-    withoutGoals: clients.filter(c => c.hasGoal === "NAO").length,
-    pending: clients.filter(c => c.hasGoal === "NAO_DEFINIDO").length,
-    avgProgress: clients.reduce((sum, c) => sum + (c.progress || 0), 0) / (clients.length || 1),
-  };
+  // Usar hook centralizado para estatísticas
+  const stats = useSquadStats(squadsData, squadId);
 
   const handleEditClient = (client: Client) => {
     setEditingClient(client);
@@ -143,7 +139,7 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
           <MetricsCard
             title="Metas Definidas"
             value={stats.withGoals}
-            description={`${((stats.withGoals / stats.total) * 100 || 0).toFixed(0)}% cobertura`}
+            description={`${stats.coverage}% cobertura`}
             icon={Target}
             variant="success"
           />
@@ -155,12 +151,17 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
           />
           <MetricsCard
             title="Progresso Médio"
-            value={Math.round(stats.avgProgress)}
+            value={stats.avgProgress}
             description="Média do squad"
             icon={Calendar}
             variant="warning"
           />
         </div>
+
+        {/* Metas Coletivas */}
+        {squadId && (
+          <SquadGoalsCard squadId={squadId} canManage={false} />
+        )}
 
         <Card>
           <CardHeader>
@@ -209,7 +210,6 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
                             {client.smartGoal.period === 'mensal' && '📅 Mensal'}
                             {client.smartGoal.period === 'trimestral' && '📊 Trimestral'}
                             {client.smartGoal.period === 'semestral' && '📈 Semestral'}
-                            {client.smartGoal.period === 'anual' && '🎯 Anual'}
                           </Badge>
                         )}
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

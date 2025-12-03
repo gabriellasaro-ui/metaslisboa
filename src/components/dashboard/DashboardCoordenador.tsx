@@ -2,7 +2,7 @@ import { useState } from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Client, GoalStatus, GoalType, Squad } from "@/types";
+import { Client, Squad } from "@/types";
 import { MetricsCard } from "@/components/dashboard/MetricsCard";
 import { ClientsTable } from "@/components/dashboard/ClientsTable";
 import { EditClientDialog } from "@/components/dashboard/EditClientDialog";
@@ -13,8 +13,11 @@ import { GoalTypesChart } from "@/components/dashboard/charts/GoalTypesChart";
 import { PerformanceAnalysisChart } from "@/components/dashboard/charts/PerformanceAnalysisChart";
 import { ReportsSection } from "@/components/dashboard/ReportsSection";
 import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
+import { SquadGoalsCard } from "@/components/dashboard/squad-goals";
+import { ActivityTimelineCard } from "@/components/dashboard/ActivityTimelineCard";
 import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
 import { HealthScoreDashboard } from "@/components/dashboard/health-score/HealthScoreDashboard";
+import { useSquadStats } from "@/hooks/useSquadStats";
 import { toast } from "sonner";
 
 interface DashboardCoordenadorProps {
@@ -25,20 +28,14 @@ interface DashboardCoordenadorProps {
 
 export const DashboardCoordenador = ({ squadsData, squadId, updateClient }: DashboardCoordenadorProps) => {
   const [editingClient, setEditingClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
-  const [checkInClient, setCheckInClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
   const [viewingProgress, setViewingProgress] = useState<Client | null>(null);
 
   // Filtrar apenas o squad do coordenador
   const mySquad = squadsData.find(s => s.id === squadId);
   const clients = mySquad?.clients || [];
 
-  // Calcular estatísticas
-  const stats = {
-    total: clients.length,
-    withGoals: clients.filter(c => c.hasGoal === "SIM").length,
-    withoutGoals: clients.filter(c => c.hasGoal === "NAO").length,
-    pending: clients.filter(c => c.hasGoal === "NAO_DEFINIDO").length,
-  };
+  // Usar hook centralizado para estatísticas
+  const stats = useSquadStats(squadsData, squadId);
 
   const handleEditClient = (squadId: string) => (client: Client, index: number) => {
     setEditingClient({ client, squadId, index });
@@ -74,7 +71,7 @@ export const DashboardCoordenador = ({ squadsData, squadId, updateClient }: Dash
           <MetricsCard
             title="Metas Definidas"
             value={stats.withGoals}
-            description={`${((stats.withGoals / stats.total) * 100 || 0).toFixed(0)}% cobertura`}
+            description={`${stats.coverage}% cobertura`}
             icon={Target}
             variant="success"
           />
@@ -86,12 +83,20 @@ export const DashboardCoordenador = ({ squadsData, squadId, updateClient }: Dash
             variant="warning"
           />
           <MetricsCard
-            title="Em Progresso"
-            value={stats.withGoals}
-            description="Metas ativas"
+            title="Score do Squad"
+            value={stats.score}
+            description="Pontuação geral"
             icon={TrendingUp}
           />
         </div>
+
+        {/* Metas Coletivas */}
+        {squadId && (
+          <SquadGoalsCard squadId={squadId} canManage={true} />
+        )}
+
+        {/* Timeline de Atividades */}
+        <ActivityTimelineCard squadId={squadId} limit={15} />
 
         <Card>
           <CardHeader>

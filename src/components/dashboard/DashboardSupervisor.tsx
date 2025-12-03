@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { NavigationTabs } from "@/components/dashboard/NavigationTabs";
 import { Separator } from "@/components/ui/separator";
 import { HealthScoreDashboard } from "@/components/dashboard/health-score/HealthScoreDashboard";
+import { useSquadStats, useAllSquadsStats } from "@/hooks/useSquadStats";
 
 interface DashboardSupervisorProps {
   squadsData: Squad[];
@@ -27,24 +28,11 @@ interface DashboardSupervisorProps {
 
 export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSupervisorProps) => {
   const [editingClient, setEditingClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
-  const [checkInClient, setCheckInClient] = useState<{ client: Client; squadId: string; index: number } | null>(null);
   const [viewingProgress, setViewingProgress] = useState<Client | null>(null);
 
-  const stats = {
-    total: 0,
-    withGoals: 0,
-    withoutGoals: 0,
-    pending: 0,
-  };
-
-  squadsData.forEach(squad => {
-    squad.clients.forEach(client => {
-      stats.total++;
-      if (client.hasGoal === "SIM") stats.withGoals++;
-      else if (client.hasGoal === "NAO_DEFINIDO") stats.pending++;
-      else stats.withoutGoals++;
-    });
-  });
+  // Usar hook centralizado para estatísticas globais
+  const stats = useSquadStats(squadsData);
+  const allSquadsStats = useAllSquadsStats(squadsData);
 
   const handleEditClient = (squadId: string) => (client: Client, index: number) => {
     setEditingClient({ client, squadId, index });
@@ -67,9 +55,9 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
       <TabsContent value="visao-geral" className="space-y-6">
         <div className="grid gap-4 md:grid-cols-4">
           <MetricsCard title="Total de Clientes" value={stats.total} icon={Users} description="Base ativa" />
-          <MetricsCard title="Com Metas" value={stats.withGoals} icon={Target} variant="success" description={`${((stats.withGoals/stats.total)*100||0).toFixed(0)}%`} />
+          <MetricsCard title="Com Metas" value={stats.withGoals} icon={Target} variant="success" description={`${stats.coverage}%`} />
           <MetricsCard title="Pendentes" value={stats.pending} icon={AlertCircle} variant="warning" description="A definir" />
-          <MetricsCard title="Sem Metas" value={stats.withoutGoals} icon={TrendingUp} variant="danger" description="Oportunidade" />
+          <MetricsCard title="Em Risco" value={stats.atRiskClients} icon={TrendingUp} variant="danger" description="Atenção necessária" />
         </div>
 
         <div className="grid grid-cols-1 gap-6">
@@ -86,22 +74,17 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
         <div className="space-y-6">
           <h2 className="text-2xl font-bold">Visão por Squad</h2>
           {(() => {
-            // Sistema de pontuação: Com Meta (+1), A Definir (0), Sem Meta (-1)
             const rankedSquads = squadsData
-              .map(squad => ({
-                ...squad,
-                score: squad.clients.reduce((total, client) => {
-                  if (client.hasGoal === "SIM") return total + 1;
-                  if (client.hasGoal === "NAO") return total - 1;
-                  return total; // NAO_DEFINIDO = 0
-                }, 0),
-                coverage: squad.clients.length > 0 
-                  ? (squad.clients.filter(c => c.hasGoal === "SIM").length / squad.clients.length) * 100 
-                  : 0
-              }))
+              .map(squad => {
+                const squadStats = allSquadsStats.find(s => s.squadId === squad.id)?.stats;
+                return {
+                  ...squad,
+                  score: squadStats?.score || 0,
+                  coverage: squadStats?.coverage || 0
+                };
+              })
               .sort((a, b) => b.score - a.score);
 
-            // Verifica se todas as squads têm 100% de cobertura
             const allSquadsComplete = rankedSquads.every(squad => squad.coverage === 100);
 
             return rankedSquads.map((squad, index) => (
@@ -157,7 +140,7 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-emerald-600">
-                {((stats.withGoals / stats.total) * 100 || 0).toFixed(1)}%
+                {stats.coverage}%
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 {stats.withGoals} de {stats.total} clientes
@@ -171,11 +154,7 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-emerald-600">
-                {(() => {
-                  const totalSafe = squadsData.reduce((sum, squad) => 
-                    sum + squad.clients.filter(c => c.healthStatus === 'safe').length, 0);
-                  return ((totalSafe / stats.total) * 100 || 0).toFixed(1);
-                })()}%
+                {stats.total > 0 ? ((stats.healthStats.safe / stats.total) * 100).toFixed(1) : 0}%
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Clientes seguros
@@ -189,11 +168,7 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-amber-600">
-                {(() => {
-                  const totalCare = squadsData.reduce((sum, squad) => 
-                    sum + squad.clients.filter(c => c.healthStatus === 'care').length, 0);
-                  return ((totalCare / stats.total) * 100 || 0).toFixed(1);
-                })()}%
+                {stats.total > 0 ? ((stats.healthStats.care / stats.total) * 100).toFixed(1) : 0}%
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Clientes em atenção
@@ -207,11 +182,7 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-red-600">
-                {(() => {
-                  const totalDanger = squadsData.reduce((sum, squad) => 
-                    sum + squad.clients.filter(c => c.healthStatus === 'danger').length, 0);
-                  return ((totalDanger / stats.total) * 100 || 0).toFixed(1);
-                })()}%
+                {stats.total > 0 ? ((stats.healthStats.danger / stats.total) * 100).toFixed(1) : 0}%
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Clientes em risco
