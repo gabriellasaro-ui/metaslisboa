@@ -77,7 +77,7 @@ export const generateExecutiveHealthScorePDF = async (
   
   doc.setFontSize(18);
   doc.setFont("helvetica", "normal");
-  doc.text("Health Score - Análise de Movimentações", pageWidth / 2, 50, { align: "center" });
+  doc.text("Health Score - Analise de Movimentacoes", pageWidth / 2, 50, { align: "center" });
 
   doc.setFontSize(12);
   doc.text(periodLabel, pageWidth / 2, 65, { align: "center" });
@@ -86,7 +86,7 @@ export const generateExecutiveHealthScorePDF = async (
   y = 100;
   doc.setTextColor(30, 41, 59);
   doc.setFontSize(11);
-  doc.text(`Gerado em: ${format(new Date(), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}`, pageWidth / 2, y, { align: "center" });
+  doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy HH:mm")}`, pageWidth / 2, y, { align: "center" });
 
   // ===== EXECUTIVE SUMMARY BOX =====
   y = 130;
@@ -98,7 +98,7 @@ export const generateExecutiveHealthScorePDF = async (
   doc.setFontSize(14);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(30, 41, 59);
-  doc.text("Resumo Executivo", margin + 10, y + 15);
+  doc.text("RESUMO EXECUTIVO", margin + 10, y + 15);
 
   // Stats boxes
   const statsBoxWidth = 40;
@@ -115,7 +115,7 @@ export const generateExecutiveHealthScorePDF = async (
   doc.setFontSize(8);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(100, 116, 139);
-  doc.text("Movimentações", statsStartX + statsBoxWidth / 2, statsY + 19, { align: "center" });
+  doc.text("Movimentacoes", statsStartX + statsBoxWidth / 2, statsY + 19, { align: "center" });
 
   // Improvements
   doc.setFillColor(220, 252, 231);
@@ -148,14 +148,14 @@ export const generateExecutiveHealthScorePDF = async (
   doc.text(stats.criticalAlerts.toString(), statsStartX + 135 + statsBoxWidth / 2, statsY + 12, { align: "center" });
   doc.setFontSize(8);
   doc.setFont("helvetica", "normal");
-  doc.text("Alertas Críticos", statsStartX + 135 + statsBoxWidth / 2, statsY + 19, { align: "center" });
+  doc.text("Alertas Criticos", statsStartX + 135 + statsBoxWidth / 2, statsY + 19, { align: "center" });
 
   // ===== SQUAD RANKING SECTION =====
   y = 200;
   doc.setFontSize(14);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(30, 41, 59);
-  doc.text("Ranking de Squads", margin, y);
+  doc.text("RANKING DE SQUADS", margin, y);
 
   y += 10;
   
@@ -220,7 +220,7 @@ export const generateExecutiveHealthScorePDF = async (
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
-  doc.text("Detalhamento das Movimentações", margin, 22);
+  doc.text("DETALHAMENTO DAS MOVIMENTACOES", margin, 22);
 
   y = 50;
 
@@ -232,11 +232,12 @@ export const generateExecutiveHealthScorePDF = async (
     return acc;
   }, {} as Record<string, MovementEntry[]>);
 
-  const typeConfig: Record<string, { title: string; color: number[]; icon: string }> = {
-    critical_alert: { title: "🚨 Alertas Críticos", color: [220, 38, 38], icon: "!" },
-    deterioration: { title: "⚠️ Pioras", color: [234, 88, 12], icon: "↓" },
-    improvement: { title: "✅ Melhorias", color: [22, 163, 74], icon: "↑" },
-    neutral: { title: "➖ Sem Alteração", color: [100, 116, 139], icon: "-" },
+const typeConfig: Record<string, { title: string; color: number[]; icon: string }> = {
+    critical_alert: { title: "ALERTAS CRITICOS", color: [220, 38, 38], icon: "!" },
+    deterioration: { title: "PIORAS", color: [220, 38, 38], icon: "" },
+    improvement: { title: "MELHORIAS", color: [22, 163, 74], icon: "" },
+    neutral: { title: "SEM ALTERACAO", color: [100, 116, 139], icon: "" },
+    needs_attention: { title: "REQUER ATENCAO", color: [234, 88, 12], icon: "" },
   };
 
   // Critical alerts first (most important)
@@ -274,8 +275,8 @@ export const generateExecutiveHealthScorePDF = async (
     doc.text("DATA", margin + 2, y + 5);
     doc.text("CLIENTE", margin + 22, y + 5);
     doc.text("SQUAD", margin + 70, y + 5);
-    doc.text("TRANSIÇÃO", margin + 105, y + 5);
-    doc.text("CATEGORIA", margin + 150, y + 5);
+    doc.text("TRANSICAO", margin + 105, y + 5);
+    doc.text("CATEGORIA", margin + 148, y + 5);
     
     y += 10;
 
@@ -297,8 +298,8 @@ export const generateExecutiveHealthScorePDF = async (
         doc.text("DATA", margin + 2, y + 5);
         doc.text("CLIENTE", margin + 22, y + 5);
         doc.text("SQUAD", margin + 70, y + 5);
-        doc.text("TRANSIÇÃO", margin + 105, y + 5);
-        doc.text("CATEGORIA", margin + 150, y + 5);
+        doc.text("TRANSICAO", margin + 105, y + 5);
+        doc.text("CATEGORIA", margin + 148, y + 5);
         y += 10;
         doc.setFont("helvetica", "normal");
         doc.setTextColor(30, 41, 59);
@@ -327,7 +328,7 @@ export const generateExecutiveHealthScorePDF = async (
       doc.text(m.squad_name.substring(0, 15), margin + 70, y + 4);
       
       doc.setTextColor(30, 41, 59);
-      doc.text(`${oldLabel.substring(0, 8)} → ${newLabel.substring(0, 8)}`, margin + 105, y + 4);
+      doc.text(`${oldLabel.substring(0, 10)} > ${newLabel.substring(0, 10)}`, margin + 105, y + 4);
       
       doc.setTextColor(100, 116, 139);
       doc.text((m.new_categoria_problema || "-").substring(0, 20), margin + 150, y + 4);
@@ -359,7 +360,7 @@ export const generateExecutiveHealthScorePDF = async (
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
-    doc.text("Análise por Categoria de Problema", margin, 22);
+    doc.text("ANALISE POR CATEGORIA DE PROBLEMA", margin, 22);
 
     y = 50;
 
@@ -372,7 +373,7 @@ export const generateExecutiveHealthScorePDF = async (
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(30, 41, 59);
-    doc.text("Top 10 Motivos de Mudança", margin, y);
+    doc.text("TOP 10 MOTIVOS DE MUDANCA", margin, y);
     y += 12;
 
     sortedCategories.forEach(([category, count], index) => {
@@ -388,7 +389,7 @@ export const generateExecutiveHealthScorePDF = async (
       doc.setFillColor(241, 245, 249);
       doc.roundedRect(margin + 80, y, 80, 6, 1, 1, "F");
       
-      const barColor = index < 3 ? [220, 38, 38] : [59, 130, 246];
+      const barColor = index < 3 ? [220, 38, 38] : [180, 60, 60];
       doc.setFillColor(barColor[0], barColor[1], barColor[2]);
       doc.roundedRect(margin + 80, y, barWidth * 0.8, 6, 1, 1, "F");
       
@@ -413,7 +414,7 @@ export const generateExecutiveHealthScorePDF = async (
     doc.setFontSize(8);
     doc.setTextColor(100, 116, 139);
     doc.text(`Página ${i} de ${totalPages}`, pageWidth / 2, pageHeight - 8, { align: "center" });
-    doc.text("Documento Confidencial", margin, pageHeight - 8);
+    doc.text("Documento Confidencial - V4 Company", margin, pageHeight - 8);
     doc.text(format(new Date(), "dd/MM/yyyy"), pageWidth - margin, pageHeight - 8, { align: "right" });
   }
 
