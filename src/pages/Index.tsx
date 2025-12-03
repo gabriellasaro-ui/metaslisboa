@@ -12,6 +12,7 @@ import { DashboardCoordenador } from "@/components/dashboard/DashboardCoordenado
 import { DashboardSupervisor } from "@/components/dashboard/DashboardSupervisor";
 import { Separator } from "@/components/ui/separator";
 import { ForcePasswordChange } from "@/components/auth/ForcePasswordChange";
+import { NotificationBell } from "@/components/notifications";
 
 const Index = () => {
   const { profile, role, squadId, isInvestidor, isCoordenador, isSupervisor, signOut, user, mustChangePassword, refreshProfile } = useAuth();
@@ -105,6 +106,9 @@ const Index = () => {
                 </div>
               </button>
               <div className="flex items-center gap-2">
+                {/* Notification Bell */}
+                <NotificationBell />
+                
                 <Button
                   variant="outline"
                   size="sm"
