@@ -155,6 +155,12 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
 
         {/* Squad Rankings */}
         <div className="space-y-3">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-sm font-medium">Ranking por Score</h4>
+            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+              S = Safe | C = Care | D = Danger | Cr = Critico
+            </span>
+          </div>
           {squadMetrics.map((squad, index) => (
             <div 
               key={squad.id}
