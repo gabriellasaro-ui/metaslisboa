@@ -35,6 +35,50 @@ Deno.serve(async (req) => {
     const resetResults = []
 
     for (const goal of goalsToReset || []) {
+      // Get completions for this goal to calculate stats
+      const { data: completions } = await supabase
+        .from('squad_goal_completions')
+        .select('*')
+        .eq('squad_goal_id', goal.id)
+
+      const totalParticipants = completions?.length || 0
+      const completedParticipants = completions?.filter(c => c.completed).length || 0
+      const completionRate = totalParticipants > 0 
+        ? Math.round((completedParticipants / totalParticipants) * 100) 
+        : 0
+
+      // Get the last cycle number for this goal
+      const { data: lastCycle } = await supabase
+        .from('squad_goal_cycles')
+        .select('cycle_number')
+        .eq('squad_goal_id', goal.id)
+        .order('cycle_number', { ascending: false })
+        .limit(1)
+        .single()
+
+      const cycleNumber = (lastCycle?.cycle_number || 0) + 1
+
+      // Save cycle history before resetting
+      const { error: cycleError } = await supabase
+        .from('squad_goal_cycles')
+        .insert({
+          squad_goal_id: goal.id,
+          cycle_number: cycleNumber,
+          cycle_start_date: goal.start_date || goal.created_at,
+          cycle_end_date: now,
+          target_value: goal.target_value,
+          achieved_value: goal.current_value,
+          completion_rate: completionRate,
+          total_participants: totalParticipants,
+          completed_participants: completedParticipants
+        })
+
+      if (cycleError) {
+        console.error(`Error saving cycle history for goal ${goal.id}:`, cycleError)
+      } else {
+        console.log(`Saved cycle ${cycleNumber} history for goal ${goal.id}`)
+      }
+
       // Calculate next reset date based on recurrence type
       let nextResetDate: Date
       const baseDate = new Date()
@@ -59,6 +103,7 @@ Deno.serve(async (req) => {
         .update({
           current_value: 0,
           status: 'em_andamento',
+          start_date: now,
           next_reset_at: nextResetDate.toISOString(),
           target_date: nextResetDate.toISOString()
         })
@@ -68,8 +113,14 @@ Deno.serve(async (req) => {
         console.error(`Error resetting goal ${goal.id}:`, updateError)
         resetResults.push({ goalId: goal.id, success: false, error: updateError.message })
       } else {
-        console.log(`Reset goal ${goal.id} (${goal.title})`)
-        resetResults.push({ goalId: goal.id, success: true, title: goal.title })
+        console.log(`Reset goal ${goal.id} (${goal.title}) - Cycle ${cycleNumber} completed`)
+        resetResults.push({ 
+          goalId: goal.id, 
+          success: true, 
+          title: goal.title,
+          cycleNumber,
+          completionRate 
+        })
 
         // Delete all completions for this goal so investors can mark again
         const { error: deleteCompletionsError } = await supabase
