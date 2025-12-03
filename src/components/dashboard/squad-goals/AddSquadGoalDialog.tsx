@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useSquadGoals } from "@/hooks/useSquadGoals";
+import { useSquadGoals, SquadGoal } from "@/hooks/useSquadGoals";
 import { useAuth } from "@/contexts/AuthContext";
+import { addDays, addWeeks } from "date-fns";
 
 interface AddSquadGoalDialogProps {
   squadId: string;
@@ -14,16 +15,36 @@ interface AddSquadGoalDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+type GoalType = SquadGoal['goal_type'];
+type Recurrence = 'none' | 'semanal' | 'quinzenal' | 'mensal';
+
 export function AddSquadGoalDialog({ squadId, open, onOpenChange }: AddSquadGoalDialogProps) {
   const { user } = useAuth();
   const { createSquadGoal, isCreating } = useSquadGoals();
   
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [goalType, setGoalType] = useState<'faturamento' | 'leads' | 'clientes' | 'retencao' | 'outros'>("outros");
-  const [targetValue, setTargetValue] = useState("");
+  const [goalType, setGoalType] = useState<GoalType>("outros");
+  const [targetValue, setTargetValue] = useState("1");
   const [period, setPeriod] = useState<'mensal' | 'trimestral' | 'semestral'>("mensal");
   const [targetDate, setTargetDate] = useState("");
+  const [recurrence, setRecurrence] = useState<Recurrence>("none");
+
+  const calculateNextReset = (recurrenceType: Recurrence): string | undefined => {
+    if (recurrenceType === 'none') return undefined;
+    
+    const now = new Date();
+    switch (recurrenceType) {
+      case 'semanal':
+        return addWeeks(now, 1).toISOString();
+      case 'quinzenal':
+        return addWeeks(now, 2).toISOString();
+      case 'mensal':
+        return addDays(now, 30).toISOString();
+      default:
+        return undefined;
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +58,9 @@ export function AddSquadGoalDialog({ squadId, open, onOpenChange }: AddSquadGoal
       current_value: 0,
       period,
       target_date: targetDate,
-      status: 'nao_iniciada',
+      status: 'em_andamento',
+      recurrence,
+      next_reset_at: calculateNextReset(recurrence),
       created_by: user?.id
     }, {
       onSuccess: () => {
@@ -51,9 +74,10 @@ export function AddSquadGoalDialog({ squadId, open, onOpenChange }: AddSquadGoal
     setTitle("");
     setDescription("");
     setGoalType("outros");
-    setTargetValue("");
+    setTargetValue("1");
     setPeriod("mensal");
     setTargetDate("");
+    setRecurrence("none");
   };
 
   return (
@@ -69,7 +93,7 @@ export function AddSquadGoalDialog({ squadId, open, onOpenChange }: AddSquadGoal
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Ex: Aumentar faturamento total do squad"
+              placeholder="Ex: Estudo de nicho do cliente"
               required
             />
           </div>
@@ -88,30 +112,32 @@ export function AddSquadGoalDialog({ squadId, open, onOpenChange }: AddSquadGoal
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Tipo de Meta</Label>
-              <Select value={goalType} onValueChange={(v: any) => setGoalType(v)}>
+              <Select value={goalType} onValueChange={(v: GoalType) => setGoalType(v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="faturamento">Faturamento</SelectItem>
-                  <SelectItem value="leads">Leads</SelectItem>
-                  <SelectItem value="clientes">Clientes</SelectItem>
-                  <SelectItem value="retencao">Retenção</SelectItem>
-                  <SelectItem value="outros">Outros</SelectItem>
+                  <SelectItem value="estudo">📚 Estudo</SelectItem>
+                  <SelectItem value="estudo_nicho">🔍 Estudo de Nicho</SelectItem>
+                  <SelectItem value="checkin_diferente">💬 Check-in Diferente</SelectItem>
+                  <SelectItem value="aproximacao_cliente">🤝 Aproximação de Cliente</SelectItem>
+                  <SelectItem value="desenvolvimento">📈 Desenvolvimento</SelectItem>
+                  <SelectItem value="outros">📋 Outros</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label>Período</Label>
-              <Select value={period} onValueChange={(v: any) => setPeriod(v)}>
+              <Label>Recorrência</Label>
+              <Select value={recurrence} onValueChange={(v: Recurrence) => setRecurrence(v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mensal">Mensal</SelectItem>
-                  <SelectItem value="trimestral">Trimestral</SelectItem>
-                  <SelectItem value="semestral">Semestral</SelectItem>
+                  <SelectItem value="none">Sem recorrência</SelectItem>
+                  <SelectItem value="semanal">🔄 Semanal</SelectItem>
+                  <SelectItem value="quinzenal">🔄 Quinzenal</SelectItem>
+                  <SelectItem value="mensal">🔄 Mensal</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -119,13 +145,14 @@ export function AddSquadGoalDialog({ squadId, open, onOpenChange }: AddSquadGoal
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="targetValue">Valor Alvo</Label>
+              <Label htmlFor="targetValue">Quantas vezes? (meta)</Label>
               <Input
                 id="targetValue"
                 type="number"
+                min="1"
                 value={targetValue}
                 onChange={(e) => setTargetValue(e.target.value)}
-                placeholder="Ex: 100000"
+                placeholder="Ex: 1"
                 required
               />
             </div>

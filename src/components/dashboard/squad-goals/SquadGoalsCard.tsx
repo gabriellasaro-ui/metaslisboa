@@ -26,11 +26,12 @@ interface SquadGoalsCardProps {
 }
 
 const goalTypeLabels: Record<string, string> = {
-  faturamento: "Faturamento",
-  leads: "Leads",
-  clientes: "Clientes",
-  retencao: "Retenção",
-  outros: "Outros"
+  estudo: "📚 Estudo",
+  estudo_nicho: "🔍 Estudo de Nicho",
+  checkin_diferente: "💬 Check-in Diferente",
+  aproximacao_cliente: "🤝 Aproximação de Cliente",
+  desenvolvimento: "📈 Desenvolvimento",
+  outros: "📋 Outros"
 };
 
 const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
@@ -106,14 +107,24 @@ export function SquadGoalsCard({ squadId, canManage = false }: SquadGoalsCardPro
               {squadGoals.map((goal) => {
                 const progress = calculateProgress(goal.current_value, goal.target_value);
                 const status = statusLabels[goal.status] || statusLabels.nao_iniciada;
+                const recurrenceLabels: Record<string, string> = {
+                  semanal: '🔄 Semanal',
+                  quinzenal: '🔄 Quinzenal',
+                  mensal: '🔄 Mensal'
+                };
                 
                 return (
                   <div key={goal.id} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <h4 className="font-medium">{goal.title}</h4>
                           <Badge variant={status.variant}>{status.label}</Badge>
+                          {goal.recurrence && goal.recurrence !== 'none' && (
+                            <Badge variant="outline" className="text-xs">
+                              {recurrenceLabels[goal.recurrence]}
+                            </Badge>
+                          )}
                         </div>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">

@@ -7,13 +7,15 @@ export interface SquadGoal {
   squad_id: string;
   title: string;
   description?: string;
-  goal_type: 'faturamento' | 'leads' | 'clientes' | 'retencao' | 'outros';
+  goal_type: 'estudo' | 'checkin_diferente' | 'aproximacao_cliente' | 'estudo_nicho' | 'desenvolvimento' | 'outros';
   target_value: number;
   current_value: number;
   period: 'mensal' | 'trimestral' | 'semestral';
   start_date?: string;
   target_date: string;
   status: 'nao_iniciada' | 'em_andamento' | 'concluida' | 'falhada';
+  recurrence?: 'none' | 'semanal' | 'quinzenal' | 'mensal';
+  next_reset_at?: string;
   created_by?: string;
   created_at: string;
   updated_at: string;

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSquadGoals, SquadGoal } from "@/hooks/useSquadGoals";
+import { addDays, addWeeks } from "date-fns";
 
 interface EditSquadGoalDialogProps {
   goal: SquadGoal;
@@ -13,17 +14,21 @@ interface EditSquadGoalDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+type GoalType = SquadGoal['goal_type'];
+type Recurrence = 'none' | 'semanal' | 'quinzenal' | 'mensal';
+
 export function EditSquadGoalDialog({ goal, open, onOpenChange }: EditSquadGoalDialogProps) {
   const { updateSquadGoal, isUpdating } = useSquadGoals();
   
   const [title, setTitle] = useState(goal.title);
   const [description, setDescription] = useState(goal.description || "");
-  const [goalType, setGoalType] = useState(goal.goal_type);
+  const [goalType, setGoalType] = useState<GoalType>(goal.goal_type);
   const [targetValue, setTargetValue] = useState(goal.target_value.toString());
   const [currentValue, setCurrentValue] = useState(goal.current_value.toString());
   const [period, setPeriod] = useState(goal.period);
   const [targetDate, setTargetDate] = useState(goal.target_date.split('T')[0]);
   const [status, setStatus] = useState(goal.status);
+  const [recurrence, setRecurrence] = useState<Recurrence>(goal.recurrence || 'none');
 
   useEffect(() => {
     if (goal) {
@@ -35,8 +40,25 @@ export function EditSquadGoalDialog({ goal, open, onOpenChange }: EditSquadGoalD
       setPeriod(goal.period);
       setTargetDate(goal.target_date.split('T')[0]);
       setStatus(goal.status);
+      setRecurrence(goal.recurrence || 'none');
     }
   }, [goal]);
+
+  const calculateNextReset = (recurrenceType: Recurrence): string | undefined => {
+    if (recurrenceType === 'none') return undefined;
+    
+    const now = new Date();
+    switch (recurrenceType) {
+      case 'semanal':
+        return addWeeks(now, 1).toISOString();
+      case 'quinzenal':
+        return addWeeks(now, 2).toISOString();
+      case 'mensal':
+        return addDays(now, 30).toISOString();
+      default:
+        return undefined;
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +72,9 @@ export function EditSquadGoalDialog({ goal, open, onOpenChange }: EditSquadGoalD
       current_value: parseFloat(currentValue),
       period,
       target_date: targetDate,
-      status
+      status,
+      recurrence,
+      next_reset_at: recurrence !== goal.recurrence ? calculateNextReset(recurrence) : goal.next_reset_at
     }, {
       onSuccess: () => {
         onOpenChange(false);
@@ -88,16 +112,17 @@ export function EditSquadGoalDialog({ goal, open, onOpenChange }: EditSquadGoalD
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Tipo de Meta</Label>
-              <Select value={goalType} onValueChange={(v: any) => setGoalType(v)}>
+              <Select value={goalType} onValueChange={(v: GoalType) => setGoalType(v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="faturamento">Faturamento</SelectItem>
-                  <SelectItem value="leads">Leads</SelectItem>
-                  <SelectItem value="clientes">Clientes</SelectItem>
-                  <SelectItem value="retencao">Retenção</SelectItem>
-                  <SelectItem value="outros">Outros</SelectItem>
+                  <SelectItem value="estudo">📚 Estudo</SelectItem>
+                  <SelectItem value="estudo_nicho">🔍 Estudo de Nicho</SelectItem>
+                  <SelectItem value="checkin_diferente">💬 Check-in Diferente</SelectItem>
+                  <SelectItem value="aproximacao_cliente">🤝 Aproximação de Cliente</SelectItem>
+                  <SelectItem value="desenvolvimento">📈 Desenvolvimento</SelectItem>
+                  <SelectItem value="outros">📋 Outros</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -120,15 +145,16 @@ export function EditSquadGoalDialog({ goal, open, onOpenChange }: EditSquadGoalD
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Período</Label>
-              <Select value={period} onValueChange={(v: any) => setPeriod(v)}>
+              <Label>Recorrência</Label>
+              <Select value={recurrence} onValueChange={(v: Recurrence) => setRecurrence(v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mensal">Mensal</SelectItem>
-                  <SelectItem value="trimestral">Trimestral</SelectItem>
-                  <SelectItem value="semestral">Semestral</SelectItem>
+                  <SelectItem value="none">Sem recorrência</SelectItem>
+                  <SelectItem value="semanal">🔄 Semanal</SelectItem>
+                  <SelectItem value="quinzenal">🔄 Quinzenal</SelectItem>
+                  <SelectItem value="mensal">🔄 Mensal</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -158,7 +184,7 @@ export function EditSquadGoalDialog({ goal, open, onOpenChange }: EditSquadGoalD
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="targetValue">Valor Alvo</Label>
+              <Label htmlFor="targetValue">Quantas vezes? (meta)</Label>
               <Input
                 id="targetValue"
                 type="number"

@@ -16,11 +16,12 @@ interface SquadGoalsInvestorCardProps {
 }
 
 const goalTypeLabels: Record<string, string> = {
-  faturamento: "Faturamento",
-  leads: "Leads",
-  clientes: "Clientes",
-  retencao: "Retenção",
-  outros: "Outros"
+  estudo: "📚 Estudo",
+  estudo_nicho: "🔍 Estudo de Nicho",
+  checkin_diferente: "💬 Check-in Diferente",
+  aproximacao_cliente: "🤝 Aproximação de Cliente",
+  desenvolvimento: "📈 Desenvolvimento",
+  outros: "📋 Outros"
 };
 
 function GoalCompletionItem({ goal }: { goal: SquadGoal }) {
