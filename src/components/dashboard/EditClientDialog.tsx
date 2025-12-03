@@ -23,12 +23,20 @@ const clientSchema = z.object({
 });
 
 const PROBLEM_CATEGORIES = [
-  "Visão do projeto",
-  "Comercial",
-  "Financeiro",
-  "Resultado do Cliente",
-  "Qualidade Geral",
-  "Dados concretos",
+  "Falta de alinhamento estratégico",
+  "Expectativa vs Realidade",
+  "Comunicação deficiente",
+  "Resultados abaixo do esperado",
+  "Problemas financeiros do cliente",
+  "Mudança de gestão/equipe",
+  "Falta de engajamento",
+  "Escopo mal definido",
+  "Prazo inadequado",
+  "Qualidade das entregas",
+  "Atendimento/Suporte",
+  "Preço/Custo-benefício",
+  "Concorrência",
+  "Reestruturação interna",
   "Outro",
 ];
 

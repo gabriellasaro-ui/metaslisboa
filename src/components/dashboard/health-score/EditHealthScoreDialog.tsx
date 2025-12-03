@@ -29,28 +29,27 @@ interface EditHealthScoreDialogProps {
 }
 
 const PROBLEM_CATEGORIES = [
-  "Visão do projeto",
-  "Comercial",
-  "Financeiro",
-  "Resultado do Cliente",
-  "Qualidade Geral",
-  "Dados concretos",
+  "Falta de alinhamento estratégico",
+  "Expectativa vs Realidade",
+  "Comunicação deficiente",
+  "Resultados abaixo do esperado",
+  "Problemas financeiros do cliente",
+  "Mudança de gestão/equipe",
+  "Falta de engajamento",
+  "Escopo mal definido",
+  "Prazo inadequado",
+  "Qualidade das entregas",
+  "Atendimento/Suporte",
+  "Preço/Custo-benefício",
+  "Concorrência",
+  "Reestruturação interna",
   "Outro",
 ];
 
-// Health status options based on client status
-const getAvailableHealthStatuses = (clientStatus: string): ExtendedHealthStatus[] => {
-  switch (clientStatus) {
-    case 'aviso_previo':
-      return ['aviso_previo'];
-    case 'churned':
-    case 'churn':
-      return ['churn'];
-    case 'ativo':
-    default:
-      return ['safe', 'care', 'danger', 'danger_critico', 'onboarding', 'e_e'];
-  }
-};
+// All health statuses available for coordinators/supervisors
+const ALL_HEALTH_STATUSES: ExtendedHealthStatus[] = [
+  'safe', 'care', 'danger', 'danger_critico', 'onboarding', 'e_e', 'aviso_previo', 'churn'
+];
 
 export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }: EditHealthScoreDialogProps) => {
   const [healthStatus, setHealthStatus] = useState<ExtendedHealthStatus>('safe');
@@ -62,10 +61,7 @@ export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }:
 
   useEffect(() => {
     if (client) {
-      const availableStatuses = getAvailableHealthStatuses(client.status || 'ativo');
-      const currentStatus = client.health_status || 'safe';
-      // Se o status atual não é válido para o status do cliente, usar o primeiro disponível
-      setHealthStatus(availableStatuses.includes(currentStatus) ? currentStatus : availableStatuses[0]);
+      setHealthStatus(client.health_status || 'safe');
       setProblemaCentral(client.problema_central || '');
       setCategoriaProblema(client.categoria_problema || '');
       setNotes('');
@@ -136,20 +132,13 @@ export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }:
                 <SelectValue placeholder="Selecione o status" />
               </SelectTrigger>
               <SelectContent>
-                {getAvailableHealthStatuses(client?.status || 'ativo').map((value) => (
+                {ALL_HEALTH_STATUSES.map((value) => (
                   <SelectItem key={value} value={value}>
                     {healthStatusLabels[value]}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {(client?.status === 'aviso_previo' || client?.status === 'churned') && (
-              <p className="text-xs text-muted-foreground">
-                {client.status === 'aviso_previo' 
-                  ? 'Cliente em aviso prévio - somente status "Aviso Prévio" disponível'
-                  : 'Cliente churned - somente status "Churn" disponível'}
-              </p>
-            )}
           </div>
 
           <div className="space-y-2">
