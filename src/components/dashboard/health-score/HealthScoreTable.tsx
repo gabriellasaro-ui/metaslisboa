@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HealthScoreBadge, ExtendedHealthStatus, healthStatusLabels } from "./HealthScoreBadge";
 import { EditHealthScoreDialog } from "./EditHealthScoreDialog";
-import { Search, Edit2, AlertCircle } from "lucide-react";
+import { HealthScoreHistoryDialog } from "./HealthScoreHistoryDialog";
+import { Search, Edit2, AlertCircle, History } from "lucide-react";
 
 interface Client {
   id: string;
@@ -26,6 +27,7 @@ export const HealthScoreTable = ({ clients, canEdit = false, onRefresh }: Health
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [historyClient, setHistoryClient] = useState<Client | null>(null);
 
   const filteredClients = clients.filter(client => {
     const matchesSearch = client.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -71,7 +73,7 @@ export const HealthScoreTable = ({ clients, canEdit = false, onRefresh }: Health
               <TableHead>Squad</TableHead>
               <TableHead>Health Status</TableHead>
               <TableHead className="min-w-[250px]">Problema Central</TableHead>
-              {canEdit && <TableHead className="w-[80px]">Ações</TableHead>}
+              {canEdit && <TableHead className="w-[120px]">Ações</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -103,14 +105,24 @@ export const HealthScoreTable = ({ clients, canEdit = false, onRefresh }: Health
                   </TableCell>
                   {canEdit && (
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setEditingClient(client)}
-                        title="Editar Health Score"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setHistoryClient(client)}
+                          title="Ver Histórico"
+                        >
+                          <History className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setEditingClient(client)}
+                          title="Editar Health Score"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   )}
                 </TableRow>
@@ -123,17 +135,24 @@ export const HealthScoreTable = ({ clients, canEdit = false, onRefresh }: Health
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>{filteredClients.length} de {clients.length} clientes</span>
         {canEdit && (
-          <span className="text-xs">Clique no ícone de edição para atualizar</span>
+          <span className="text-xs">Clique em 📊 para histórico ou ✏️ para editar</span>
         )}
       </div>
 
       {canEdit && (
-        <EditHealthScoreDialog
-          client={editingClient}
-          open={!!editingClient}
-          onOpenChange={(open) => !open && setEditingClient(null)}
-          onSuccess={onRefresh}
-        />
+        <>
+          <EditHealthScoreDialog
+            client={editingClient}
+            open={!!editingClient}
+            onOpenChange={(open) => !open && setEditingClient(null)}
+            onSuccess={onRefresh}
+          />
+          <HealthScoreHistoryDialog
+            client={historyClient}
+            open={!!historyClient}
+            onOpenChange={(open) => !open && setHistoryClient(null)}
+          />
+        </>
       )}
     </div>
   );

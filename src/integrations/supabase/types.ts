@@ -315,6 +315,56 @@ export type Database = {
           },
         ]
       }
+      health_score_history: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          client_id: string
+          id: string
+          new_categoria_problema: string | null
+          new_problema_central: string | null
+          new_status: Database["public"]["Enums"]["health_status"] | null
+          notes: string | null
+          old_categoria_problema: string | null
+          old_problema_central: string | null
+          old_status: Database["public"]["Enums"]["health_status"] | null
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          client_id: string
+          id?: string
+          new_categoria_problema?: string | null
+          new_problema_central?: string | null
+          new_status?: Database["public"]["Enums"]["health_status"] | null
+          notes?: string | null
+          old_categoria_problema?: string | null
+          old_problema_central?: string | null
+          old_status?: Database["public"]["Enums"]["health_status"] | null
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          client_id?: string
+          id?: string
+          new_categoria_problema?: string | null
+          new_problema_central?: string | null
+          new_status?: Database["public"]["Enums"]["health_status"] | null
+          notes?: string | null
+          old_categoria_problema?: string | null
+          old_problema_central?: string | null
+          old_status?: Database["public"]["Enums"]["health_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_score_history_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leaders: {
         Row: {
           avatar: string | null
