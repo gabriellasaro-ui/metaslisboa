@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -68,7 +68,7 @@ export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }:
       if (error) throw error;
 
       toast.success("Health Score atualizado com sucesso!");
-      queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] });
+      await queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] });
       onSuccess?.();
       onOpenChange(false);
     } catch (error: any) {
@@ -84,6 +84,9 @@ export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }:
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Editar Health Score</DialogTitle>
+          <DialogDescription>
+            Atualize o health score e problema central do cliente.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,23 +8,46 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Squad {
   id: string;
   name: string;
 }
 
+type HealthStatus = "safe" | "care" | "danger" | "danger_critico" | "onboarding" | "e_e" | "aviso_previo" | "churn";
+
+const healthStatusOptions: { value: HealthStatus; label: string }[] = [
+  { value: "safe", label: "🟢 Saudável" },
+  { value: "care", label: "🟡 Atenção" },
+  { value: "danger", label: "🔴 Perigo" },
+  { value: "danger_critico", label: "🔴⚠️ Perigo Crítico" },
+  { value: "onboarding", label: "🟣 Onboarding" },
+  { value: "e_e", label: "🟤 E&E" },
+  { value: "aviso_previo", label: "⚫ Aviso Prévio" },
+  { value: "churn", label: "⬛ Churn" },
+];
+
 interface AddClientDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  coordenadorMode?: boolean;
+  squadId?: string;
 }
 
-export const AddClientDialog = ({ open, onOpenChange, onSuccess }: AddClientDialogProps) => {
+export const AddClientDialog = ({ 
+  open, 
+  onOpenChange, 
+  onSuccess,
+  coordenadorMode = false,
+  squadId: defaultSquadId 
+}: AddClientDialogProps) => {
+  const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [squadId, setSquadId] = useState("");
   const [status, setStatus] = useState<"ativo" | "aviso_previo" | "churned">("ativo");
-  const [healthStatus, setHealthStatus] = useState<"safe" | "care" | "danger">("safe");
+  const [healthStatus, setHealthStatus] = useState<HealthStatus>("safe");
   const [notes, setNotes] = useState("");
   const [squads, setSquads] = useState<Squad[]>([]);
   const [loading, setLoading] = useState(false);
@@ -33,8 +56,21 @@ export const AddClientDialog = ({ open, onOpenChange, onSuccess }: AddClientDial
   useEffect(() => {
     if (open) {
       fetchSquads();
+      // Coordenadores têm squad pré-selecionado
+      if (coordenadorMode && defaultSquadId) {
+        setSquadId(defaultSquadId);
+      }
     }
-  }, [open]);
+  }, [open, coordenadorMode, defaultSquadId]);
+
+  // Auto-update health status based on client status
+  useEffect(() => {
+    if (status === "aviso_previo") {
+      setHealthStatus("aviso_previo");
+    } else if (status === "churned") {
+      setHealthStatus("churn");
+    }
+  }, [status]);
 
   const fetchSquads = async () => {
     try {
@@ -72,6 +108,9 @@ export const AddClientDialog = ({ open, onOpenChange, onSuccess }: AddClientDial
 
       if (error) throw error;
 
+      // Invalidate queries to refresh all tabs
+      await queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] });
+
       toast.success("Cliente adicionado com sucesso!");
       onSuccess();
       onOpenChange(false);
@@ -86,7 +125,9 @@ export const AddClientDialog = ({ open, onOpenChange, onSuccess }: AddClientDial
 
   const resetForm = () => {
     setName("");
-    setSquadId("");
+    if (!coordenadorMode) {
+      setSquadId("");
+    }
     setStatus("ativo");
     setHealthStatus("safe");
     setNotes("");
@@ -97,6 +138,9 @@ export const AddClientDialog = ({ open, onOpenChange, onSuccess }: AddClientDial
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Adicionar Novo Cliente</DialogTitle>
+          <DialogDescription>
+            Preencha os dados do novo cliente para cadastrá-lo no sistema.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -112,7 +156,12 @@ export const AddClientDialog = ({ open, onOpenChange, onSuccess }: AddClientDial
 
           <div className="space-y-2">
             <Label htmlFor="squad">Squad *</Label>
-            <Select value={squadId} onValueChange={setSquadId} required>
+            <Select 
+              value={squadId} 
+              onValueChange={setSquadId} 
+              required
+              disabled={coordenadorMode && !!defaultSquadId}
+            >
               <SelectTrigger id="squad">
                 <SelectValue placeholder="Selecione um squad" />
               </SelectTrigger>
@@ -121,6 +170,15 @@ export const AddClientDialog = ({ open, onOpenChange, onSuccess }: AddClientDial
                   <div className="flex items-center justify-center py-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
                   </div>
+                ) : coordenadorMode && defaultSquadId ? (
+                  // Coordenador vê apenas seu squad
+                  squads
+                    .filter(s => s.id === defaultSquadId)
+                    .map((squad) => (
+                      <SelectItem key={squad.id} value={squad.id}>
+                        {squad.name}
+                      </SelectItem>
+                    ))
                 ) : (
                   squads.map((squad) => (
                     <SelectItem key={squad.id} value={squad.id}>
@@ -134,7 +192,7 @@ export const AddClientDialog = ({ open, onOpenChange, onSuccess }: AddClientDial
 
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
-            <Select value={status} onValueChange={(v: any) => setStatus(v)}>
+            <Select value={status} onValueChange={(v: "ativo" | "aviso_previo" | "churned") => setStatus(v)}>
               <SelectTrigger id="status">
                 <SelectValue />
               </SelectTrigger>
@@ -147,17 +205,28 @@ export const AddClientDialog = ({ open, onOpenChange, onSuccess }: AddClientDial
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="health">Saúde</Label>
-            <Select value={healthStatus} onValueChange={(v: any) => setHealthStatus(v)}>
+            <Label htmlFor="health">Health Score</Label>
+            <Select 
+              value={healthStatus} 
+              onValueChange={(v: HealthStatus) => setHealthStatus(v)}
+              disabled={status !== "ativo"}
+            >
               <SelectTrigger id="health">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="safe">Saudável</SelectItem>
-                <SelectItem value="care">Atenção</SelectItem>
-                <SelectItem value="danger">Perigo</SelectItem>
+                {healthStatusOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
+            {status !== "ativo" && (
+              <p className="text-xs text-muted-foreground">
+                Health score definido automaticamente baseado no status
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
