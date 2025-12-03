@@ -6,80 +6,73 @@ import { Squad } from "@/types";
 import { exportToExcel, exportToPDF } from "@/utils/exportUtils";
 import { generateHealthScorePDF } from "@/utils/healthScorePdfExport";
 import { useToast } from "@/hooks/use-toast";
-
 interface ReportsSectionProps {
   squadsData: Squad[];
 }
-
-export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
-  const { toast } = useToast();
-
+export const ReportsSection = ({
+  squadsData
+}: ReportsSectionProps) => {
+  const {
+    toast
+  } = useToast();
   const handleExportExcel = () => {
     try {
       exportToExcel(squadsData);
       toast({
         title: "Exportado com sucesso!",
-        description: "O arquivo Excel foi baixado.",
+        description: "O arquivo Excel foi baixado."
       });
     } catch (error) {
       toast({
         title: "Erro ao exportar",
         description: "Não foi possível gerar o arquivo Excel.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const handleExportPDF = async () => {
     try {
       await exportToPDF(squadsData);
       toast({
         title: "Exportado com sucesso!",
-        description: "O arquivo PDF foi baixado.",
+        description: "O arquivo PDF foi baixado."
       });
     } catch (error) {
       toast({
         title: "Erro ao exportar",
         description: "Não foi possível gerar o arquivo PDF.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const handleExportHealthScorePDF = async () => {
     try {
       await generateHealthScorePDF(squadsData);
       toast({
         title: "Exportado com sucesso!",
-        description: "O relatório de Health Score foi baixado.",
+        description: "O relatório de Health Score foi baixado."
       });
     } catch (error) {
       toast({
         title: "Erro ao exportar",
         description: "Não foi possível gerar o relatório de Health Score.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
 
   // Calcular insights
   const totalClients = squadsData.reduce((sum, squad) => sum + squad.clients.length, 0);
-  const withGoals = squadsData.reduce((sum, squad) => 
-    sum + squad.clients.filter(c => c.hasGoal === 'SIM').length, 0);
-  
-  const bestSquad = squadsData.length > 0 
-    ? squadsData.reduce((best, squad) => {
-        const squadTotal = squad.clients.length;
-        const squadWithGoals = squad.clients.filter(c => c.hasGoal === 'SIM').length;
-        const squadRate = squadTotal > 0 ? (squadWithGoals / squadTotal) * 100 : 0;
-        
-        const bestTotal = best.clients.length;
-        const bestWithGoals = best.clients.filter(c => c.hasGoal === 'SIM').length;
-        const bestRate = bestTotal > 0 ? (bestWithGoals / bestTotal) * 100 : 0;
-        
-        return squadRate > bestRate ? squad : best;
-      })
-    : null;
+  const withGoals = squadsData.reduce((sum, squad) => sum + squad.clients.filter(c => c.hasGoal === 'SIM').length, 0);
+  const bestSquad = squadsData.length > 0 ? squadsData.reduce((best, squad) => {
+    const squadTotal = squad.clients.length;
+    const squadWithGoals = squad.clients.filter(c => c.hasGoal === 'SIM').length;
+    const squadRate = squadTotal > 0 ? squadWithGoals / squadTotal * 100 : 0;
+    const bestTotal = best.clients.length;
+    const bestWithGoals = best.clients.filter(c => c.hasGoal === 'SIM').length;
+    const bestRate = bestTotal > 0 ? bestWithGoals / bestTotal * 100 : 0;
+    return squadRate > bestRate ? squad : best;
+  }) : null;
 
   // Health status counts for all 8 statuses
   const healthStatusCounts = {
@@ -90,11 +83,9 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
     onboarding: squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'onboarding').length, 0),
     e_e: squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'e_e').length, 0),
     aviso_previo: squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'aviso_previo').length, 0),
-    churn: squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'churn').length, 0),
+    churn: squadsData.reduce((sum, s) => sum + s.clients.filter(c => c.healthStatus === 'churn').length, 0)
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* Botões de Exportação */}
       <Card>
         <CardHeader>
@@ -108,29 +99,15 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button
-              onClick={handleExportExcel}
-              className="flex-1"
-              size="lg"
-            >
+            <Button onClick={handleExportExcel} size="lg" className="flex-1 bg-destructive">
               <FileSpreadsheet className="mr-2 h-5 w-5" />
               Exportar Excel
             </Button>
-            <Button
-              onClick={handleExportPDF}
-              variant="destructive"
-              className="flex-1"
-              size="lg"
-            >
+            <Button onClick={handleExportPDF} variant="destructive" className="flex-1" size="lg">
               <FileText className="mr-2 h-5 w-5" />
               Exportar PDF
             </Button>
-            <Button
-              onClick={handleExportHealthScorePDF}
-              variant="destructive"
-              className="flex-1"
-              size="lg"
-            >
+            <Button onClick={handleExportHealthScorePDF} variant="destructive" className="flex-1" size="lg">
               <Heart className="mr-2 h-5 w-5" />
               Exportar Health Score
             </Button>
@@ -215,21 +192,17 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
           <CardHeader>
             <div className="flex items-center gap-2">
               <Award className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-              <CardTitle>Squad Destaque</CardTitle>
+              <CardTitle>Squad Destaque de metas</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
-            {bestSquad ? (
-              <>
+            {bestSquad ? <>
                 <div className="text-2xl font-bold">{bestSquad.name}</div>
                 <p className="text-sm text-muted-foreground mt-2">Melhor cobertura</p>
                 <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20 mt-3">
                   {typeof bestSquad.leader === 'string' ? bestSquad.leader : bestSquad.leader?.name || 'N/A'}
                 </Badge>
-              </>
-            ) : (
-              <p className="text-muted-foreground">Nenhum squad disponível</p>
-            )}
+              </> : <p className="text-muted-foreground">Nenhum squad disponível</p>}
           </CardContent>
         </Card>
 
@@ -270,23 +243,21 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
       <Card>
         <CardHeader>
           <CardTitle>Resumo Executivo por Squad</CardTitle>
-          <CardDescription>Performance detalhada de cada time</CardDescription>
+          <CardDescription>Performance de metas detalhada de cada time</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {squadsData.map(squad => {
-              const total = squad.clients.length;
-              const withGoalsCount = squad.clients.filter(c => c.hasGoal === 'SIM').length;
-              const pendingCount = squad.clients.filter(c => c.hasGoal === 'NAO_DEFINIDO').length;
-              const safeCount = squad.clients.filter(c => c.healthStatus === 'safe').length;
-              const careCount = squad.clients.filter(c => c.healthStatus === 'care').length;
-              const dangerCount = squad.clients.filter(c => c.healthStatus === 'danger' || c.healthStatus === 'danger_critico').length;
-              const churnCount = squad.clients.filter(c => c.healthStatus === 'churn').length;
-              const avisoCount = squad.clients.filter(c => c.healthStatus === 'aviso_previo').length;
-              const rate = total > 0 ? ((withGoalsCount / total) * 100).toFixed(1) : '0';
-
-              return (
-                <div key={squad.id} className="p-4 border rounded-lg space-y-3">
+            const total = squad.clients.length;
+            const withGoalsCount = squad.clients.filter(c => c.hasGoal === 'SIM').length;
+            const pendingCount = squad.clients.filter(c => c.hasGoal === 'NAO_DEFINIDO').length;
+            const safeCount = squad.clients.filter(c => c.healthStatus === 'safe').length;
+            const careCount = squad.clients.filter(c => c.healthStatus === 'care').length;
+            const dangerCount = squad.clients.filter(c => c.healthStatus === 'danger' || c.healthStatus === 'danger_critico').length;
+            const churnCount = squad.clients.filter(c => c.healthStatus === 'churn').length;
+            const avisoCount = squad.clients.filter(c => c.healthStatus === 'aviso_previo').length;
+            const rate = total > 0 ? (withGoalsCount / total * 100).toFixed(1) : '0';
+            return <div key={squad.id} className="p-4 border rounded-lg space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
                       <h4 className="font-semibold text-lg">{squad.name}</h4>
@@ -298,10 +269,7 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
                       </p>
                     </div>
                     <div className="text-right">
-                      <Badge 
-                        variant="secondary"
-                        className="text-2xl px-4 py-2 bg-muted text-foreground border-border"
-                      >
+                      <Badge variant="secondary" className="text-2xl px-4 py-2 bg-muted text-foreground border-border">
                         {rate}%
                       </Badge>
                       <p className="text-xs text-muted-foreground mt-1">
@@ -340,27 +308,21 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
                           <div className="w-3 h-3 rounded-full bg-red-500"></div>
                           <span className="text-sm font-medium">{dangerCount}</span>
                         </div>
-                        {avisoCount > 0 && (
-                          <div className="flex items-center gap-1">
+                        {avisoCount > 0 && <div className="flex items-center gap-1">
                             <div className="w-3 h-3 rounded-full bg-slate-500"></div>
                             <span className="text-sm font-medium">{avisoCount}</span>
-                          </div>
-                        )}
-                        {churnCount > 0 && (
-                          <div className="flex items-center gap-1">
+                          </div>}
+                        {churnCount > 0 && <div className="flex items-center gap-1">
                             <div className="w-3 h-3 rounded-full bg-zinc-600"></div>
                             <span className="text-sm font-medium">{churnCount}</span>
-                          </div>
-                        )}
+                          </div>}
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                </div>;
+          })}
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
