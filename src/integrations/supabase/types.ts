@@ -14,6 +14,67 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          activity_type: Database["public"]["Enums"]["activity_type"]
+          client_id: string | null
+          created_at: string
+          description: string | null
+          goal_id: string | null
+          id: string
+          metadata: Json | null
+          squad_id: string
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          activity_type: Database["public"]["Enums"]["activity_type"]
+          client_id?: string | null
+          created_at?: string
+          description?: string | null
+          goal_id?: string | null
+          id?: string
+          metadata?: Json | null
+          squad_id: string
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          activity_type?: Database["public"]["Enums"]["activity_type"]
+          client_id?: string | null
+          created_at?: string
+          description?: string | null
+          goal_id?: string | null
+          id?: string
+          metadata?: Json | null
+          squad_id?: string
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_logs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_logs_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_logs_squad_id_fkey"
+            columns: ["squad_id"]
+            isOneToOne: false
+            referencedRelation: "squads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       check_ins: {
         Row: {
           call_link: string | null
@@ -287,6 +348,53 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          id: string
+          link: string | null
+          message: string
+          metadata: Json | null
+          read: boolean
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          message: string
+          metadata?: Json | null
+          read?: boolean
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          message?: string
+          metadata?: Json | null
+          read?: boolean
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -321,6 +429,65 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "profiles_squad_id_fkey"
+            columns: ["squad_id"]
+            isOneToOne: false
+            referencedRelation: "squads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      squad_goals: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          current_value: number
+          description: string | null
+          goal_type: Database["public"]["Enums"]["squad_goal_type"]
+          id: string
+          period: Database["public"]["Enums"]["goal_period"]
+          squad_id: string
+          start_date: string | null
+          status: Database["public"]["Enums"]["squad_goal_status"]
+          target_date: string
+          target_value: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          current_value?: number
+          description?: string | null
+          goal_type?: Database["public"]["Enums"]["squad_goal_type"]
+          id?: string
+          period?: Database["public"]["Enums"]["goal_period"]
+          squad_id: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["squad_goal_status"]
+          target_date: string
+          target_value: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          current_value?: number
+          description?: string | null
+          goal_type?: Database["public"]["Enums"]["squad_goal_type"]
+          id?: string
+          period?: Database["public"]["Enums"]["goal_period"]
+          squad_id?: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["squad_goal_status"]
+          target_date?: string
+          target_value?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "squad_goals_squad_id_fkey"
             columns: ["squad_id"]
             isOneToOne: false
             referencedRelation: "squads"
@@ -399,6 +566,15 @@ export type Database = {
       }
     }
     Enums: {
+      activity_type:
+        | "check_in_created"
+        | "check_in_updated"
+        | "goal_completed"
+        | "goal_failed"
+        | "goal_started"
+        | "health_score_changed"
+        | "client_created"
+        | "client_updated"
       app_role: "investidor" | "coordenador" | "supervisor"
       checkin_status: "on_track" | "at_risk" | "delayed" | "completed"
       client_status: "ativo" | "aviso_previo" | "churned"
@@ -419,6 +595,24 @@ export type Database = {
         | "e_e"
         | "churn"
         | "aviso_previo"
+      notification_type:
+        | "health_score_change"
+        | "goal_completed"
+        | "goal_failed"
+        | "new_check_in"
+        | "squad_goal_progress"
+        | "client_at_risk"
+      squad_goal_status:
+        | "nao_iniciada"
+        | "em_andamento"
+        | "concluida"
+        | "falhada"
+      squad_goal_type:
+        | "faturamento"
+        | "leads"
+        | "clientes"
+        | "retencao"
+        | "outros"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -546,6 +740,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      activity_type: [
+        "check_in_created",
+        "check_in_updated",
+        "goal_completed",
+        "goal_failed",
+        "goal_started",
+        "health_score_changed",
+        "client_created",
+        "client_updated",
+      ],
       app_role: ["investidor", "coordenador", "supervisor"],
       checkin_status: ["on_track", "at_risk", "delayed", "completed"],
       client_status: ["ativo", "aviso_previo", "churned"],
@@ -567,6 +771,27 @@ export const Constants = {
         "e_e",
         "churn",
         "aviso_previo",
+      ],
+      notification_type: [
+        "health_score_change",
+        "goal_completed",
+        "goal_failed",
+        "new_check_in",
+        "squad_goal_progress",
+        "client_at_risk",
+      ],
+      squad_goal_status: [
+        "nao_iniciada",
+        "em_andamento",
+        "concluida",
+        "falhada",
+      ],
+      squad_goal_type: [
+        "faturamento",
+        "leads",
+        "clientes",
+        "retencao",
+        "outros",
       ],
     },
   },
