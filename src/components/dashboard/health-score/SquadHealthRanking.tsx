@@ -21,6 +21,7 @@ interface SquadMetrics {
   dangerCount: number;
   criticalCount: number;
   safePercentage: number;
+  carePercentage: number;
   atRiskPercentage: number;
   rank: number;
 }
@@ -47,6 +48,7 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
       const totalClients = squad.clients.length;
       const avgScore = totalClients > 0 ? Math.round(totalScore / totalClients) : 0;
       const safePercentage = totalClients > 0 ? Math.round((safeCount / totalClients) * 100) : 0;
+      const carePercentage = totalClients > 0 ? Math.round((careCount / totalClients) * 100) : 0;
       const atRiskPercentage = totalClients > 0 ? Math.round(((careCount + dangerCount + criticalCount) / totalClients) * 100) : 0;
 
       return {
@@ -59,6 +61,7 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
         dangerCount,
         criticalCount,
         safePercentage,
+        carePercentage,
         atRiskPercentage,
         rank: 0,
       };
@@ -74,9 +77,9 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
   }, [squadsData]);
 
   const getRankIcon = (rank: number) => {
-    if (rank === 1) return <Trophy className="h-5 w-5 text-yellow-500" />;
-    if (rank === 2) return <Medal className="h-5 w-5 text-gray-400" />;
-    if (rank === 3) return <Medal className="h-5 w-5 text-amber-600" />;
+    if (rank === 1) return <Trophy className="h-6 w-6 text-amber-400 drop-shadow-md" />;
+    if (rank === 2) return <Medal className="h-5 w-5 text-slate-400" />;
+    if (rank === 3) return <Medal className="h-5 w-5 text-orange-400" />;
     return <span className="text-sm font-bold text-muted-foreground w-5 text-center">{rank}º</span>;
   };
 
@@ -155,19 +158,19 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
 
         {/* Squad Rankings */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-2">
             <h4 className="text-sm font-medium">Ranking por Score</h4>
             <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-              S = Safe | C = Care | D = Danger | Cr = Critico
+              C = Care | D = Danger | Cr = Critico
             </span>
           </div>
           {squadMetrics.map((squad, index) => (
             <div 
               key={squad.id}
               className={`p-4 rounded-lg border transition-all hover:shadow-md ${
-                index === 0 ? 'bg-yellow-500/5 border-yellow-500/30' :
-                index === 1 ? 'bg-gray-500/5 border-gray-500/20' :
-                index === 2 ? 'bg-amber-500/5 border-amber-500/20' :
+                index === 0 ? 'bg-amber-400/10 border-amber-400/40 shadow-amber-400/20' :
+                index === 1 ? 'bg-slate-400/10 border-slate-400/30' :
+                index === 2 ? 'bg-orange-400/10 border-orange-400/30' :
                 'bg-card border-border'
               }`}
             >
@@ -202,22 +205,18 @@ export const SquadHealthRanking = ({ squadsData }: SquadHealthRankingProps) => {
                   </div>
 
                   {/* Status Distribution */}
-                  <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <div className="w-2 h-2 rounded-full bg-green-500" />
-                      Safe: {squad.safeCount}
-                    </span>
+                  <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground flex-wrap">
                     <span className="flex items-center gap-1">
                       <div className="w-2 h-2 rounded-full bg-yellow-500" />
-                      Care: {squad.careCount}
+                      C: {squad.careCount} ({squad.carePercentage}%)
                     </span>
                     <span className="flex items-center gap-1">
                       <div className="w-2 h-2 rounded-full bg-orange-500" />
-                      Danger: {squad.dangerCount}
+                      D: {squad.dangerCount}
                     </span>
                     <span className="flex items-center gap-1">
                       <div className="w-2 h-2 rounded-full bg-red-600" />
-                      Crítico: {squad.criticalCount}
+                      Cr: {squad.criticalCount}
                     </span>
                   </div>
                 </div>
