@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNotificationPreferences } from './useNotificationPreferences';
 
 export interface Notification {
   id: string;
@@ -16,10 +17,121 @@ export interface Notification {
   created_at: string;
 }
 
+// Sound configuration for each notification type
+type NotificationType = Notification['type'];
+
+interface SoundConfig {
+  frequency: number;
+  duration: number;
+  type: OscillatorType;
+  volume: number;
+  pattern?: number[];
+}
+
+const soundConfigs: Record<NotificationType, SoundConfig> = {
+  client_at_risk: {
+    frequency: 440,
+    duration: 0.15,
+    type: 'square',
+    volume: 0.3,
+    pattern: [440, 0, 440, 0, 440]
+  },
+  goal_completed: {
+    frequency: 523,
+    duration: 0.12,
+    type: 'sine',
+    volume: 0.25,
+    pattern: [523, 659, 784]
+  },
+  goal_failed: {
+    frequency: 294,
+    duration: 0.2,
+    type: 'triangle',
+    volume: 0.25,
+    pattern: [392, 294]
+  },
+  new_check_in: {
+    frequency: 587,
+    duration: 0.1,
+    type: 'sine',
+    volume: 0.2,
+    pattern: [587, 698]
+  },
+  squad_goal_progress: {
+    frequency: 440,
+    duration: 0.15,
+    type: 'sine',
+    volume: 0.2,
+    pattern: [440, 554]
+  },
+  health_score_change: {
+    frequency: 349,
+    duration: 0.12,
+    type: 'sine',
+    volume: 0.2,
+    pattern: [349, 440]
+  }
+};
+
 export const useNotifications = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [unreadCount, setUnreadCount] = useState(0);
+  const { preferences } = useNotificationPreferences();
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  const getAudioContext = useCallback(() => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    return audioContextRef.current;
+  }, []);
+
+  const playTone = useCallback((frequency: number, duration: number, type: OscillatorType, volume: number, startTime: number) => {
+    const audioContext = getAudioContext();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, startTime);
+    
+    gainNode.gain.setValueAtTime(0, startTime);
+    gainNode.gain.linearRampToValueAtTime(volume, startTime + 0.01);
+    gainNode.gain.linearRampToValueAtTime(0, startTime + duration);
+    
+    oscillator.start(startTime);
+    oscillator.stop(startTime + duration);
+  }, [getAudioContext]);
+
+  const playNotificationSound = useCallback((type: NotificationType) => {
+    if (!preferences?.sound_enabled) return;
+    if (preferences && !preferences[type]) return;
+
+    const config = soundConfigs[type];
+    if (!config) return;
+
+    try {
+      const audioContext = getAudioContext();
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+
+      const now = audioContext.currentTime;
+      if (config.pattern) {
+        config.pattern.forEach((freq, index) => {
+          if (freq > 0) {
+            playTone(freq, config.duration, config.type, config.volume, now + index * (config.duration + 0.05));
+          }
+        });
+      } else {
+        playTone(config.frequency, config.duration, config.type, config.volume, now);
+      }
+    } catch (error) {
+      console.warn('Failed to play notification sound:', error);
+    }
+  }, [preferences, getAudioContext, playTone]);
 
   const { data: notifications = [], isLoading } = useQuery({
     queryKey: ['notifications', user?.id],
@@ -39,7 +151,7 @@ export const useNotifications = () => {
     enabled: !!user?.id
   });
 
-  // Real-time subscription
+  // Real-time subscription with sound
   useEffect(() => {
     if (!user?.id) return;
 
@@ -55,6 +167,11 @@ export const useNotifications = () => {
         },
         (payload) => {
           queryClient.invalidateQueries({ queryKey: ['notifications', user.id] });
+          // Play sound for new notification
+          const newNotification = payload.new as Notification;
+          if (newNotification?.type) {
+            playNotificationSound(newNotification.type);
+          }
         }
       )
       .subscribe();
@@ -62,7 +179,7 @@ export const useNotifications = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id, queryClient]);
+  }, [user?.id, queryClient, playNotificationSound]);
 
   // Update unread count
   useEffect(() => {
@@ -121,6 +238,7 @@ export const useNotifications = () => {
     unreadCount,
     markAsRead: markAsRead.mutate,
     markAllAsRead: markAllAsRead.mutate,
-    deleteNotification: deleteNotification.mutate
+    deleteNotification: deleteNotification.mutate,
+    playNotificationSound
   };
 };

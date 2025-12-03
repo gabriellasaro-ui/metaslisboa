@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { 
   Bell, 
   AlertTriangle, 
@@ -11,9 +12,11 @@ import {
   FileText, 
   TrendingUp, 
   Heart,
-  Volume2
+  Volume2,
+  Play
 } from "lucide-react";
 import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
+import { useNotifications } from "@/hooks/useNotifications";
 
 interface NotificationTypeConfig {
   key: 'health_score_change' | 'goal_completed' | 'goal_failed' | 'new_check_in' | 'squad_goal_progress' | 'client_at_risk';
@@ -70,6 +73,7 @@ const notificationTypes: NotificationTypeConfig[] = [
 
 export const NotificationPreferencesCard = () => {
   const { preferences, isLoading, updatePreference } = useNotificationPreferences();
+  const { playNotificationSound } = useNotifications();
 
   if (isLoading) {
     return (
@@ -116,8 +120,8 @@ export const NotificationPreferencesCard = () => {
           return (
             <div key={type.key}>
               {index > 0 && <Separator className="my-3" />}
-              <div className="flex items-center justify-between">
-                <div className="flex items-start gap-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-start gap-3 flex-1">
                   <div className={`mt-0.5 ${type.iconColor}`}>
                     <Icon className="h-5 w-5" />
                   </div>
@@ -128,10 +132,21 @@ export const NotificationPreferencesCard = () => {
                     </p>
                   </div>
                 </div>
-                <Switch 
-                  checked={isEnabled} 
-                  onCheckedChange={(value) => updatePreference({ key: type.key, value })}
-                />
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    onClick={() => playNotificationSound(type.key)}
+                    title="Testar som"
+                  >
+                    <Play className="h-4 w-4" />
+                  </Button>
+                  <Switch 
+                    checked={isEnabled} 
+                    onCheckedChange={(value) => updatePreference({ key: type.key, value })}
+                  />
+                </div>
               </div>
             </div>
           );
