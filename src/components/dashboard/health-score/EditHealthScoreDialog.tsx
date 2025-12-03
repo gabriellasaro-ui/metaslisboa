@@ -36,6 +36,9 @@ const PROBLEM_CATEGORIES = [
   "Problemas financeiros do cliente",
   "Mudanca de gestao/equipe",
   "Falta de engajamento",
+  "Falta de acompanhamento",
+  "Baixa maturidade digital",
+  "Dependencia de recurso-chave",
   "Escopo mal definido",
   "Prazo inadequado",
   "Qualidade das entregas",
@@ -52,6 +55,9 @@ const ALL_HEALTH_STATUSES: ExtendedHealthStatus[] = [
 
 // Critical statuses that require justification
 const CRITICAL_STATUSES: ExtendedHealthStatus[] = ['danger', 'danger_critico', 'churn'];
+
+// Statuses that require problem category
+const CATEGORY_REQUIRED_STATUSES: ExtendedHealthStatus[] = ['danger', 'danger_critico', 'aviso_previo', 'churn'];
 
 // Map health_status to client status
 const getClientStatusFromHealth = (healthStatus: ExtendedHealthStatus): 'ativo' | 'aviso_previo' | 'churned' | null => {
@@ -178,28 +184,30 @@ export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }:
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="categoria-problema">Categoria do Problema</Label>
-            <Select value={categoriaProblema || "none"} onValueChange={(v) => setCategoriaProblema(v === "none" ? "" : v)}>
-              <SelectTrigger id="categoria-problema">
-                <SelectValue placeholder="Selecione a categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Nenhuma</SelectItem>
-                {PROBLEM_CATEGORIES.map(category => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {CATEGORY_REQUIRED_STATUSES.includes(healthStatus) && (
+            <div className="space-y-2">
+              <Label htmlFor="categoria-problema">Categoria do Problema</Label>
+              <Select value={categoriaProblema || "none"} onValueChange={(v) => setCategoriaProblema(v === "none" ? "" : v)}>
+                <SelectTrigger id="categoria-problema">
+                  <SelectValue placeholder="Selecione a categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhuma</SelectItem>
+                  {PROBLEM_CATEGORIES.map(category => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-2">
-            <Label htmlFor="problema-central">Problema Central</Label>
+            <Label htmlFor="problema-central">Problema Central do Projeto</Label>
             <Textarea
               id="problema-central"
-              placeholder="Descreva o problema central do cliente..."
+              placeholder="Descreva o problema central do projeto..."
               value={problemaCentral}
               onChange={(e) => setProblemaCentral(e.target.value)}
               rows={3}

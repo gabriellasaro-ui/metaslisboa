@@ -30,6 +30,9 @@ const PROBLEM_CATEGORIES = [
   "Problemas financeiros do cliente",
   "Mudanca de gestao/equipe",
   "Falta de engajamento",
+  "Falta de acompanhamento",
+  "Baixa maturidade digital",
+  "Dependencia de recurso-chave",
   "Escopo mal definido",
   "Prazo inadequado",
   "Qualidade das entregas",
@@ -38,6 +41,9 @@ const PROBLEM_CATEGORIES = [
   "Reestruturacao interna",
   "Outro",
 ];
+
+// Statuses that require problem category
+const CATEGORY_REQUIRED_STATUSES = ['danger', 'danger_critico', 'aviso_previo', 'churn'];
 
 interface EditClientDialogProps {
   client: Client | null;
@@ -370,31 +376,33 @@ export const EditClientDialog = ({ client, open, onOpenChange, onSave }: EditCli
           {/* Categoria e Problema Central - só para coordenadores e supervisores */}
           {!isInvestidor && (
             <>
-              <div className="space-y-2">
-                <Label htmlFor="categoriaProblema">Categoria do Problema</Label>
-                <Select
-                  value={categoriaProblema || "none"}
-                  onValueChange={(value) => setCategoriaProblema(value === "none" ? "" : value)}
-                >
-                  <SelectTrigger id="categoriaProblema">
-                    <SelectValue placeholder="Selecione a categoria" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Nenhuma</SelectItem>
-                    {PROBLEM_CATEGORIES.map(category => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {client?.healthStatus && CATEGORY_REQUIRED_STATUSES.includes(client.healthStatus) && (
+                <div className="space-y-2">
+                  <Label htmlFor="categoriaProblema">Categoria do Problema</Label>
+                  <Select
+                    value={categoriaProblema || "none"}
+                    onValueChange={(value) => setCategoriaProblema(value === "none" ? "" : value)}
+                  >
+                    <SelectTrigger id="categoriaProblema">
+                      <SelectValue placeholder="Selecione a categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Nenhuma</SelectItem>
+                      {PROBLEM_CATEGORIES.map(category => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <div className="space-y-2">
-                <Label htmlFor="problemaCentral">Problema Central</Label>
+                <Label htmlFor="problemaCentral">Problema Central do Projeto</Label>
                 <Textarea
                   id="problemaCentral"
-                  placeholder="Descreva o problema central do cliente..."
+                  placeholder="Descreva o problema central do projeto..."
                   value={problemaCentral}
                   onChange={(e) => setProblemaCentral(e.target.value)}
                   rows={3}
