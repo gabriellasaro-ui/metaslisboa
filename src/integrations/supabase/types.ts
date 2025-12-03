@@ -566,6 +566,56 @@ export type Database = {
           },
         ]
       }
+      squad_goal_cycles: {
+        Row: {
+          achieved_value: number
+          completed_participants: number
+          completion_rate: number
+          created_at: string
+          cycle_end_date: string
+          cycle_number: number
+          cycle_start_date: string
+          id: string
+          squad_goal_id: string
+          target_value: number
+          total_participants: number
+        }
+        Insert: {
+          achieved_value?: number
+          completed_participants?: number
+          completion_rate?: number
+          created_at?: string
+          cycle_end_date: string
+          cycle_number?: number
+          cycle_start_date: string
+          id?: string
+          squad_goal_id: string
+          target_value: number
+          total_participants?: number
+        }
+        Update: {
+          achieved_value?: number
+          completed_participants?: number
+          completion_rate?: number
+          created_at?: string
+          cycle_end_date?: string
+          cycle_number?: number
+          cycle_start_date?: string
+          id?: string
+          squad_goal_id?: string
+          target_value?: number
+          total_participants?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "squad_goal_cycles_squad_goal_id_fkey"
+            columns: ["squad_goal_id"]
+            isOneToOne: false
+            referencedRelation: "squad_goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       squad_goals: {
         Row: {
           created_at: string

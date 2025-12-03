@@ -3,10 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Target, TrendingUp, Calendar, Pencil, Trash2 } from "lucide-react";
+import { Plus, Target, TrendingUp, Calendar, Pencil, Trash2, History } from "lucide-react";
 import { useSquadGoals, SquadGoal } from "@/hooks/useSquadGoals";
 import { AddSquadGoalDialog } from "./AddSquadGoalDialog";
 import { EditSquadGoalDialog } from "./EditSquadGoalDialog";
+import { SquadGoalCycleHistory } from "./SquadGoalCycleHistory";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
@@ -46,6 +47,7 @@ export function SquadGoalsCard({ squadId, canManage = false }: SquadGoalsCardPro
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingGoal, setEditingGoal] = useState<SquadGoal | null>(null);
   const [deletingGoalId, setDeletingGoalId] = useState<string | null>(null);
+  const [viewingHistory, setViewingHistory] = useState<SquadGoal | null>(null);
 
   const calculateProgress = (current: number, target: number) => {
     if (target === 0) return 0;
@@ -139,6 +141,17 @@ export function SquadGoalsCard({ squadId, canManage = false }: SquadGoalsCardPro
                       </div>
                       {canManage && (
                         <div className="flex gap-1">
+                          {goal.recurrence && goal.recurrence !== 'none' && (
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8"
+                              onClick={() => setViewingHistory(goal)}
+                              title="Ver histórico de ciclos"
+                            >
+                              <History className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button 
                             variant="ghost" 
                             size="icon" 
@@ -218,6 +231,14 @@ export function SquadGoalsCard({ squadId, canManage = false }: SquadGoalsCardPro
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {viewingHistory && (
+        <SquadGoalCycleHistory
+          goal={viewingHistory}
+          open={!!viewingHistory}
+          onOpenChange={(open) => !open && setViewingHistory(null)}
+        />
+      )}
     </>
   );
 }
