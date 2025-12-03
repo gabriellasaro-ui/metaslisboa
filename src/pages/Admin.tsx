@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Users, Building2, UserPlus, PlusCircle } from "lucide-react";
+import { ArrowLeft, Users, Building2, UserPlus, PlusCircle, Lightbulb } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { AdminClientsList } from "@/components/admin/AdminClientsList";
@@ -16,6 +16,7 @@ import { AdminStats } from "@/components/admin/AdminStats";
 import { AddClientDialog } from "@/components/admin/AddClientDialog";
 import { AddSquadDialog } from "@/components/admin/AddSquadDialog";
 import { AddUserDialog } from "@/components/admin/AddUserDialog";
+import { SuggestionsAdminDialog } from "@/components/suggestions";
 
 const Admin = () => {
   const { isCoordenador, isSupervisor, squadId, isLoading: authLoading } = useAuth();
@@ -41,6 +42,7 @@ const Admin = () => {
   const [showAddClient, setShowAddClient] = useState(false);
   const [showAddSquad, setShowAddSquad] = useState(false);
   const [showAddUser, setShowAddUser] = useState(false);
+  const [showSuggestionsAdmin, setShowSuggestionsAdmin] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !isCoordenador && !isSupervisor) {
@@ -191,9 +193,17 @@ const Admin = () => {
                 Gerencie clientes, squads e visualize métricas do sistema
               </p>
             </div>
-            <Badge variant="outline" className="text-sm px-4 py-2">
-              {isSupervisor ? "Supervisor" : "Coordenador"}
-            </Badge>
+            <div className="flex items-center gap-3">
+              {isSupervisor && (
+                <Button variant="outline" onClick={() => setShowSuggestionsAdmin(true)}>
+                  <Lightbulb className="h-4 w-4 mr-2 text-yellow-500" />
+                  Sugestões
+                </Button>
+              )}
+              <Badge variant="outline" className="text-sm px-4 py-2">
+                {isSupervisor ? "Supervisor" : "Coordenador"}
+              </Badge>
+            </div>
           </div>
         </div>
 
@@ -307,6 +317,12 @@ const Admin = () => {
             open={showAddSquad} 
             onOpenChange={setShowAddSquad}
             onSuccess={fetchStats}
+          />
+        )}
+        {isSupervisor && (
+          <SuggestionsAdminDialog
+            open={showSuggestionsAdmin}
+            onOpenChange={setShowSuggestionsAdmin}
           />
         )}
       </div>
