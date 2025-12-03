@@ -61,29 +61,19 @@ export const SquadProfileDialog = ({ squad, open, onOpenChange, canEdit = false 
     if (!squad?.id) return;
     setLoadingMembers(true);
     try {
-      const { data: profiles, error } = await supabase
-        .from('profiles')
-        .select('id, name, email, avatar_url')
-        .eq('squad_id', squad.id);
+      // Use security definer function to get members with roles
+      const { data, error } = await supabase
+        .rpc('get_squad_members_with_roles', { _squad_id: squad.id });
 
       if (error) throw error;
 
-      // Get roles for each member
-      const membersWithRoles: SquadMember[] = [];
-      for (const profile of profiles || []) {
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', profile.id)
-          .single();
-        
-        membersWithRoles.push({
-          ...profile,
-          role: roleData?.role || 'investidor'
-        });
-      }
-
-      setMembers(membersWithRoles);
+      setMembers((data || []).map(m => ({
+        id: m.id,
+        name: m.name,
+        email: m.email,
+        avatar_url: m.avatar_url,
+        role: m.role || 'investidor'
+      })));
     } catch (error) {
       console.error("Error fetching members:", error);
     } finally {
