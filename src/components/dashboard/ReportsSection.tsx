@@ -118,7 +118,7 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
             </Button>
             <Button
               onClick={handleExportPDF}
-              variant="secondary"
+              variant="destructive"
               className="flex-1"
               size="lg"
             >
@@ -127,7 +127,7 @@ export const ReportsSection = ({ squadsData }: ReportsSectionProps) => {
             </Button>
             <Button
               onClick={handleExportHealthScorePDF}
-              variant="outline"
+              variant="destructive"
               className="flex-1"
               size="lg"
             >
