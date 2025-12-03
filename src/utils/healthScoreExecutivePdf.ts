@@ -52,13 +52,30 @@ const healthStatusLabels: Record<string, string> = {
 const normalizeText = (str: string): string => {
   if (!str) return str;
   return str
-    .replace(/[áàâãä]/gi, (match) => match === match.toUpperCase() ? 'A' : 'a')
-    .replace(/[éèêë]/gi, (match) => match === match.toUpperCase() ? 'E' : 'e')
-    .replace(/[íìîï]/gi, (match) => match === match.toUpperCase() ? 'I' : 'i')
-    .replace(/[óòôõö]/gi, (match) => match === match.toUpperCase() ? 'O' : 'o')
-    .replace(/[úùûü]/gi, (match) => match === match.toUpperCase() ? 'U' : 'u')
-    .replace(/[ç]/gi, (match) => match === match.toUpperCase() ? 'C' : 'c')
-    .replace(/[ñ]/gi, (match) => match === match.toUpperCase() ? 'N' : 'n');
+    .replace(/á/g, 'a').replace(/Á/g, 'A')
+    .replace(/à/g, 'a').replace(/À/g, 'A')
+    .replace(/â/g, 'a').replace(/Â/g, 'A')
+    .replace(/ã/g, 'a').replace(/Ã/g, 'A')
+    .replace(/ä/g, 'a').replace(/Ä/g, 'A')
+    .replace(/é/g, 'e').replace(/É/g, 'E')
+    .replace(/è/g, 'e').replace(/È/g, 'E')
+    .replace(/ê/g, 'e').replace(/Ê/g, 'E')
+    .replace(/ë/g, 'e').replace(/Ë/g, 'E')
+    .replace(/í/g, 'i').replace(/Í/g, 'I')
+    .replace(/ì/g, 'i').replace(/Ì/g, 'I')
+    .replace(/î/g, 'i').replace(/Î/g, 'I')
+    .replace(/ï/g, 'i').replace(/Ï/g, 'I')
+    .replace(/ó/g, 'o').replace(/Ó/g, 'O')
+    .replace(/ò/g, 'o').replace(/Ò/g, 'O')
+    .replace(/ô/g, 'o').replace(/Ô/g, 'O')
+    .replace(/õ/g, 'o').replace(/Õ/g, 'O')
+    .replace(/ö/g, 'o').replace(/Ö/g, 'O')
+    .replace(/ú/g, 'u').replace(/Ú/g, 'U')
+    .replace(/ù/g, 'u').replace(/Ù/g, 'U')
+    .replace(/û/g, 'u').replace(/Û/g, 'U')
+    .replace(/ü/g, 'u').replace(/Ü/g, 'U')
+    .replace(/ç/g, 'c').replace(/Ç/g, 'C')
+    .replace(/ñ/g, 'n').replace(/Ñ/g, 'N');
 };
 
 export const generateExecutiveHealthScorePDF = async (
@@ -215,6 +232,13 @@ export const generateExecutiveHealthScorePDF = async (
 
     y += 20;
   });
+
+  // Legend for abbreviations
+  y += 5;
+  doc.setFontSize(8);
+  doc.setTextColor(100, 116, 139);
+  doc.setFont("helvetica", "italic");
+  doc.text("Legenda: S = Safe | C = Care | D = Danger | Cr = Critico", margin, y);
 
   // ===== MOVEMENTS DETAIL PAGE =====
   doc.addPage();
