@@ -51,13 +51,27 @@ const ALL_HEALTH_STATUSES: ExtendedHealthStatus[] = [
   'safe', 'care', 'danger', 'danger_critico', 'onboarding', 'e_e', 'aviso_previo', 'churn'
 ];
 
+// Critical statuses that require justification
+const CRITICAL_STATUSES: ExtendedHealthStatus[] = ['danger', 'danger_critico', 'churn'];
+
+// Map health_status to client status
+const getClientStatusFromHealth = (healthStatus: ExtendedHealthStatus): 'ativo' | 'aviso_previo' | 'churned' | null => {
+  if (healthStatus === 'aviso_previo') return 'aviso_previo';
+  if (healthStatus === 'churn') return 'churned';
+  // For other statuses, return 'ativo' only if coming from aviso_previo/churn
+  return null; // Don't change status for other health changes
+};
+
 export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }: EditHealthScoreDialogProps) => {
   const [healthStatus, setHealthStatus] = useState<ExtendedHealthStatus>('safe');
   const [problemaCentral, setProblemaCentral] = useState('');
   const [categoriaProblema, setCategoriaProblema] = useState('');
   const [notes, setNotes] = useState('');
+  const [notesError, setNotesError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
+
+  const isNotesRequired = CRITICAL_STATUSES.includes(healthStatus);
 
   useEffect(() => {
     if (client) {
@@ -65,21 +79,44 @@ export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }:
       setProblemaCentral(client.problema_central || '');
       setCategoriaProblema(client.categoria_problema || '');
       setNotes('');
+      setNotesError('');
     }
   }, [client]);
 
   const handleSubmit = async () => {
     if (!client?.id) return;
 
+    // Validate required notes for critical statuses
+    if (isNotesRequired && !notes.trim()) {
+      setNotesError('Justificativa obrigatória para status críticos');
+      return;
+    }
+    setNotesError('');
+
     setIsLoading(true);
     try {
+      // Prepare update data
+      const updateData: Record<string, any> = {
+        health_status: healthStatus,
+        problema_central: problemaCentral || null,
+        categoria_problema: categoriaProblema || null,
+      };
+
+      // Sync client status based on health_status
+      if (healthStatus === 'aviso_previo') {
+        updateData.status = 'aviso_previo';
+        updateData.aviso_previo_date = new Date().toISOString();
+      } else if (healthStatus === 'churn') {
+        updateData.status = 'churned';
+        updateData.churned_date = new Date().toISOString();
+      } else if (client.status === 'aviso_previo' || client.status === 'churned') {
+        // If client was in aviso_previo/churned and now changing to another health status, set back to ativo
+        updateData.status = 'ativo';
+      }
+
       const { error } = await supabase
         .from('clients')
-        .update({
-          health_status: healthStatus,
-          problema_central: problemaCentral || null,
-          categoria_problema: categoriaProblema || null,
-        })
+        .update(updateData)
         .eq('id', client.id);
 
       if (error) throw error;
@@ -96,6 +133,7 @@ export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }:
       toast.success("Health Score atualizado com sucesso!");
       await queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] });
       await queryClient.invalidateQueries({ queryKey: ["health-score-history", client.id] });
+      await queryClient.invalidateQueries({ queryKey: ["admin-clients"] });
       onSuccess?.();
       onOpenChange(false);
     } catch (error: any) {
@@ -170,18 +208,32 @@ export const EditHealthScoreDialog = ({ client, open, onOpenChange, onSuccess }:
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes">Observações do Comitê (opcional)</Label>
+            <Label htmlFor="notes" className={isNotesRequired ? "text-destructive" : ""}>
+              Justificativa {isNotesRequired ? "(obrigatória)" : "(opcional)"}
+            </Label>
             <Textarea
               id="notes"
-              placeholder="Adicione observações sobre a mudança, como discussões do comitê semanal..."
+              placeholder={isNotesRequired 
+                ? "Explique o motivo da mudança para este status crítico..." 
+                : "Adicione observações sobre a mudança, como discussões do comitê semanal..."}
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={(e) => {
+                setNotes(e.target.value);
+                if (notesError) setNotesError('');
+              }}
               rows={2}
-              className="text-sm"
+              className={`text-sm ${notesError ? 'border-destructive' : ''}`}
             />
-            <p className="text-xs text-muted-foreground">
-              Estas observações serão salvas no histórico de alterações.
-            </p>
+            {notesError && (
+              <p className="text-xs text-destructive">{notesError}</p>
+            )}
+            {!notesError && (
+              <p className="text-xs text-muted-foreground">
+                {isNotesRequired 
+                  ? "Status críticos requerem justificativa para auditoria."
+                  : "Estas observações serão salvas no histórico de alterações."}
+              </p>
+            )}
           </div>
         </div>
 
