@@ -574,7 +574,9 @@ export type Database = {
           description: string | null
           goal_type: Database["public"]["Enums"]["squad_goal_type"]
           id: string
+          next_reset_at: string | null
           period: Database["public"]["Enums"]["goal_period"]
+          recurrence: string | null
           squad_id: string
           start_date: string | null
           status: Database["public"]["Enums"]["squad_goal_status"]
@@ -590,7 +592,9 @@ export type Database = {
           description?: string | null
           goal_type?: Database["public"]["Enums"]["squad_goal_type"]
           id?: string
+          next_reset_at?: string | null
           period?: Database["public"]["Enums"]["goal_period"]
+          recurrence?: string | null
           squad_id: string
           start_date?: string | null
           status?: Database["public"]["Enums"]["squad_goal_status"]
@@ -606,7 +610,9 @@ export type Database = {
           description?: string | null
           goal_type?: Database["public"]["Enums"]["squad_goal_type"]
           id?: string
+          next_reset_at?: string | null
           period?: Database["public"]["Enums"]["goal_period"]
+          recurrence?: string | null
           squad_id?: string
           start_date?: string | null
           status?: Database["public"]["Enums"]["squad_goal_status"]
@@ -831,10 +837,11 @@ export type Database = {
         | "concluida"
         | "falhada"
       squad_goal_type:
-        | "faturamento"
-        | "leads"
-        | "clientes"
-        | "retencao"
+        | "estudo"
+        | "checkin_diferente"
+        | "aproximacao_cliente"
+        | "estudo_nicho"
+        | "desenvolvimento"
         | "outros"
     }
     CompositeTypes: {
@@ -1010,10 +1017,11 @@ export const Constants = {
         "falhada",
       ],
       squad_goal_type: [
-        "faturamento",
-        "leads",
-        "clientes",
-        "retencao",
+        "estudo",
+        "checkin_diferente",
+        "aproximacao_cliente",
+        "estudo_nicho",
+        "desenvolvimento",
         "outros",
       ],
     },
