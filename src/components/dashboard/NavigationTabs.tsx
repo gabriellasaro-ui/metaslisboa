@@ -5,8 +5,7 @@ import {
   ClipboardList, 
   Search, 
   FileText,
-  HeartPulse,
-  UserCircle
+  HeartPulse
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -15,17 +14,15 @@ interface NavigationTabsProps {
   children: React.ReactNode;
   totalClients?: number;
   pendingCount?: number;
-  showProfileTab?: boolean;
 }
 
 export const NavigationTabs = ({ 
   defaultValue = "visao-geral", 
   children,
   totalClients = 0,
-  pendingCount = 0,
-  showProfileTab = false
+  pendingCount = 0
 }: NavigationTabsProps) => {
-  const baseTabs = [
+  const tabs = [
     {
       value: "visao-geral",
       label: "Visão Geral",
@@ -65,22 +62,13 @@ export const NavigationTabs = ({
     }
   ];
 
-  const tabs = showProfileTab 
-    ? [...baseTabs, {
-        value: "perfil",
-        label: "Perfil",
-        icon: UserCircle,
-        description: "Perfil do Squad"
-      }]
-    : baseTabs;
-
   return (
     <Tabs defaultValue={defaultValue} className="space-y-8">
       <div className="relative">
         {/* Background decoration */}
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 rounded-xl -z-10" />
         
-        <TabsList className={`w-full h-auto p-2 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl shadow-lg grid gap-2 ${showProfileTab ? 'grid-cols-7' : 'grid-cols-6'}`}>
+        <TabsList className="w-full h-auto p-2 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl shadow-lg grid gap-2 grid-cols-6">
           {tabs.map((tab) => (
             <TabsTrigger
               key={tab.value}

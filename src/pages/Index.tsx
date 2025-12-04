@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useClientsData } from "@/hooks/useClientsData";
-import { LogOut, User, Info } from "lucide-react";
+import { LogOut, User, Info, Building2 } from "lucide-react";
 import { WelcomeDialog } from "@/components/dashboard/WelcomeDialog";
 import { EditProfileDialog } from "@/components/dashboard/EditProfileDialog";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,12 +14,17 @@ import { Separator } from "@/components/ui/separator";
 import { ForcePasswordChange } from "@/components/auth/ForcePasswordChange";
 import { NotificationBell } from "@/components/notifications";
 import { SuggestionsButton } from "@/components/suggestions";
+import { SquadProfileDialog } from "@/components/dashboard/squad/SquadProfileDialog";
 
 const Index = () => {
   const { profile, role, squadId, isInvestidor, isCoordenador, isSupervisor, signOut, user, mustChangePassword, refreshProfile } = useAuth();
   const { squadsData, updateClient } = useClientsData();
   const [showWelcome, setShowWelcome] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showSquadProfile, setShowSquadProfile] = useState(false);
+
+  // Encontrar squad do investidor
+  const mySquad = squadsData.find(s => s.id === squadId);
 
   // Mostrar welcome dialog apenas no primeiro login
   useEffect(() => {
@@ -107,6 +112,19 @@ const Index = () => {
                 </div>
               </button>
               <div className="flex items-center gap-2">
+                {/* Squad Profile Button - Only for Investidor */}
+                {isInvestidor && mySquad && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setShowSquadProfile(true)}
+                    className="hover:bg-primary/10"
+                    title="Perfil do Squad"
+                  >
+                    <Building2 className="h-4 w-4" />
+                  </Button>
+                )}
+                
                 {/* Suggestions Button */}
                 <SuggestionsButton />
                 
@@ -162,6 +180,16 @@ const Index = () => {
         
         {/* Edit Profile Dialog */}
         <EditProfileDialog open={showEditProfile} onOpenChange={setShowEditProfile} />
+
+        {/* Squad Profile Dialog - For Investidor */}
+        {isInvestidor && mySquad && (
+          <SquadProfileDialog 
+            squad={mySquad}
+            open={showSquadProfile}
+            onOpenChange={setShowSquadProfile}
+            canEdit={false}
+          />
+        )}
 
         {/* Dashboard segmentado por role */}
         {renderDashboard()}
