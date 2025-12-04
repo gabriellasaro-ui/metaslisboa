@@ -24,11 +24,12 @@ interface SquadMember {
 interface Squad {
   id: string;
   name: string;
-  slug: string;
-  icon: string | null;
-  logo_url: string | null;
-  description: string | null;
-  leader_id: string | null;
+  slug?: string;
+  icon?: string | null;
+  logo_url?: string | null;
+  logoUrl?: string | null;
+  description?: string | null;
+  leader_id?: string | null;
 }
 
 interface SquadProfileDialogProps {
@@ -52,7 +53,8 @@ export const SquadProfileDialog = ({ squad, open, onOpenChange, canEdit = false 
     if (squad && open) {
       setName(squad.name);
       setDescription(squad.description || '');
-      setLogoUrl(squad.logo_url);
+      // Support both logo_url and logoUrl
+      setLogoUrl(squad.logo_url || squad.logoUrl || null);
       fetchMembers();
     }
   }, [squad, open]);
