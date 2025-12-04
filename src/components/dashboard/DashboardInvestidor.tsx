@@ -19,6 +19,7 @@ import { WeeklyProgressChart } from "@/components/dashboard/WeeklyProgressChart"
 import { HealthScoreDashboard } from "@/components/dashboard/health-score/HealthScoreDashboard";
 import { ClientAlertsCard } from "@/components/dashboard/ClientAlertsCard";
 import { SquadGoalsInvestorCard } from "@/components/dashboard/squad-goals";
+import { GoalsImportanceCard } from "@/components/dashboard/GoalsImportanceCard";
 import { Target, Users, TrendingUp, Calendar, Plus, MessageSquare, Pencil, History, EyeOff, Eye } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
@@ -203,6 +204,8 @@ export const DashboardInvestidor = ({ squadsData, squadId, updateClient }: Dashb
 
       {/* Análises */}
       <TabsContent value="analises" className="space-y-6">
+        <GoalsImportanceCard />
+        
         <div className="grid gap-6 md:grid-cols-2">
           <GoalsDistributionChart />
           <HealthStatusDistributionChart squadsData={mySquad ? [mySquad] : []} />
