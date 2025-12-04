@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,6 +56,7 @@ export const WeeklyCheckInsTimeline = ({
   showClientFilter = true
 }: WeeklyCheckInsTimelineProps) => {
   const { user, isCoordenador, isSupervisor } = useAuth();
+  const queryClient = useQueryClient();
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [squads, setSquads] = useState<string[]>([]);
@@ -200,7 +202,7 @@ export const WeeklyCheckInsTimeline = ({
     console.log("🗑️ Tentando excluir check-in:", id);
     
     try {
-      // 1. Buscar o check-in a ser deletado para pegar o goal_id
+      // 1. Buscar o check-in a ser deletado para pegar o goal_id e progress
       const { data: checkInToDelete, error: fetchError } = await supabase
         .from("check_ins")
         .select("goal_id, progress")
@@ -210,6 +212,8 @@ export const WeeklyCheckInsTimeline = ({
       console.log("📋 Check-in a deletar:", checkInToDelete);
 
       if (fetchError) throw fetchError;
+
+      const deletedProgress = checkInToDelete.progress || 0;
 
       // 2. Deletar o check-in
       const { error: deleteError } = await supabase
@@ -224,11 +228,11 @@ export const WeeklyCheckInsTimeline = ({
 
       console.log("✅ Check-in deletado com sucesso");
 
-      // 3. Se tinha uma meta associada, recalcular o progresso baseado no check-in anterior
+      // 3. Se tinha uma meta associada, recalcular o progresso
       if (checkInToDelete.goal_id) {
         console.log("🔄 Recalculando progresso da meta:", checkInToDelete.goal_id);
         
-        // Buscar o check-in mais recente desta meta
+        // Buscar o check-in mais recente desta meta (após a exclusão)
         const { data: latestCheckIn, error: latestError } = await supabase
           .from("check_ins")
           .select("progress")
@@ -241,9 +245,9 @@ export const WeeklyCheckInsTimeline = ({
           console.error("❌ Erro ao buscar último check-in:", latestError);
         }
 
-        // Atualizar progresso da meta
+        // Se existe outro check-in, usa o progresso dele; senão, zera
         const newProgress = latestCheckIn?.progress || 0;
-        console.log("📊 Novo progresso da meta:", newProgress);
+        console.log("📊 Novo progresso da meta:", newProgress, "(check-in deletado tinha:", deletedProgress, "%)");
 
         const { error: updateError } = await supabase
           .from("goals")
@@ -256,15 +260,18 @@ export const WeeklyCheckInsTimeline = ({
         if (updateError) {
           console.error("❌ Erro ao atualizar progresso:", updateError);
         } else {
-          console.log("✅ Progresso da meta atualizado");
+          console.log("✅ Progresso da meta atualizado para:", newProgress);
         }
       }
 
       toast.success("Check-in excluído!", {
-        description: "O registro foi removido e o progresso foi recalculado.",
+        description: `O registro foi removido e o progresso foi recalculado.`,
       });
 
-      // Atualizar lista
+      // Invalidar queries para atualizar UI em todas as abas
+      await queryClient.invalidateQueries({ queryKey: ["squads-with-clients"] });
+      
+      // Atualizar lista local
       fetchCheckIns();
     } catch (error: any) {
       console.error("❌ Erro ao excluir check-in:", error);
