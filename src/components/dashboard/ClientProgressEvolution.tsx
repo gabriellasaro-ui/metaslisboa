@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Loader2, TrendingUp, FileDown } from "lucide-react";
+import { Loader2, TrendingUp, FileDown, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { generateClientReportPDF } from "@/utils/clientReportPdf";
@@ -45,6 +45,31 @@ export const ClientProgressEvolution = () => {
     if (selectedClientId) {
       fetchClientProgress();
     }
+  }, [selectedClientId]);
+
+  // Realtime subscription para atualizar quando check-ins mudam
+  useEffect(() => {
+    const channel = supabase
+      .channel('check-ins-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'check_ins',
+        },
+        (payload) => {
+          console.log('📊 Check-in alterado, atualizando gráfico...', payload);
+          if (selectedClientId) {
+            fetchClientProgress();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [selectedClientId]);
 
   const fetchClients = async () => {
@@ -219,6 +244,16 @@ export const ClientProgressEvolution = () => {
                   ))}
                 </SelectContent>
               </Select>
+              
+              <Button
+                onClick={() => selectedClientId && fetchClientProgress()}
+                disabled={loading || !selectedClientId}
+                variant="outline"
+                size="icon"
+                title="Atualizar dados"
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              </Button>
               
               <Button
                 onClick={handleExportPDF}

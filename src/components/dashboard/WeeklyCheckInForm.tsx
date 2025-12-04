@@ -426,36 +426,34 @@ export const WeeklyCheckInForm = ({
           </div>
 
           {/* Campos Opcionais - Compactos */}
-          <div className="space-y-2 p-3 bg-muted/30 rounded-lg border border-border/30">
-            <p className="text-xs font-medium text-muted-foreground mb-2">📎 Links Opcionais</p>
+          <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border/30">
+            <p className="text-xs font-medium text-muted-foreground">📎 Links Opcionais</p>
             
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label htmlFor="call-summary" className="text-sm flex items-center gap-1.5">
                 <MessageSquare className="h-3.5 w-3.5" />
                 Documento da Call
               </Label>
-              <input
+              <Input
                 id="call-summary"
                 type="url"
                 placeholder="https://docs.google.com/document/d/..."
                 value={callSummary}
                 onChange={(e) => setCallSummary(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label htmlFor="call-link" className="text-sm flex items-center gap-1.5">
                 <Calendar className="h-3.5 w-3.5" />
                 Link da Gravação
               </Label>
-              <input
+              <Input
                 id="call-link"
                 type="url"
                 placeholder="https://drive.google.com/..."
                 value={callLink}
                 onChange={(e) => setCallLink(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
           </div>
