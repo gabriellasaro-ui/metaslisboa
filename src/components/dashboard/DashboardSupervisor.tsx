@@ -12,7 +12,6 @@ import { HealthStatusDistributionChart } from "@/components/dashboard/charts/Hea
 import { GoalTypesChart } from "@/components/dashboard/charts/GoalTypesChart";
 import { ReportsSection } from "@/components/dashboard/ReportsSection";
 import { SquadRankingCard } from "@/components/dashboard/SquadRankingCard";
-import { GoalsImportanceCard } from "@/components/dashboard/GoalsImportanceCard";
 import { ClientsTable } from "@/components/dashboard/ClientsTable";
 import { Target, Users, AlertCircle, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
@@ -102,9 +101,7 @@ export const DashboardSupervisor = ({ squadsData, updateClient }: DashboardSuper
       </TabsContent>
 
       <TabsContent value="analises" className="space-y-6">
-        <GoalsImportanceCard />
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <SquadsComparisonChart squadsData={squadsData} />
           <HealthStatusDistributionChart squadsData={squadsData} />
         </div>
