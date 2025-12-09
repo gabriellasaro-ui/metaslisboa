@@ -177,7 +177,13 @@ export const SquadRankingCard = ({ squadsData }: SquadRankingCardProps) => {
             </CardContent>
           </Card>
         </TooltipTrigger>
-        <TooltipContent side="left" className="max-w-xs p-4">
+        <TooltipContent 
+          side="right" 
+          align="center"
+          collisionPadding={16}
+          avoidCollisions={true}
+          className="max-w-xs p-4 z-50"
+        >
           <div className="space-y-3">
             <div className="font-semibold text-base border-b pb-2">{squad.name}</div>
             <div className="space-y-2 text-sm">
